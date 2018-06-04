@@ -32,8 +32,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Infrastructure.Common, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Infrastructure.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Infrastructure.Task">
+      <HintPath>..\..\lib\Infrastructure.Task.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,7 +52,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\CommonTaskSetting.cs" />
+    <Compile Include="InterfaceService\ISendService.cs" />
+    <Compile Include="InterfaceService\SendService.cs" />
+    <Compile Include="InterfaceService\SendServiceCreate.cs" />
+    <Compile Include="InterfaceTaskService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="InterfaceTaskService.Designer.cs">
+      <DependentUpon>InterfaceTaskService.cs</DependentUpon>
+    </Compile>
+    <Compile Include="InterfaceTimerService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="InterfaceTimerService.Designer.cs">
+      <DependentUpon>InterfaceTimerService.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="ProjectInstaller.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ProjectInstaller.Designer.cs">
+      <DependentUpon>ProjectInstaller.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -54,11 +87,25 @@
     <Content Include="InstallUtil.exe" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Smart.API.Adapter.Biz\Smart.API.Adapter.Biz.csproj">
+      <Project>{67b670a1-52fb-4f76-8cfe-88793e7bd600}</Project>
+      <Name>Smart.API.Adapter.Biz</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Smart.API.Adapter.Common\Smart.API.Adapter.Common.csproj">
       <Project>{3c2de953-e82e-42b4-b093-91e30ad2fb28}</Project>
       <Name>Smart.API.Adapter.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Smart.API.Adapter.Models\Smart.API.Adapter.Models.csproj">
+      <Project>{61d25332-37c7-48ca-83d6-8731893bf032}</Project>
+      <Name>Smart.API.Adapter.Models</Name>
+    </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ProjectInstaller.resx">
+      <DependentUpon>ProjectInstaller.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

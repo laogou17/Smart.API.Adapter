@@ -44,7 +44,7 @@ namespace Smart.API.Adapter.DataAccess.Task
         /// </summary>
         /// <param name="task"></param>
         /// <returns></returns>
-        public int Insert(string Content, int taskType)
+        public int InsertTask(string Content, int taskType)
         {
 
             string sql = "insert into dbo.TaskQueue (tasktype,status,priority,content,callbackurl) values ({0},0,2,'{1}','')";
@@ -70,12 +70,12 @@ namespace Smart.API.Adapter.DataAccess.Task
         /// <param name="taskType"></param>
         /// <param name="priority"></param>
         /// <returns></returns>
-        public TaskQueueEntity GetTaskWithLock(byte taskType, byte priority)
+        public TaskQueueEntity GetTaskWithLock(byte priority)
         {
             using (DbCommand cmd = db.GetStoredProcCommand("DequeueTask"))
             {
                 db.AddInParameter(cmd, "@status", DbType.Int32, 0);
-                db.AddInParameter(cmd, "@taskType", DbType.Byte, taskType);
+                //db.AddInParameter(cmd, "@taskType", DbType.Byte, taskType);
                 db.AddInParameter(cmd, "@priority", DbType.Byte, priority);
 
                 DataSet ds = db.ExecuteDataSet(cmd);
