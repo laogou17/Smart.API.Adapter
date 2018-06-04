@@ -58,6 +58,9 @@
     <Compile Include="Api\Api_ChannelFunction.cs" />
     <Compile Include="Api\Api_ChannelKey.cs" />
     <Compile Include="BEApi\Api_Function.cs" />
+    <Compile Include="DTO\BaseJdRes.cs" />
+    <Compile Include="DTO\VehicleInfo.cs" />
+    <Compile Include="DTO\VehicleLegality.cs" />
     <Compile Include="Enum\TaskEnums.cs" />
     <Compile Include="Log\ExceptionLog.cs" />
     <Compile Include="Log\InterfaceLog.cs" />
@@ -68,7 +71,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />
-    <Folder Include="DTO\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

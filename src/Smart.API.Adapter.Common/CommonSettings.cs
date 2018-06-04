@@ -24,5 +24,70 @@ namespace Smart.API.Adapter.Common {
 				return bool.TryParse(dev, out isDev) && isDev;
 			}
 		}
+
+        /// <summary>
+        /// 京东接口地址
+        /// </summary>
+        public static string BaseAddress
+        {
+            get
+            {
+                string baseAddress = ConfigurationManager.AppSettings["BaseAddress"];
+                if (string.IsNullOrWhiteSpace(baseAddress))
+                {
+                    baseAddress = "http://test.spl.jd.com/external/";
+                }
+                return baseAddress;
+            }
+        }
+        /// <summary>
+        /// 白名单版本号
+        /// </summary>
+        public static string Version
+        {
+            get
+            {
+                string version = ConfigurationManager.AppSettings["Version"];
+                if (string.IsNullOrWhiteSpace(version))
+                {
+                    version = "1";
+                }
+                return version;
+            }
+        }
+
+        /// <summary>
+        /// 京东车场Code
+        /// </summary>
+        public static string ParkLotCode
+        {
+            get
+            {
+                string parkLotCode = ConfigurationManager.AppSettings["ParkLotCode"];
+                if (string.IsNullOrWhiteSpace(parkLotCode))
+                {
+                    parkLotCode = "1";
+                }
+                return parkLotCode;
+            }
+        }
+
+        /// <summary>
+        /// 访问京东接口Token
+        /// </summary>
+        public static string Token
+        {
+            get
+            {
+                string token = ConfigurationManager.AppSettings["Token"];
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    token = "1";
+                }
+                return token;
+            }
+        }
+
+
     }
 }
