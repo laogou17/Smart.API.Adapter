@@ -106,6 +106,7 @@
     <Compile Include="Controllers\ApiControllerBase.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controllers\V1\ParkController.cs" />
     <Compile Include="Controllers\V1\TestController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
