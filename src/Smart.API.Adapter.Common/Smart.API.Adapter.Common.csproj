@@ -60,18 +60,12 @@
       <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="StackExchange.Redis">
-      <HintPath>..\..\lib\StackExchange.Redis.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cache\CacheHelper.cs" />
-    <Compile Include="Cache\CacheKeys.cs" />
-    <Compile Include="Cache\StackExchangeRedisExtensions.cs" />
     <Compile Include="DateTimeHelper.cs" />
     <Compile Include="Expend.cs" />
     <Compile Include="FtpclientExpend.cs" />

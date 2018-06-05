@@ -5,9 +5,6 @@ using Smart.API.Adapter.Common;
 using Smart.API.Adapter.Models;
 using Smart.API.Adapter.Web.Api;
 using System.Collections.Generic;
-using Qiniu.Util;
-using Qiniu.IO.Model;
-using Smart.API.Adapter.Common.Cache;
 using System.Text;
 using System.Security.Cryptography;
 
