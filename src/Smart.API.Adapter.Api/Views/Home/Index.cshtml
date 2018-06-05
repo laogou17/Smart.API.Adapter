@@ -1,0 +1,128 @@
+﻿<header role="banner">
+	<h1>NEOCRM Api</h1>
+	<h2>Documentation for NEOCRM RESTful web APIs</h2>
+</header>
+<div id="main">
+	<div class="content" role="main">
+		<section>
+			<article>
+				<h1>基本介绍</h1>
+				<p>NEOCRM Api是一组RESTful web API，用来方便合作伙伴与渠道端接入Flex工具。<br />生产环境的API调用地址为：<code>http://api.neo.com/</code>。</p>
+			</article>
+		</section>
+		<section>
+			<article>
+				<h1>HTTP 请求</h1>
+				<p>NEOCRM Api支持的HTTP请求方法有 <code>GET</code>、<code>POST</code>、<code>DELETE</code>。</p>
+				<br />
+				<p>通过HTTP GET方式请求时，所有请求的参数均应该使用HTTP标准的Query String。包括 <code>AccessId</code>、<code>SignType</code> 与 <code>Sign</code>。</p>
+				<p>典型的HTTP GET请求如下：</p>
+				<pre class="example"><code>GET http://api.neo.com/product/categories?
+accessId=0001&categoryId={categoryId}&signType=MD5&userId={userId}&v=1.0&sign=Signature_String </code></pre>
+				<br />
+				<p>通过HTTP POST/DELETE方式请求时，所有请求的参数均应该使用Content-Type为 <code>application/x-www-form-urlencoded</code> 的 <strong>POST body</strong> 传递。包括 <code>AccessId</code>、<code>SignType</code> 与 <code>Sign</code>。</p>
+				<p>典型的HTTP POST请求如下：</p>
+				<pre class="example"><code>POST http://api.neo.com/profile/addresses
+accessId=0001&kBaseId={kBaseId}&signType=MD5&userId={userId}&v=1.0&zoneId={zoneId}&sign=Signature_String
+</code></pre>
+			</article>
+
+			<article>
+				<h1>HTTP 响应</h1>
+				<p>
+                    TENCETNT FLEX WEBAPI响应消息可支持 <code>XML</code> 或 <code>JSON</code> 两种格式。<br />可在请求消息头 <strong>Accept</strong> 中包含 <code>application/xml</code>、 <code>text/xml</code>、 <code>application/json</code>、 <code>text/json</code> 来决定接受哪种格式的响应。
+				</p>
+				<p>例如，要获取 <code>JSON</code> 格式的响应消息：</p>
+				<pre class="example"><code>GET http://api.neo.com/crm/categories?accessId=0001&categoryId={categoryId}&signType=MD5&userId={userId}&v=1.0&zoneId={zoneId}&sign=Signature_String
+Accept:application/json
+</code></pre>
+				<h3>正常响应：</h3>
+				<p>调用TENCETNT FLEX WEBAPI正常响应时，对应的HTTP Status Code：<code>200</code> OK</p>
+				<p><code>XML</code></p>
+				<pre class="example"><code>&lt;ArrayOfcategory&gt;
+  &lt;category&gt;
+     &lt;categoryId&gt;31&lt;/categoryId&gt;
+     &lt;name&gt;市场经营&lt;/name&gt;
+     &lt;order&gt;0&lt;/order&gt;
+  &lt;/category&gt;
+  &lt;category&gt;
+     &lt;categoryId&gt;32&lt;/categoryId&gt;
+     &lt;name&gt;企业管理&lt;/name&gt;
+     &lt;order&gt;4&lt;/order&gt;
+  &lt;/category&gt;
+&lt;/ArrayOfcategory&gt;</code></pre>
+				<p><code>JSON</code></p>
+				<pre class="example"><code>[{"categoryId":"31","name":"市场经营","order":"0"},
+{"categoryId":"32","name":"企业管理","order":"4"}]</code></pre>
+				<h3>错误响应：</h3>
+				<p>
+					如果在调用API时遇到错误，接入端可以通过HTTP的Status Code获取基本的错误信息，同时也可以根据返回消息内容获取详细错误信息。如果API调用出错，那么其返回的内容格式为:
+				</p>
+				<p><code>XML</code></p>
+				<pre class="example"><code>&lt;Error xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="ms:km.api"&gt;
+    &lt;Code&gt;ILLEGAL_ARGUMENT&lt;/Code&gt;
+    &lt;Message&gt;请求参数无效。&lt;/Message&gt;
+&lt;/Error&gt;</code></pre>
+				<p><code>JSON</code></p>
+				<pre class="example"><code>{"Code":"ILLEGAL_ARGUMENT","Message":"请求参数无效。"}</code></pre>
+				<p>Status Code的错误状态对照表：</p>
+				<table>
+					<thead><tr><th>Status Code</th><th>说明</th></tr></thead>
+					<tbody>
+						<tr><td class="code">400</td><td>API调用错误，如缺少参数或者参数不正确，亦或者是服务端其它错误。详细错误可参见响应报文。</td></tr>
+						<tr><td class="code">401</td><td>无权调用该API，身份认证失败。</td></tr>
+						<tr><td class="code">403</td><td>无权调用该API，接口调用过于频繁。</td></tr>
+						<tr><td class="code">404</td><td>无法找到请求的资源。</td></tr>
+						<tr><td class="code">405</td><td>请求API的HTTP方法不被支持。例如使用GET方法请求只能是POST调用的接口。</td></tr>
+						<tr><td class="code">500</td><td>服务端未知错误。详细错误可参见响应报文。</td></tr>
+					</tbody>
+				</table>
+			</article>
+		</section>
+		<section>
+			<article>
+				<h1>身份验证</h1>
+				<p>
+                    TENCETNT FLEX WEBAPI通过分配接入渠道编码 <code>AccessId</code> 与接入密钥 <code>AccessSecret</code> 的方式进行身份验证。
+					在调用TENCETNT FLEX WEBAPI时，需要通过参数 <code>AccessId</code> 向服务器传递接入渠道编码。同时还需要传递 <code>SignType</code> 和 <code>Sign</code> 两个附加参数以便验证请求的合法性。
+				</p>
+				<p>身份验证参数说明：</p>
+				<table>
+					<thead><tr><th>身份验证参数</th><th>说明</th></tr></thead>
+					<tbody>
+						<tr><td class="code">AccessId</td><td>接入渠道编码：0001。</td></tr>
+						<tr>
+							<td class="code">SignType</td>
+							<td>
+								请求参数签名方式。<br />支持签名算法：<ul role="list">
+									<li role="listitem">MD5</li>
+								</ul>
+							</td>
+						</tr>
+						<tr><td class="code">Sign</td><td>请求参数的签名字符串。</td></tr>
+					</tbody>
+				</table>
+			</article>
+		</section>
+		<section>
+			<article>
+				<h1>数据列表与分页</h1>
+				<p>所有返回列表的TENCETNT FLEX WEBAPI接口均接受以下支持分页的参数：</p>
+				<table>
+					<thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+					<tbody>
+						<tr><td class="code">pageIndex<span class="label label-optional">optional</span></td><td>int</td><td>设置返回列表所在页。起始页为1。</td></tr>
+						<tr><td class="code">rowCount<span class="label label-optional">optional</span></td><td>int</td><td>返回符合条件的总记录数。</td></tr>
+					</tbody>
+				</table>
+				<p>同时，返回数据中包含了分页信息：</p>
+				<p><code>XML</code></p>
+				<pre class="example"><code>&lt;page&gt;1&lt;/page&gt;
+&lt;rowCount&gt;50&lt;/rowCount&gt;</code></pre>
+				<p><code>JSON</code></p>
+				<pre class="example"><code>{"pageIndex":1,"rowCount":50}</code></pre>
+			</article>
+		</section>
+	</div>
+	<div><p><a href="/Help">Click here to view the documentation detail.</a></p></div>
+</div>

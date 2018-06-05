@@ -1,0 +1,12 @@
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\bin\Debug\Orange.VR.DataAccess.dll
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\bin\Debug\Orange.VR.DataAccess.pdb
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\bin\Debug\Infrastructure.Common.dll
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\bin\Debug\Microsoft.Practices.EnterpriseLibrary.Common.dll
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\bin\Debug\Microsoft.Practices.EnterpriseLibrary.Data.dll
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\bin\Debug\Orange.VR.Models.dll
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\bin\Debug\Orange.VR.Models.pdb
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\bin\Debug\Microsoft.Practices.EnterpriseLibrary.Common.xml
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\bin\Debug\Microsoft.Practices.EnterpriseLibrary.Data.xml
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\obj\Debug\Orange.VR.DataAccess.csprojResolveAssemblyReference.cache
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\obj\Debug\Orange.VR.DataAccess.dll
+E:\小橙网\Oranges\04-Code\src\Orange.VR.DataAccess\obj\Debug\Orange.VR.DataAccess.pdb
