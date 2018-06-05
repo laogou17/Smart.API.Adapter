@@ -29,7 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "06-UnitTest", "06-UnitTest"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest.Api", "UnitTestProject1\UnitTest.Api.csproj", "{BECF9450-20F2-44CC-AA3A-3A62B6BE2F3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smart.API.Adapter.TaskService", "Smart.API.Adapter.TaskService\Smart.API.Adapter.TaskService.csproj", "{B67CC3BF-01AD-4FD9-B915-4592458D0284}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smart.API.Adapter.TaskService", "src\Smart.API.Adapter.TaskService\Smart.API.Adapter.TaskService.csproj", "{B67CC3BF-01AD-4FD9-B915-4592458D0284}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
