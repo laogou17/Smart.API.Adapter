@@ -18,3 +18,4 @@ E:\京东项目\源代码\Smart.API.Adapter\src\Smart.API.Adapter.Common\bin\Deb
 E:\京东项目\源代码\Smart.API.Adapter\src\Smart.API.Adapter.Common\bin\Debug\Newtonsoft.Json.xml
 E:\京东项目\源代码\Smart.API.Adapter\src\Smart.API.Adapter.Common\obj\Debug\Smart.API.Adapter.Common.dll
 E:\京东项目\源代码\Smart.API.Adapter\src\Smart.API.Adapter.Common\obj\Debug\Smart.API.Adapter.Common.pdb
+E:\京东项目\源代码\Smart.API.Adapter\src\Smart.API.Adapter.Common\obj\Debug\Smart.API.Adapter.Common.csprojResolveAssemblyReference.cache

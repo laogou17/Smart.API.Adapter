@@ -10,11 +10,11 @@ namespace Smart.API.Adapter.Common
 {
     public class LogHelper
     {
-        private static ILog _ErrorLog, _InfoLog;
+        private static ILog _InfoLog;
 
         static LogHelper()
         {
-            _ErrorLog = log4net.LogManager.GetLogger("logerror");
+            //_ErrorLog = log4net.LogManager.GetLogger("logerror");
             _InfoLog = log4net.LogManager.GetLogger("loginfo");
         }
 
@@ -26,18 +26,18 @@ namespace Smart.API.Adapter.Common
         public static void Error(string message, Exception exception = null)
         {
             if (exception == null)
-                _ErrorLog.Error(message);
+                _InfoLog.Error(message);
             else
-                _ErrorLog.Error(message, exception);
+                _InfoLog.Error(message, exception);
         }
 
         public static void Warn(string message, Exception exception = null)
         {
 
             if (exception == null)
-                _ErrorLog.Warn(message);
+                _InfoLog.Warn(message);
             else
-                _ErrorLog.Warn(message, exception);
+                _InfoLog.Warn(message, exception);
         }
 
         public static void Info(string message, Exception exception = null)
@@ -61,9 +61,9 @@ namespace Smart.API.Adapter.Common
         {
 
             if (exception == null)
-                _ErrorLog.Fatal(message);
+                _InfoLog.Fatal(message);
             else
-                _ErrorLog.Fatal(message, exception);
+                _InfoLog.Fatal(message, exception);
         }
     }
 }

@@ -12,8 +12,6 @@ namespace Smart.API.Adapter.TaskService
         static void Main(string[] args)
         {
             LogHelper.RegisterLog4Config(AppDomain.CurrentDomain.BaseDirectory + "\\Config\\Log4net.config");
-            //LogHelper.Error("1235");
-            LogHelper.Info("1235");
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += currentDomain_UnhandledException;
             if (System.Environment.UserInteractive)
