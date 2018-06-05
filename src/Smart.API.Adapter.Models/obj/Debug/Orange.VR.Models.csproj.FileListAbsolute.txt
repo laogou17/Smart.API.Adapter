@@ -1,5 +1,0 @@
-E:\小橙网\Oranges\04-Code\src\Orange.VR.Models\bin\Debug\Orange.VR.Models.dll
-E:\小橙网\Oranges\04-Code\src\Orange.VR.Models\bin\Debug\Orange.VR.Models.pdb
-E:\小橙网\Oranges\04-Code\src\Orange.VR.Models\bin\Debug\Infrastructure.Common.dll
-E:\小橙网\Oranges\04-Code\src\Orange.VR.Models\obj\Debug\Orange.VR.Models.dll
-E:\小橙网\Oranges\04-Code\src\Orange.VR.Models\obj\Debug\Orange.VR.Models.pdb

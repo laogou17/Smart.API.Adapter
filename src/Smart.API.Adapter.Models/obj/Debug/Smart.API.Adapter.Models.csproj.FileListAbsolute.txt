@@ -1,5 +1,0 @@
-E:\京东项目\源代码\04-Code\src\Smart.API.Adapter.Models\bin\Debug\Smart.API.Adapter.Models.dll
-E:\京东项目\源代码\04-Code\src\Smart.API.Adapter.Models\bin\Debug\Smart.API.Adapter.Models.pdb
-E:\京东项目\源代码\04-Code\src\Smart.API.Adapter.Models\bin\Debug\Infrastructure.Common.dll
-E:\京东项目\源代码\04-Code\src\Smart.API.Adapter.Models\obj\Debug\Smart.API.Adapter.Models.dll
-E:\京东项目\源代码\04-Code\src\Smart.API.Adapter.Models\obj\Debug\Smart.API.Adapter.Models.pdb
