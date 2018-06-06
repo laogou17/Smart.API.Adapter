@@ -31,6 +31,9 @@ namespace Smart.API.Adapter.TaskService.InterfaceService
 
 
         }
+
+        public void TimerSend(int ThreadId)
+        { }
         #endregion 
 
 
