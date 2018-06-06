@@ -26,18 +26,63 @@ namespace Smart.API.Adapter.Common {
 		}
 
         /// <summary>
-        /// 京东接口地址
+        /// JieLink接口地址
         /// </summary>
-        public static string BaseAddress
+        public static string BaseAddressJS
         {
             get
             {
-                string baseAddress = ConfigurationManager.AppSettings["BaseAddress"];
-                if (string.IsNullOrWhiteSpace(baseAddress))
+                string BaseAddressJS = ConfigurationManager.AppSettings["BaseAddressJS"];
+                if (string.IsNullOrWhiteSpace(BaseAddressJS))
                 {
-                    baseAddress = "http://test.spl.jd.com/external/";
+                    BaseAddressJS = "http://test.spl.jd.com/external/";
                 }
-                return baseAddress;
+                return BaseAddressJS;
+            }
+        }
+
+        /// <summary>
+        /// 京东定义的客户端系统编码
+        /// </summary>
+        public static string BaseAddressJd
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["BaseAddressJd"]))
+                {
+                    return ConfigurationManager.AppSettings["BaseAddressJd"];
+                }
+                return "http://test.spl.jd.com/external/";
+            }
+        }
+
+        /// <summary>
+        /// Vesion xml地址
+        /// </summary>
+        public static string ParkXmlAddress
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["JdParkXml"]))
+                {
+                    return ConfigurationManager.AppSettings["JdParkXml"];
+                }
+                return "/Config/ParkVersion.xml";
+            }
+        }
+
+        /// <summary>
+        /// 京东定义的客户端系统编码
+        /// </summary>
+        public static string SysId
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["SysId"]))
+                {
+                    return ConfigurationManager.AppSettings["SysId"];
+                }
+                return "0";
             }
         }
         /// <summary>

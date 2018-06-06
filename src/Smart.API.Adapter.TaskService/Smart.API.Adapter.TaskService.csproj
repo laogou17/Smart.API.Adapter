@@ -84,6 +84,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\ParkVersion.xml" />
     <Content Include="InstallUtil.exe" />
   </ItemGroup>
   <ItemGroup>

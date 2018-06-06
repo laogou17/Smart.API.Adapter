@@ -137,6 +137,20 @@ namespace Smart.API.Adapter.DataAccess {
 			return GetEnityBySqlString<TResult>(sqlcmd, listParam);
 		}
 
+        public virtual bool IsExist(string Key)
+        {
+            string sqlcmd = string.Format("SELECT * FROM {0} with(nolock) WHERE " + PrimaryKey + " = @PrimaryKey ", tableName);
+
+            List<DbParameter> listParam = new List<DbParameter>() { 
+				new SqlParameter() { DbType = DbType.String, ParameterName = "@PrimaryKey", Value = Key }};
+            var res = ExecuteScalarBySql(sqlcmd, listParam);
+            if (res == null)
+            {
+                return false;
+            }
+            return true;
+        }
+
 		public virtual int InsertAndGetID<TResult>(TResult obj) where TResult : new() {
 			Hashtable hash = GetHashByEntity(obj, isAutoincrement);
 			return InsertAndGetID(hash, TableName);
