@@ -69,6 +69,8 @@ namespace Smart.API.Adapter.Biz
         /// <returns></returns>
         public async Task<HeartVersion> HeartBeatCheckJd()
         {
+            InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+
             using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
@@ -174,9 +176,6 @@ namespace Smart.API.Adapter.Biz
                 HeartVersion heartJd = result.Content.ToJson().FromJson<HeartVersion>();
                 return heartJd;
             }
-
-
-
         }
 
 
