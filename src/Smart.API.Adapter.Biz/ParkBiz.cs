@@ -54,8 +54,7 @@ namespace Smart.API.Adapter.Biz
                     {"version", version}  ,
                     {"token", CommonSettings.Token}                 
                 });
-                //var result = await client.PostAsync("http://localhost:60411/api/Test", content);
-                var result = await client.GetAsync("http://localhost:60411/api/Test");
+                var result = await client.PostAsync("/QueryVehicleLegality", content);
 
                 VehicleLegality vehicleJd = result.Content.ToJson().FromJson<VehicleLegality>();
                 return vehicleJd;
@@ -160,7 +159,6 @@ namespace Smart.API.Adapter.Biz
             } 
         }
 
-
         public async Task<BaseJdRes> ModifyParkRemainCount(RemainCountReq remainCountReq)
         {
             using (HttpClient client = new HttpClient())
@@ -171,14 +169,29 @@ namespace Smart.API.Adapter.Biz
                     {"param", remainCountReq.ToJson()},  
                     {"token", CommonSettings.Token}                 
                 });
-                var result = await client.PostAsync("/Test", content);
+                var result = await client.PostAsync("/ModifyParkLotRemainCount", content);
 
-                HeartVersion heartJd = result.Content.ToJson().FromJson<HeartVersion>();
-                return heartJd;
+                BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
+                return resJd;
             }
         }
 
+        public async Task<BaseJdRes> ModifyParkTotalCount(TotalCountReq totalCountReq)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
+                var content = new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    {"param", totalCountReq.ToJson()},  
+                    {"token", CommonSettings.Token}                 
+                });
+                var result = await client.PostAsync("/ModifyParkLotRemainCount", content);
 
+                BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
+                return resJd;
+            }
+        }
 
         public void Test()
         {
