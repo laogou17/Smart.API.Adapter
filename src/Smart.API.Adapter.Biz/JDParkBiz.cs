@@ -17,8 +17,6 @@ namespace Smart.API.Adapter.Biz
         /// <returns></returns>
         public async Task<HeartVersion> HeartBeatCheckJd()
         {
-            InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
-
             using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
@@ -33,6 +31,17 @@ namespace Smart.API.Adapter.Biz
                 HeartVersion heartJd = result.Content.ToJson().FromJson<HeartVersion>();
                 return heartJd;
             }
+        }
+        public HeartVersion HeartBeatCheckJd2()
+        {
+            InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+            var result = requestApi.PostRaw<HeartVersion>("/HeartBeatCheck", new Dictionary<string, string>()
+                {
+                    {"sysId", CommonSettings.SysId},  
+                    {"parkLotCode", CommonSettings.ParkLotCode}  ,
+                    {"token", CommonSettings.Token}                 
+                });
+            return result.data;
         }
 
         /// <summary>
