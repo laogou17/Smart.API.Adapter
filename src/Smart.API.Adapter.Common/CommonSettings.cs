@@ -42,6 +42,51 @@ namespace Smart.API.Adapter.Common {
         }
 
         /// <summary>
+        /// 心跳检查时间间隔
+        /// </summary>
+        public static int HeartInterval
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["HeartInterval"]))
+                {
+                    return Convert.ToInt32(ConfigurationManager.AppSettings["HeartInterval"]);
+                }
+                return 5000;
+            }
+        }
+
+        /// <summary>
+        /// 邮件地址
+        /// </summary>
+        public static string EmailFrom
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EmailFrom"]))
+                {
+                    return ConfigurationManager.AppSettings["EmailFrom"];
+                }
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// 邮件地址
+        /// </summary>
+        public static string EmailTo1
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EmailTo1"]))
+                {
+                    return ConfigurationManager.AppSettings["EmailTo1"];
+                }
+                return "";
+            }
+        }
+
+        /// <summary>
         /// 京东定义的客户端系统编码
         /// </summary>
         public static string BaseAddressJd

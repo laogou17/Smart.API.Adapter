@@ -1,6 +1,6 @@
 ﻿using Smart.API.Adapter.Common;
 using Smart.API.Adapter.DataAccess;
-using Smart.API.Adapter.Models.DTO;
+using Smart.API.Adapter.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,30 @@ namespace Smart.API.Adapter.Biz
     {
         public  static string version = "1";
         public  static int overFlowCount = 100;
-        public DataBase dataBase = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkWhiteList", "VehicleNo",false);
+        private DataBase dataBase ;
+        private string xmlAddr;
+
+        public int HeartInterval
+        {
+            get
+            {
+                return  CommonSettings.HeartInterval;
+            }
+        }
+        public ParkBiz()
+        {
+            xmlAddr =System.IO.Directory.GetParent(System.IO.Directory.GetParent( Environment.CurrentDirectory).ToString()) + CommonSettings.ParkXmlAddress;
+            dataBase = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkWhiteList", "VehicleNo", false);
+            InitVersion(); 
+        }
+
+        private void InitVersion()
+        {
+            XDocument xDoc = XDocument.Load(xmlAddr);
+            version = xDoc.Root.Element("Version").Value;
+            overFlowCount = Convert.ToInt32(xDoc.Root.Element("OverFlowCount").Value);
+ 
+        }
         /// <summary>
         /// 调用京东接口获取白名单
         /// </summary>
@@ -59,14 +82,13 @@ namespace Smart.API.Adapter.Biz
 
                 HeartVersion heartJd = result.Content.ToJson().FromJson<HeartVersion>();
                 return heartJd; 
-
             }
         }
 
         /// <summary>
         /// 定时执行心跳任务
         /// </summary>
-        public async  void  HeartCheck()
+        public async Task<bool>  HeartCheck()
         {
             try
             {        
@@ -74,12 +96,12 @@ namespace Smart.API.Adapter.Biz
                 if (heartJd.ReturnCode == "Fail")
                 {
                     //客户端未验证
-                    return ;
+                    return false;
                 }
                 if(heartJd.ReturnCode == "exception")
                 {
                     //服务端异常
-                    return ;
+                    return false;
                 }
                 if (heartJd.Version != ParkBiz.version)
                 {
@@ -87,11 +109,14 @@ namespace Smart.API.Adapter.Biz
                     ParkBiz.overFlowCount = heartJd.OverFlowCount;
                     UpdateHeartVersion(heartJd);
                     //版本号不一致需要同步白名单
-                    UpdateWhiteList(heartJd.Version);
-                }               
+                    UpdateWhiteList(heartJd.Version);                   
+                }
+                return true;
             }
             catch (Exception ex)
             {
+                return true;
+
             }
         }
 
@@ -134,6 +159,28 @@ namespace Smart.API.Adapter.Biz
         }
 
 
+        public async Task<BaseJdRes> ModifyParkRemainCount(RemainCountReq remainCountReq)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
+                var content = new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    {"param", remainCountReq.ToJson()},  
+                    {"token", CommonSettings.Token}                 
+                });
+                var result = await client.PostAsync("/Test", content);
+
+                HeartVersion heartJd = result.Content.ToJson().FromJson<HeartVersion>();
+                return heartJd;
+            }
+
+
+
+        }
+
+
+
         public void Test()
         {
             VehicleLegality res = new VehicleLegality();
@@ -165,7 +212,6 @@ namespace Smart.API.Adapter.Biz
         /// <param name="heartJd"></param>
         public void UpdateHeartVersion(HeartVersion heartJd)
         {
-            string xmlAddr=Environment.CurrentDirectory+ CommonSettings.ParkXmlAddress;
             XDocument xDoc = XDocument.Load(xmlAddr);
             xDoc.Root.SetElementValue("Version", heartJd.Version);
             xDoc.Root.SetElementValue("OverFlowCount", heartJd.OverFlowCount);

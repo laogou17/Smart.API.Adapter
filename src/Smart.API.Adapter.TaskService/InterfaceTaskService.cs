@@ -79,8 +79,6 @@ namespace Smart.API.Adapter.TaskService
                 LogHelper.Info("InterfaceTaskService,推送服务停止成功");
             }
         }
-
-
     }
 
     internal class InterfaceTaskServiceThread : BackgroundTaskThread

@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 
 namespace Smart.API.Adapter.Models
 {
-
     /// <summary>
-    /// 白名单信息类
+    /// 停车场剩余车位数请求类
     /// </summary>
-    public  class VehicleInfo
+    public  class RemainCountReq
     {
-        public string VehicleNo { get; set; }
         public string ParkLotCode { get; set; }
-        public string Yn { get; set; }
-        
+
+        public int RemainTotalCount { get; set; }
+
+        public List<RemainInfo> Data { get; set; } 
+
     }
 }

@@ -4,20 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{61D25332-37C7-48CA-83D6-8731893BF032}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Smart.API.Adapter.Models</RootNamespace>
-    <AssemblyName>Smart.API.Adapter.Models</AssemblyName>
+    <RootNamespace>ConsoleParkService</RootNamespace>
+    <AssemblyName>ConsoleParkService</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -27,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -34,48 +31,32 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Uat|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Uat\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Infrastructure.Common">
-      <HintPath>..\..\lib\Infrastructure.Common.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\Api_Channel.cs" />
-    <Compile Include="Api\Api_ChannelAccessFrequency.cs" />
-    <Compile Include="Api\Api_ChannelFunction.cs" />
-    <Compile Include="Api\Api_ChannelKey.cs" />
-    <Compile Include="BEApi\Api_Function.cs" />
-    <Compile Include="BEApi\PlateInfo.cs" />
-    <Compile Include="DTO\BaseJdRes.cs" />
-    <Compile Include="DTO\HeartVersion.cs" />
-    <Compile Include="DTO\RemainCountReq.cs" />
-    <Compile Include="DTO\RemainInfo.cs" />
-    <Compile Include="DTO\VehicleInfo.cs" />
-    <Compile Include="DTO\VehicleLegality.cs" />
-    <Compile Include="Enum\ParkEnums.cs" />
-    <Compile Include="Enum\TaskEnums.cs" />
-    <Compile Include="Log\ExceptionLog.cs" />
-    <Compile Include="Log\InterfaceLog.cs" />
-    <Compile Include="Log\ServiceLog.cs" />
+    <Compile Include="HeartService.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Task\ArchivedTaskQueueEntity.cs" />
-    <Compile Include="Task\TaskQueueEntity.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Core\" />
+    <Content Include="Config\ParkVersion.xml" />
+    <None Include="App.config" />
+    <Content Include="Config\Log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\Smart.API.Adapter.Biz\Smart.API.Adapter.Biz.csproj">
+      <Project>{67b670a1-52fb-4f76-8cfe-88793e7bd600}</Project>
+      <Name>Smart.API.Adapter.Biz</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

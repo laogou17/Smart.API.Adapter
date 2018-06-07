@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smart.API.Adapter.Api", "src\Smart.API.Adapter.Api\Smart.API.Adapter.Api.csproj", "{8C732F07-6B73-486D-8D78-F7D1F806AA61}"
 EndProject
@@ -30,6 +30,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest.Api", "UnitTestProject1\UnitTest.Api.csproj", "{BECF9450-20F2-44CC-AA3A-3A62B6BE2F3A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smart.API.Adapter.TaskService", "src\Smart.API.Adapter.TaskService\Smart.API.Adapter.TaskService.csproj", "{B67CC3BF-01AD-4FD9-B915-4592458D0284}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleParkService", "ConsoleParkService\ConsoleParkService.csproj", "{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,6 +88,12 @@ Global
 		{B67CC3BF-01AD-4FD9-B915-4592458D0284}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B67CC3BF-01AD-4FD9-B915-4592458D0284}.Uat|Any CPU.ActiveCfg = Release|Any CPU
 		{B67CC3BF-01AD-4FD9-B915-4592458D0284}.Uat|Any CPU.Build.0 = Release|Any CPU
+		{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9}.Uat|Any CPU.ActiveCfg = Release|Any CPU
+		{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9}.Uat|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,5 +107,6 @@ Global
 		{5620C2B1-20E3-46FB-9988-F64327016B1B} = {9BE7584E-FCC4-4E1C-819B-F443C754FE19}
 		{BECF9450-20F2-44CC-AA3A-3A62B6BE2F3A} = {30D2A5B5-032F-4373-9FA0-C79F0FFDE541}
 		{B67CC3BF-01AD-4FD9-B915-4592458D0284} = {3F1A7AB1-14DB-4809-98C9-41B57C0678DE}
+		{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9} = {3F1A7AB1-14DB-4809-98C9-41B57C0678DE}
 	EndGlobalSection
 EndGlobal
