@@ -16,14 +16,18 @@ namespace Smart.API.Adapter.TaskService.InterfaceService
             switch (task.TaskType)
             { 
                 case (int)TaskType.InRecognizingData:
-                    SendInRecognizingData(task);
+                    SendParkPlaceRemainCount(task);
                     break;
                 default:
                     break;
             }
         }
 
-        private void SendInRecognizingData(TaskQueueEntity task)
+        /// <summary>
+        /// 推送剩余车位数
+        /// </summary>
+        /// <param name="task"></param>
+        private void SendParkPlaceRemainCount(TaskQueueEntity task)
         {
 
             Api_Channel content = task.Content.FromXML<Api_Channel>();

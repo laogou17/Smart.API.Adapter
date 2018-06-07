@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,17 +45,20 @@ namespace Smart.API.Adapter.TaskService
             else
             {
                 //写日志
+                LogHelper.Error("TaskServiceError",error);
             }
         }
 
         static void RunUserInteractiveService()
         {
-            //TODO:
+            new InterfaceTaskService().Start(null);
         }
 
         static void RunBackgroundService()
         {
-            //TODO:
+            ServiceBase.Run(new ServiceBase[]{
+                new InterfaceTaskService()
+            });
         }
     }
 }

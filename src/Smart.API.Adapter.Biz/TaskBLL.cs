@@ -10,20 +10,20 @@ namespace Smart.API.Adapter.Biz
 {
     public class TaskBLL
     {
-        //public TaskQueueEntity GetInterfaceTask()
-        //{
-        //    return TaskQueueDAL.ProxyInstance.GetTaskWithLock(2);
-        //}
+        public TaskQueueEntity GetInterfaceTask()
+        {
+            return TaskQueueDAL.ProxyInstance.GetTaskWithLock(2);
+        }
 
         public int ReTaskExecution(int ReSecond)
         {
             return TaskQueueDAL.ProxyInstance.ReTaskExecution(ReSecond);
         }
 
-        //public int InsertTask(string Content, int taskType)
-        //{
-        //    return TaskQueueDAL.ProxyInstance.InsertTask(Content, taskType);
-        //}
+        public int InsertTask(string Content, int taskType)
+        {
+            return TaskQueueDAL.ProxyInstance.InsertTask(Content, taskType);
+        }
 
         public bool SetTaskCompleted(int taskId, bool successful)
         {
