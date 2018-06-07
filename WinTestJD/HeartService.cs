@@ -32,9 +32,9 @@ namespace WinTestJD
         /// 定时任务：包含心跳检测和白名单
         /// </summary>
         /// <param name="obj"></param>
-        private async void HeartCheck(object obj)
+        private  void HeartCheck(object obj)
         {
-            bool result = await parkBiz.HeartCheck();
+            bool result =  parkBiz.HeartCheck();
             if (!result)
             {
                 LogHelper.Error(string.Format("{0}:心跳检测失败，服务端出错", DateTime.Now.ToString()));                

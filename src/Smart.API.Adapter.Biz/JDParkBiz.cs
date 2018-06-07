@@ -39,12 +39,15 @@ namespace Smart.API.Adapter.Biz
         public HeartVersion HeartBeatCheckJd2()
         {
             InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
-            var result = requestApi.PostRaw<HeartVersion>("/HeartBeatCheck", new Dictionary<string, string>()
-                {
-                    {"sysId", CommonSettings.SysId},  
-                    {"parkLotCode", CommonSettings.ParkLotCode}  ,
-                    {"token", CommonSettings.Token}                 
-                });
+
+            HeartReq req = new HeartReq()
+            {
+                parkLotCode = CommonSettings.ParkLotCode,
+                SysId = CommonSettings.SysId,
+                token = CommonSettings.Token
+            };
+            var result = requestApi.PostRaw<HeartVersion>("HeartBeatCheck",req);
+
             return result.data;
         }
 

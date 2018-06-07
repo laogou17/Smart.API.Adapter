@@ -45,11 +45,11 @@ namespace Smart.API.Adapter.Biz
         /// <summary>
         /// 定时执行心跳任务
         /// </summary>
-        public async Task<bool> HeartCheck()
+        public  bool HeartCheck()
         {
             try
             {
-                HeartVersion heartJd = await jdParkBiz.HeartBeatCheckJd();
+                HeartVersion heartJd =  jdParkBiz.HeartBeatCheckJd2();
                 if (heartJd.ReturnCode == "Fail")
                 {
                     //客户端未验证

@@ -40,6 +40,7 @@ namespace WinTestJD
         {
             if (heartService == null)
                 return;
+            heartService.UpdateParkRemainCount();
 
 
 
