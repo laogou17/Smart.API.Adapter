@@ -28,7 +28,7 @@ namespace Smart.API.Adapter.Biz
                     {"parkLotCode", CommonSettings.ParkLotCode}  ,
                     {"token", CommonSettings.Token}                 
                 });
-                var result = await client.PostAsync("/Test", content);
+                var result = await client.PostAsync("/HeartBeatCheck", content);
 
                 HeartVersion heartJd = result.Content.ToJson().FromJson<HeartVersion>();
                 return heartJd;

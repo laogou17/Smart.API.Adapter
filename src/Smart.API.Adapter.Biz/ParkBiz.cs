@@ -28,7 +28,6 @@ namespace Smart.API.Adapter.Biz
         }
         public ParkBiz()
         {
-
             xmlAddr =System.IO.Directory.GetParent(System.IO.Directory.GetParent( Environment.CurrentDirectory).ToString()) + CommonSettings.ParkXmlAddress;
             dataBase = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkWhiteList", "VehicleNo", false);
             jdParkBiz = new JDParkBiz();
@@ -42,8 +41,6 @@ namespace Smart.API.Adapter.Biz
             overFlowCount = Convert.ToInt32(xDoc.Root.Element("OverFlowCount").Value);
  
         }
-        
-     
 
         /// <summary>
         /// 定时执行心跳任务
@@ -56,12 +53,14 @@ namespace Smart.API.Adapter.Biz
                 if (heartJd.ReturnCode == "Fail")
                 {
                     //客户端未验证
-                    return false;
+                    LogHelper.Error(string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.Description));
+                    return true;
                 }
                 if (heartJd.ReturnCode == "exception")
                 {
                     //服务端异常
-                    return false;
+                    LogHelper.Error(string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.Description));
+                    return true;
                 }
                 if (heartJd.Version != ParkBiz.version)
                 {
@@ -75,8 +74,8 @@ namespace Smart.API.Adapter.Biz
             }
             catch (Exception ex)
             {
-                return true;
-
+                LogHelper.Error(string.Format("{0}:心跳检测出错:{1}", DateTime.Now.ToString(), ex.Message));
+                return false;
             }
         }
 
@@ -92,29 +91,40 @@ namespace Smart.API.Adapter.Biz
                 //服务端处理失败,一般是校验问题
                 if (vehicleJd.ReturnCode == "fail")
                 {
+                    LogHelper.Error(string.Format("{0}:获取白名单Fail:{1}", DateTime.Now.ToString(), vehicleJd.Description));
                     return;
                 }
 
                 //服务端异常
                 if (vehicleJd.ReturnCode == "exception")
                 {
+                    LogHelper.Error(string.Format("{0}:获取白名单exception:{1}", DateTime.Now.ToString(), vehicleJd.Description));
                     return;
                 }
                 //更新到数据库
-                foreach (VehicleInfo v in vehicleJd.Data)
+                try
                 {
-                    if (dataBase.IsExist(v.VehicleNo))
+                    foreach (VehicleInfo v in vehicleJd.Data)
                     {
-                        dataBase.Update<VehicleInfo>(v, v.VehicleNo);
-                    }
-                    else
-                    {
-                        dataBase.Insert<VehicleInfo>(v);
-                    }
-                }          
+                        if (dataBase.IsExist(v.VehicleNo))
+                        {
+                            dataBase.Update<VehicleInfo>(v, v.VehicleNo);
+                        }
+                        else
+                        {
+                            dataBase.Insert<VehicleInfo>(v);
+                        }
+                    }         
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Error(string.Format("{0}:更新数据库出错:{1}", DateTime.Now.ToString(), ex.Message));
+                    throw ex;
+                } 
             }
             catch(Exception ex)
-            { 
+            {
+                LogHelper.Error(string.Format("{0}:获取京东白名单出错:{1}", DateTime.Now.ToString(), ex.Message));                
             } 
         }
 
@@ -149,29 +159,136 @@ namespace Smart.API.Adapter.Biz
         /// <param name="heartJd"></param>
         public void UpdateHeartVersion(HeartVersion heartJd)
         {
-            XDocument xDoc = XDocument.Load(xmlAddr);
-            xDoc.Root.SetElementValue("Version", heartJd.Version);
-            xDoc.Root.SetElementValue("OverFlowCount", heartJd.OverFlowCount);
-            xDoc.Save(xmlAddr);
+            try
+            {
+                XDocument xDoc = XDocument.Load(xmlAddr);
+                xDoc.Root.SetElementValue("Version", heartJd.Version);
+                xDoc.Root.SetElementValue("OverFlowCount", heartJd.OverFlowCount);
+                xDoc.Save(xmlAddr);
+            }
+            catch(Exception ex)
+            {
+                LogHelper.Error(string.Format("{0}:更新xml出错:{1}", DateTime.Now.ToString(), ex.Message));
+                throw ex;
+            }
+        }
+      
+        /// <summary>
+        /// 定时查车位总数并更新
+        /// </summary>
+        public async Task<bool> UpdateToltalCount()
+        {
+            try
+            {
+                TotalCountReq totalReq = new TotalCountReq();
+                try
+                {
+                    //调用Jielink获取车场车位数据
+                    ParkPlaceRes parkPlaceRes = GetParkPlaceCount();
+
+                    //转换为京东车位数据
+                    totalReq = new TotalCountReq();
+                    totalReq.ParkLotCode = CommonSettings.ParkLotCode;
+                    totalReq.TotalCount = parkPlaceRes.Data.ParkCount;
+                    totalReq.Data = new List<TotalInfo>();
+
+                    parkPlaceRes.Data.AreaParkList.ForEach(x =>
+                        {
+                            totalReq.Data.Add(new TotalInfo() { RegionCode = x.AreaNo, TotalCount = x.AreaParkCount });
+                        });
+                }
+                catch (Exception ex)
+                {
+                    LogHelper.Error(string.Format("{0}:获取jieLink车场数据出错:{1}", DateTime.Now.ToString(), ex.Message));
+ 
+                }
+                //数据推给京东
+                BaseJdRes jdRes =await  jdParkBiz.ModifyParkTotalCount(totalReq);
+                if (jdRes.ReturnCode == "Fail")
+                {
+                    LogHelper.Error(string.Format("{0}:更新车位总数响应Fail:{1}",DateTime.Now.ToString(), jdRes.Description));
+                    //客户端未验证
+                }
+                if (jdRes.ReturnCode == "exception")
+                {
+                    LogHelper.Error(string.Format("{0}:更新车位总数响应Exception:{1}", DateTime.Now.ToString(), jdRes.Description));
+                    //服务端异常
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error(string.Format("{0}:更新车位总数出错:{1}", DateTime.Now.ToString(), ex.Message));
+                return false;
+
+            }
         }
 
         /// <summary>
-        /// 同步白名单信息到JieLink
+        /// 定时查剩余车位数并更新
         /// </summary>
-        /// <param name="vehicleList">京东方的白名单信息</param>
-        public void UpdateWhiteList(VehicleLegality vehicleJd)
+        public async Task<bool> UpdateRemainCount()
         {
-
-            foreach (var vehicle in vehicleJd.Data)
+            try
             {
-                //0：合法,1:不合法
-                if (vehicle.Yn == "0")
+                RemainCountReq totalReq = new RemainCountReq();
+                try
                 {
- 
+                    //调用Jielink获取车场车位数据
+                    ParkPlaceRes parkPlaceRes = GetParkPlaceCount();
+
+                    //转换为京东车位数据
+                    totalReq = new RemainCountReq();
+                    totalReq.ParkLotCode = CommonSettings.ParkLotCode;
+                    totalReq.RemainTotalCount = parkPlaceRes.Data.ParkRemainCount;
+                    totalReq.Data = new List<RemainInfo>();
+
+                    parkPlaceRes.Data.AreaParkList.ForEach(x =>
+                    {
+                        totalReq.Data.Add(new RemainInfo() { RegionCode = x.AreaNo, RemainCount = x.AreaParkRemainCount });
+                    });
                 }
+                catch (Exception ex)
+                {
+                    LogHelper.Error(string.Format("{0}:获取jieLink车场数据出错:{1}", DateTime.Now.ToString(), ex.Message));
+
+                }
+                //数据推给京东
+                BaseJdRes jdRes = await jdParkBiz.ModifyParkRemainCount(totalReq);
+                if (jdRes.ReturnCode == "Fail")
+                {
+                    LogHelper.Error(string.Format("{0}:更新车位剩余数响应Fail:{1}", DateTime.Now.ToString(), jdRes.Description));
+                    //客户端未验证
+                }
+                if (jdRes.ReturnCode == "exception")
+                {
+                    LogHelper.Error(string.Format("{0}:更新车位剩余数响应Exception:{1}", DateTime.Now.ToString(), jdRes.Description));
+                    //服务端异常
+                }
+                return true;
             }
-            
+            catch (Exception ex)
+            {
+                LogHelper.Error(string.Format("{0}:更新车位剩余数出错:{1}", DateTime.Now.ToString(), ex.Message));
+                return false;
+
+            }
         }
+
+        public  ParkPlaceRes GetParkPlaceCount()
+        {            
+            string parkId = CommonSettings.ParkLotCode; ;
+            InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJS);
+            var res =  requestApi.PostRaw<ParkPlaceRes>("/parking/place", parkId);
+            if (!res.successed)
+            {
+                LogHelper.Error("请求JieLink出错" + res.code); 
+            }
+            return res.data;
+ 
+        }
+
+
 
 
 

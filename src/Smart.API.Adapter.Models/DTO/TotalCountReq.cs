@@ -12,6 +12,6 @@ namespace Smart.API.Adapter.Models
 
         public int TotalCount { get; set; }
 
-        public List<RemainInfo> Data { get; set; } 
+        public List<TotalInfo> Data { get; set; } 
     }
 }

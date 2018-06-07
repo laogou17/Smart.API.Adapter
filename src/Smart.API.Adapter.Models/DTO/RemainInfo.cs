@@ -13,6 +13,17 @@ namespace Smart.API.Adapter.Models
     public  class RemainInfo
     {
         public string RegionCode { get; set; }
-        public string RemainCount { get; set; }
+        public int RemainCount { get; set; }
     }
+
+    public class TotalInfo
+    {
+        public string RegionCode { get; set; }
+
+        public int TotalCount { get; set; }
+ 
+    }
+
+   
+
 }
