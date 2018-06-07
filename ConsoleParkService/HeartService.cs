@@ -40,5 +40,11 @@ namespace ConsoleParkService
             }
             timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
         }
+
+        private async void UpdateParkTotalCount()
+        {
+ 
+        }
+
     }
 }

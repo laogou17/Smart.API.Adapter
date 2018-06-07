@@ -17,6 +17,7 @@ namespace Smart.API.Adapter.Biz
         public  static int overFlowCount = 100;
         private DataBase dataBase ;
         private string xmlAddr;
+        private JDParkBiz jdParkBiz;
 
         public int HeartInterval
         {
@@ -27,8 +28,10 @@ namespace Smart.API.Adapter.Biz
         }
         public ParkBiz()
         {
+
             xmlAddr =System.IO.Directory.GetParent(System.IO.Directory.GetParent( Environment.CurrentDirectory).ToString()) + CommonSettings.ParkXmlAddress;
             dataBase = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkWhiteList", "VehicleNo", false);
+            jdParkBiz = new JDParkBiz();
             InitVersion(); 
         }
 
@@ -39,67 +42,23 @@ namespace Smart.API.Adapter.Biz
             overFlowCount = Convert.ToInt32(xDoc.Root.Element("OverFlowCount").Value);
  
         }
-        /// <summary>
-        /// 调用京东接口获取白名单
-        /// </summary>
-        /// <returns></returns>
-        public async Task<VehicleLegality> QueryVehicleLegalityJd(string version)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
-                var content = new FormUrlEncodedContent(new Dictionary<string, string>()
-                {
-                    {"parkLotCode", CommonSettings.ParkLotCode},  
-                    {"version", version}  ,
-                    {"token", CommonSettings.Token}                 
-                });
-                var result = await client.PostAsync("/QueryVehicleLegality", content);
-
-                VehicleLegality vehicleJd = result.Content.ToJson().FromJson<VehicleLegality>();
-                return vehicleJd;
-
-            }
-        }
-
-        /// <summary>
-        /// 调用京东接口获取白名单数据版本
-        /// </summary>
-        /// <returns></returns>
-        public async Task<HeartVersion> HeartBeatCheckJd()
-        {
-            InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
-
-            using (HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
-                var content = new FormUrlEncodedContent(new Dictionary<string, string>()
-                {
-                    {"sysId", CommonSettings.SysId},  
-                    {"parkLotCode", CommonSettings.ParkLotCode}  ,
-                    {"token", CommonSettings.Token}                 
-                });
-                var result = await client.PostAsync("/Test", content);
-
-                HeartVersion heartJd = result.Content.ToJson().FromJson<HeartVersion>();
-                return heartJd; 
-            }
-        }
+        
+     
 
         /// <summary>
         /// 定时执行心跳任务
         /// </summary>
-        public async Task<bool>  HeartCheck()
+        public async Task<bool> HeartCheck()
         {
             try
-            {        
-                HeartVersion heartJd = await HeartBeatCheckJd();
+            {
+                HeartVersion heartJd = await jdParkBiz.HeartBeatCheckJd();
                 if (heartJd.ReturnCode == "Fail")
                 {
                     //客户端未验证
                     return false;
                 }
-                if(heartJd.ReturnCode == "exception")
+                if (heartJd.ReturnCode == "exception")
                 {
                     //服务端异常
                     return false;
@@ -110,7 +69,7 @@ namespace Smart.API.Adapter.Biz
                     ParkBiz.overFlowCount = heartJd.OverFlowCount;
                     UpdateHeartVersion(heartJd);
                     //版本号不一致需要同步白名单
-                    UpdateWhiteList(heartJd.Version);                   
+                    UpdateWhiteList(heartJd.Version);
                 }
                 return true;
             }
@@ -128,7 +87,7 @@ namespace Smart.API.Adapter.Biz
         {
             try
             {
-                VehicleLegality vehicleJd = await QueryVehicleLegalityJd(version);
+                VehicleLegality vehicleJd = await jdParkBiz.QueryVehicleLegalityJd(version);
                 //服务端不可用，每隔 5s 进行重试， 5次后如仍不行， 客户端 应用 需邮件 通知 服务端 人
                 //服务端处理失败,一般是校验问题
                 if (vehicleJd.ReturnCode == "fail")
@@ -157,40 +116,6 @@ namespace Smart.API.Adapter.Biz
             catch(Exception ex)
             { 
             } 
-        }
-
-        public async Task<BaseJdRes> ModifyParkRemainCount(RemainCountReq remainCountReq)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
-                var content = new FormUrlEncodedContent(new Dictionary<string, string>()
-                {
-                    {"param", remainCountReq.ToJson()},  
-                    {"token", CommonSettings.Token}                 
-                });
-                var result = await client.PostAsync("/ModifyParkLotRemainCount", content);
-
-                BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
-                return resJd;
-            }
-        }
-
-        public async Task<BaseJdRes> ModifyParkTotalCount(TotalCountReq totalCountReq)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
-                var content = new FormUrlEncodedContent(new Dictionary<string, string>()
-                {
-                    {"param", totalCountReq.ToJson()},  
-                    {"token", CommonSettings.Token}                 
-                });
-                var result = await client.PostAsync("/ModifyParkLotRemainCount", content);
-
-                BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
-                return resJd;
-            }
         }
 
         public void Test()
