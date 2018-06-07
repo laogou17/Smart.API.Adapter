@@ -19,18 +19,22 @@ namespace Smart.API.Adapter.Common
 
         public ApiResult PostRaw(string relativeUri, object parameters, TimeSpan? timeout = null)
         {
+            string sJson = parameters.ToJson();
+            LogHelper.Info("PostRaw:" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
-                var response = client.PostAsync(relativeUri, new StringContent(parameters.ToJson())).Result;
+                var response = client.PostAsync(relativeUri, new StringContent(sJson)).Result;
                 return HandleApiResult(response);
             }
         }
 
         public ApiResult<T> PostRaw<T>(string relativeUri, object parameters, TimeSpan? timeout = null)
         {
+            string sJson = parameters.ToJson();
+            LogHelper.Info("PostRaw:" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
-                var response = client.PostAsync(relativeUri, new StringContent(parameters.ToJson())).Result;
+                var response = client.PostAsync(relativeUri, new StringContent(sJson)).Result;
                 return HandleApiResult<T>(response);
             }
         }
@@ -150,24 +154,24 @@ namespace Smart.API.Adapter.Common
             }
             else
             {
-                try 
-	            {	        
-		               EnsureResponseContentTypeWithApplicationJson(response.Content);
+                try
+                {
+                    EnsureResponseContentTypeWithApplicationJson(response.Content);
                     var innerResult = response.Content.ReadAsStringAsync().Result.FromJson<ApiError>();
-                apiResult.code = "InterfaceHttpApiFail";
-                apiResult.message = innerResult.Message;
+                    apiResult.code = "InterfaceHttpApiFail";
+                    apiResult.message = innerResult.Message;
 #if DEBUG
                     apiResult.stackTrace = innerResult.stackTrace;
 #endif
-	            }
-	            catch (Exception exp)
-	            {
-		  apiResult.code = "InterfaceHttpApiFail";
-                apiResult.message = exp.Message;
+                }
+                catch (Exception exp)
+                {
+                    apiResult.code = "InterfaceHttpApiFail";
+                    apiResult.message = exp.Message;
 #if DEBUG
                     apiResult.stackTrace = exp.StackTrace;
 #endif
-	            }
+                }
             }
         }
 
