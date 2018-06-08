@@ -35,16 +35,20 @@ namespace Smart.API.Adapter.Common
             using (var client = GetHttpClient(timeout))
             {
                 var response = client.PostAsync(relativeUri, new RestfulFormRawJsonContent(parameters)).Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    LogHelper.Info("PostResponse:[" + relativeUri + "]" + response.Content.ReadAsStringAsync().Result);//记录日志
+                }
                 return HandleApiResult<T>(response);
             }
         }
         public async Task<ApiResult<T>> PostAsync<T>(string relativeUri, object parameters, TimeSpan? timeout = null)
         {
             string sJson = parameters.ToJson();
-            LogHelper.Info("PostRaw:" + sJson);//记录日志
+            LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
-                var response = await client.PostAsync(relativeUri, new StringContent(sJson));
+                var response = await client.PostAsync(relativeUri, new RestfulFormRawJsonContent(parameters));
                 return HandleApiResult<T>(response);
             }
         }

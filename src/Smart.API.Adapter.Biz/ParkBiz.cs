@@ -1,6 +1,7 @@
 ﻿using Smart.API.Adapter.Common;
 using Smart.API.Adapter.DataAccess;
 using Smart.API.Adapter.Models;
+using Smart.API.Adapter.Models.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,7 +50,7 @@ namespace Smart.API.Adapter.Biz
         {
             try
             {
-                HeartVersion heartJd = jdParkBiz.HeartBeatCheckJd();
+                HeartVersion heartJd = jdParkBiz.HeartBeatCheckJd2();
                 
                 if (heartJd.ReturnCode == "Fail")
                 {
@@ -63,7 +64,7 @@ namespace Smart.API.Adapter.Biz
                     LogHelper.Error(string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.Description));
                     return true;
                 }
-                //if (heartJd.Version != ParkBiz.version)
+                if (heartJd.Version != ParkBiz.version)
                 {
                     ParkBiz.version = heartJd.Version;
                     ParkBiz.overFlowCount = heartJd.OverFlowCount;
@@ -182,27 +183,41 @@ namespace Smart.API.Adapter.Biz
             try
             {
                 TotalCountReq totalReq = new TotalCountReq();
-                try
-                {
-                    //调用Jielink获取车场车位数据
-                    ParkPlaceRes parkPlaceRes = GetParkPlaceCount();
+                //try
+                //{
+                //    //调用Jielink获取车场车位数据
+                //    ParkPlaceRes parkPlaceRes = GetParkPlaceCount();
 
-                    //转换为京东车位数据
-                    totalReq = new TotalCountReq();
-                    totalReq.ParkLotCode = CommonSettings.ParkLotCode;
-                    totalReq.TotalCount = parkPlaceRes.Data.ParkCount;
-                    totalReq.Data = new List<TotalInfo>();
+                //    //转换为京东车位数据
+                //    totalReq = new TotalCountReq();
+                //    totalReq.ParkLotCode = CommonSettings.ParkLotCode;
+                //    totalReq.TotalCount = parkPlaceRes.Data.ParkCount;
+                //    totalReq.Data = new List<TotalInfo>();
 
-                    parkPlaceRes.Data.AreaParkList.ForEach(x =>
-                        {
-                            totalReq.Data.Add(new TotalInfo() { RegionCode = x.AreaNo, TotalCount = x.AreaParkCount });
-                        });
-                }
-                catch (Exception ex)
-                {
-                    LogHelper.Error(string.Format("{0}:获取jieLink车场数据出错:{1}", DateTime.Now.ToString(), ex.Message));
+                //    parkPlaceRes.Data.AreaParkList.ForEach(x =>
+                //        {
+                //            totalReq.Data.Add(new TotalInfo() { RegionCode = x.AreaNo, TotalCount = x.AreaParkCount });
+                //        });
+                //}
+                //catch (Exception ex)
+                //{
+                //    LogHelper.Error(string.Format("{0}:获取jieLink车场数据出错:{1}", DateTime.Now.ToString(), ex.Message));
  
-                }
+                //}
+
+                //Demo数据
+                totalReq = new TotalCountReq();
+                totalReq.ParkLotCode = CommonSettings.ParkLotCode;
+                totalReq.TotalCount = 1300;
+                totalReq.Data = new List<TotalInfo>();
+                totalReq.Data.Add(new TotalInfo() { RegionCode = "A1", TotalCount = 100 });
+                totalReq.Data.Add(new TotalInfo() { RegionCode = "A2", TotalCount = 150 });
+                totalReq.Data.Add(new TotalInfo() { RegionCode = "B1", TotalCount = 200 });
+                totalReq.Data.Add(new TotalInfo() { RegionCode = "B2", TotalCount = 200 });
+                totalReq.Data.Add(new TotalInfo() { RegionCode = "C1", TotalCount = 200 });
+                totalReq.Data.Add(new TotalInfo() { RegionCode = "C2", TotalCount = 200 });
+                totalReq.Data.Add(new TotalInfo() { RegionCode = "C3", TotalCount = 250 });
+
                 //数据推给京东
                 BaseJdRes jdRes =await  jdParkBiz.ModifyParkTotalCount(totalReq);
                 if (jdRes.ReturnCode == "Fail")
@@ -233,27 +248,40 @@ namespace Smart.API.Adapter.Biz
             try
             {
                 RemainCountReq totalReq = new RemainCountReq();
-                try
-                {
-                    //调用Jielink获取车场车位数据
-                    ParkPlaceRes parkPlaceRes = GetParkPlaceCount();
+                //try
+                //{
+                //    //调用Jielink获取车场车位数据
+                //    ParkPlaceRes parkPlaceRes = GetParkPlaceCount();
 
-                    //转换为京东车位数据
-                    totalReq = new RemainCountReq();
-                    totalReq.ParkLotCode = CommonSettings.ParkLotCode;
-                    totalReq.RemainTotalCount = parkPlaceRes.Data.ParkRemainCount;
-                    totalReq.Data = new List<RemainInfo>();
+                //    //转换为京东车位数据
+                //    totalReq = new RemainCountReq();
+                //    totalReq.ParkLotCode = CommonSettings.ParkLotCode;
+                //    totalReq.RemainTotalCount = parkPlaceRes.Data.ParkRemainCount;
+                //    totalReq.Data = new List<RemainInfo>();
 
-                    parkPlaceRes.Data.AreaParkList.ForEach(x =>
-                    {
-                        totalReq.Data.Add(new RemainInfo() { RegionCode = x.AreaNo, RemainCount = x.AreaParkRemainCount });
-                    });
-                }
-                catch (Exception ex)
-                {
-                    LogHelper.Error(string.Format("{0}:获取jieLink车场数据出错:{1}", DateTime.Now.ToString(), ex.Message));
+                //    parkPlaceRes.Data.AreaParkList.ForEach(x =>
+                //    {
+                //        totalReq.Data.Add(new RemainInfo() { RegionCode = x.AreaNo, RemainCount = x.AreaParkRemainCount });
+                //    });
+                //}
+                //catch (Exception ex)
+                //{
+                //    LogHelper.Error(string.Format("{0}:获取jieLink车场数据出错:{1}", DateTime.Now.ToString(), ex.Message));
+                //}
 
-                }
+                //Demo数据
+                totalReq = new RemainCountReq();
+                totalReq.ParkLotCode = CommonSettings.ParkLotCode;
+                totalReq.RemainTotalCount = 500;
+                totalReq.Data = new List<RemainInfo>();
+                totalReq.Data.Add(new RemainInfo() { RegionCode = "A1", RemainCount = 50 });
+                totalReq.Data.Add(new RemainInfo() { RegionCode = "A2", RemainCount = 100 });
+                totalReq.Data.Add(new RemainInfo() { RegionCode = "B1", RemainCount = 50 });
+                totalReq.Data.Add(new RemainInfo() { RegionCode = "B2", RemainCount = 50 });
+                totalReq.Data.Add(new RemainInfo() { RegionCode = "C1", RemainCount = 50 });
+                totalReq.Data.Add(new RemainInfo() { RegionCode = "C2", RemainCount = 100 });
+                totalReq.Data.Add(new RemainInfo() { RegionCode = "C3", RemainCount = 100 });
+
                 //数据推给京东
                 BaseJdRes jdRes = await jdParkBiz.ModifyParkRemainCount(totalReq);
                 if (jdRes.ReturnCode == "Fail")
@@ -285,9 +313,64 @@ namespace Smart.API.Adapter.Biz
             {
                 LogHelper.Error("请求JieLink出错" + res.code); 
             }
-            return res.data;
- 
+            return res.data; 
         }
+
+        public  bool UpdateEquipmentStatus()
+        {
+            try
+            {
+                List<EquipmentStatus> equipmentStatusList = new List<EquipmentStatus>();
+                //try
+                //{
+                //    //调用Jielink获取车场车位数据
+                //    ParkPlaceRes parkPlaceRes = GetParkPlaceCount();
+
+                //    //转换为京东车位数据
+                //    totalReq = new RemainCountReq();
+                //    totalReq.ParkLotCode = CommonSettings.ParkLotCode;
+                //    totalReq.RemainTotalCount = parkPlaceRes.Data.ParkRemainCount;
+                //    totalReq.Data = new List<RemainInfo>();
+
+                //    parkPlaceRes.Data.AreaParkList.ForEach(x =>
+                //    {
+                //        totalReq.Data.Add(new RemainInfo() { RegionCode = x.AreaNo, RemainCount = x.AreaParkRemainCount });
+                //    });
+                //}
+                //catch (Exception ex)
+                //{
+                //    LogHelper.Error(string.Format("{0}:获取jieLink车场数据出错:{1}", DateTime.Now.ToString(), ex.Message));
+                //}
+
+                //Demo数据
+                equipmentStatusList.Add(new EquipmentStatus() { deviceGuid = "0001", deviceIoType = 1, deviceName = "闸机1", deviceStatus = "1" });
+                equipmentStatusList.Add(new EquipmentStatus() { deviceGuid = "0002", deviceIoType = 2, deviceName = "闸机2", deviceStatus = "0" });
+                equipmentStatusList.Add(new EquipmentStatus() { deviceGuid = "0003", deviceIoType = 1, deviceName = "闸机3", deviceStatus = "1" });
+                equipmentStatusList.Add(new EquipmentStatus() { deviceGuid = "0004", deviceIoType = 3, deviceName = "闸机4", deviceStatus = "0" });
+
+                //数据推给京东
+                var jdRes = jdParkBiz.PostEquipmentStatus(equipmentStatusList);
+
+                //if (jdRes.ReturnCode == "Fail")
+                //{
+                //    LogHelper.Error(string.Format("{0}:更新车位剩余数响应Fail:{1}", DateTime.Now.ToString(), jdRes.Description));
+                //    //客户端未验证
+                //}
+                //if (jdRes.ReturnCode == "exception")
+                //{
+                //    LogHelper.Error(string.Format("{0}:更新车位剩余数响应Exception:{1}", DateTime.Now.ToString(), jdRes.Description));
+                //    //服务端异常
+                //}
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error(string.Format("{0}:更新车位剩余数出错:{1}", DateTime.Now.ToString(), ex.Message));
+                return false;
+
+            }
+        }
+
 
 
 

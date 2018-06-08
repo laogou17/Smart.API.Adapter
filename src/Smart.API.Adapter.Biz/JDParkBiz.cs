@@ -47,7 +47,8 @@ namespace Smart.API.Adapter.Biz
                 token = CommonSettings.Token
             };
 
-            ApiResult<HeartVersion> result =  requestApi.PostRaw<HeartVersion>("HeartBeatCheck",req.ToJson());
+            ApiResult<HeartVersion> result =  requestApi.PostRaw<HeartVersion>("HeartBeatCheck",req);
+
             if (result.data == null)
             {
                 throw new Exception(result.message);
@@ -96,36 +97,43 @@ namespace Smart.API.Adapter.Biz
 
         public async Task<BaseJdRes> ModifyParkRemainCount(RemainCountReq remainCountReq)
         {
-            using (HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
-                var content = new FormUrlEncodedContent(new Dictionary<string, string>()
-                {
-                    {"param", remainCountReq.ToJson()},  
-                    {"token", CommonSettings.Token}                 
-                });
-                var result = await client.PostAsync("ModifyParkLotRemainCount", content);
 
-                BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
-                return resJd;
+            InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+            ParkCountReq req = new ParkCountReq();
+            req.Param = remainCountReq.ToJson();
+            ApiResult<BaseJdRes> result = await requestApi.PostAsync<BaseJdRes>("ModifyParkLotTotalCount", req);
+            if (result.data == null)
+            {
+                throw new Exception(result.message);
             }
+            return result.data;
+
+            //using (HttpClient client = new HttpClient())
+            //{
+            //    client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
+            //    var content = new FormUrlEncodedContent(new Dictionary<string, string>()
+            //    {
+            //        {"param", remainCountReq.ToJson()},  
+            //        {"token", CommonSettings.Token}                 
+            //    });
+            //    var result = await client.PostAsync("ModifyParkLotRemainCount", content);
+
+            //    BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
+            //    return resJd;
+            //}
         }
 
         public async Task<BaseJdRes> ModifyParkTotalCount(TotalCountReq totalCountReq)
         {
-            using (HttpClient client = new HttpClient())
+            InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+            ParkCountReq req = new ParkCountReq();
+            req.Param = totalCountReq.ToJson();
+            ApiResult<BaseJdRes> result = await  requestApi.PostAsync<BaseJdRes>("ModifyParkLotTotalCount", req);
+            if (result.data == null)
             {
-                client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
-                var content = new FormUrlEncodedContent(new Dictionary<string, string>()
-                {
-                    {"param", totalCountReq.ToJson()},  
-                    {"token", CommonSettings.Token}                 
-                });
-                var result = await client.PostAsync("ModifyParkLotRemainCount", content);
-
-                BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
-                return resJd;
+                throw new Exception(result.message);
             }
+            return result.data;
         }
 
         /// <summary>

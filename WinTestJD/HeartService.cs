@@ -16,14 +16,16 @@ namespace WinTestJD
         private Timer timerHeart;
         private Timer timerUpdateParkTotalCount;
         private Timer timerUpdateParkRemainCount;
+        private Timer timerUpdateEquipmentStatus;
         private int faliTimes = 0;
         private int faliTimesUpdateParkTotalCount = 0;
         private int faliTimesUpdateParkRemainCount = 0;
+        private int faliTimesUpdateEquipmentStatus = 0;
 
         public void Start()
         {
             //初始化版本：
-
+            LogHelper.Info(string.Format("{0}:服务启动，心跳检测开始.", DateTime.Now.ToString()));
             timerHeart = new Timer(new TimerCallback(HeartCheck), null, 0, Timeout.Infinite);
 
         }
@@ -53,6 +55,8 @@ namespace WinTestJD
 
         public void UpdateParkTotalCount()
         {
+
+            LogHelper.Info(string.Format("{0}:更新车场车位总数", DateTime.Now.ToString()));
             timerUpdateParkTotalCount = new Timer(new TimerCallback(UpdateParkTotalCountCallBack), null, 0, Timeout.Infinite);
 
         }
@@ -75,12 +79,13 @@ namespace WinTestJD
         }
         public void UpdateParkRemainCount()
         {
+            LogHelper.Info(string.Format("{0}:更新车场剩余车位数", DateTime.Now.ToString()));
             timerUpdateParkRemainCount = new Timer(new TimerCallback(UpdateParkRemainCountCallBack), null, 0, Timeout.Infinite);
 
         }
         private async void UpdateParkRemainCountCallBack(object obj)
         {
-            bool result = await parkBiz.UpdateToltalCount();
+            bool result = await parkBiz.UpdateRemainCount();
             if (!result)
             {
                 faliTimesUpdateParkRemainCount++;
@@ -95,6 +100,33 @@ namespace WinTestJD
                 //emailManager.SendMail();
             }
         }
+
+        public void UpdateEquipmentStatus()
+        {
+            LogHelper.Info(string.Format("{0}:更新设备状态", DateTime.Now.ToString()));
+            timerUpdateEquipmentStatus = new Timer(new TimerCallback(UpdateEquipmentStatusCallBack), null, 0, Timeout.Infinite);
+
+        }
+        private  void UpdateEquipmentStatusCallBack(object obj)
+        {
+            bool result =  parkBiz.UpdateEquipmentStatus();
+            if (!result)
+            {
+                faliTimesUpdateEquipmentStatus++;
+                LogHelper.Error(string.Format("{0}:更新设备状态出错{1}次", DateTime.Now.ToString(), faliTimesUpdateParkRemainCount));
+                //如果出错5s后重试
+                timerUpdateEquipmentStatus.Change(parkBiz.HeartInterval, Timeout.Infinite);
+            }
+            //5次不行则发邮件通知
+            if (faliTimesUpdateEquipmentStatus >= 5)
+            {
+                LogHelper.Error(string.Format("{0}::更新设备状态出错超过5次,停止重试", DateTime.Now.ToString()));
+                //emailManager.SendMail();
+            }
+        }
+
+
+
 
 
 
