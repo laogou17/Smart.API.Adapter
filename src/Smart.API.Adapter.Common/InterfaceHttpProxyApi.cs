@@ -10,7 +10,7 @@ namespace Smart.API.Adapter.Common
 {
     public class InterfaceHttpProxyApi
     {
-        static readonly TimeSpan DefaultTimeOut = TimeSpan.FromSeconds(5);//TODO:可配置
+        static readonly TimeSpan DefaultTimeOut = TimeSpan.FromSeconds(CommonSettings.PostTimeOut);//TODO:可配置
         private string _BaseAddress;
         public InterfaceHttpProxyApi(string BaseAddress)
         {
@@ -20,7 +20,7 @@ namespace Smart.API.Adapter.Common
         public ApiResult PostRaw(string relativeUri, object parameters, TimeSpan? timeout = null)
         {
             string sJson = parameters.ToJson();
-            LogHelper.Info("PostRaw:" + sJson);//记录日志
+            LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
                 var response = client.PostAsync(relativeUri, new StringContent(sJson)).Result;
@@ -31,7 +31,7 @@ namespace Smart.API.Adapter.Common
         public ApiResult<T> PostRaw<T>(string relativeUri, object parameters, TimeSpan? timeout = null)
         {
             string sJson = parameters.ToJson();
-            LogHelper.Info("PostRaw:" + sJson);//记录日志
+            LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
                 var response = client.PostAsync(relativeUri, new StringContent(sJson)).Result;
