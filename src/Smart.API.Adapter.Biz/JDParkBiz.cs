@@ -19,7 +19,7 @@ namespace Smart.API.Adapter.Biz
         /// 调用京东接口获取白名单数据版本
         /// </summary>
         /// <returns></returns>
-        public async Task<HeartVersion> HeartBeatCheckJd()
+        public  HeartVersion HeartBeatCheckJd()
         {
             using (HttpClient client = new HttpClient())
             {
@@ -30,9 +30,9 @@ namespace Smart.API.Adapter.Biz
                     {"parkLotCode", CommonSettings.ParkLotCode}  ,
                     {"token", CommonSettings.Token}                 
                 });
-                var result = await client.PostAsync("/HeartBeatCheck", content);
+                var result = client.PostAsync("heartbeatCheck", content).Result;
+                HeartVersion  heartJd= result.Content.ReadAsStringAsync().Result.FromJson<HeartVersion>();
 
-                HeartVersion heartJd = result.Content.ToJson().FromJson<HeartVersion>();
                 return heartJd;
             }
         }
@@ -46,8 +46,12 @@ namespace Smart.API.Adapter.Biz
                 SysId = CommonSettings.SysId,
                 token = CommonSettings.Token
             };
-            var result = requestApi.PostRaw<HeartVersion>("HeartBeatCheck",req);
 
+            ApiResult<HeartVersion> result =  requestApi.PostRaw<HeartVersion>("HeartBeatCheck",req.ToJson());
+            if (result.data == null)
+            {
+                throw new Exception(result.message);
+            }
             return result.data;
         }
 
@@ -66,11 +70,28 @@ namespace Smart.API.Adapter.Biz
                     {"version", version}  ,
                     {"token", CommonSettings.Token}                 
                 });
-                var result = await client.PostAsync("/QueryVehicleLegality", content);
+                var result = await client.PostAsync("QueryVehicleLegality", content);
 
                 VehicleLegality vehicleJd = result.Content.ToJson().FromJson<VehicleLegality>();
                 return vehicleJd;
             }
+        }
+
+        /// <summary>
+        /// 调用京东接口获取白名单
+        /// </summary>
+        /// <returns></returns>
+        public  VehicleLegality QueryVehicleLegalityJd2(string version)
+        {
+            InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+            WhiteListReq req = new WhiteListReq();
+            req.Version = version;
+            ApiResult<VehicleLegality> result = requestApi.PostRaw<VehicleLegality>("QueryVehicleLegality", req);
+            if (result.data == null)
+            {
+                throw new Exception(result.message);
+            }
+            return result.data;
         }
 
         public async Task<BaseJdRes> ModifyParkRemainCount(RemainCountReq remainCountReq)
@@ -83,7 +104,7 @@ namespace Smart.API.Adapter.Biz
                     {"param", remainCountReq.ToJson()},  
                     {"token", CommonSettings.Token}                 
                 });
-                var result = await client.PostAsync("/ModifyParkLotRemainCount", content);
+                var result = await client.PostAsync("ModifyParkLotRemainCount", content);
 
                 BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
                 return resJd;
@@ -100,7 +121,7 @@ namespace Smart.API.Adapter.Biz
                     {"param", totalCountReq.ToJson()},  
                     {"token", CommonSettings.Token}                 
                 });
-                var result = await client.PostAsync("/ModifyParkLotRemainCount", content);
+                var result = await client.PostAsync("ModifyParkLotRemainCount", content);
 
                 BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
                 return resJd;

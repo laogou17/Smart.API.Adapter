@@ -38,6 +38,16 @@ namespace Smart.API.Adapter.Common
                 return HandleApiResult<T>(response);
             }
         }
+        public async Task<ApiResult<T>> PostAsync<T>(string relativeUri, object parameters, TimeSpan? timeout = null)
+        {
+            string sJson = parameters.ToJson();
+            LogHelper.Info("PostRaw:" + sJson);//记录日志
+            using (var client = GetHttpClient(timeout))
+            {
+                var response = await client.PostAsync(relativeUri, new StringContent(sJson));
+                return HandleApiResult<T>(response);
+            }
+        }
 
         public ApiResult<T> Get<T>(string relativeUri, TimeSpan? timeout = null)
         {

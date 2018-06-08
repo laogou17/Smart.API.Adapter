@@ -49,7 +49,8 @@ namespace Smart.API.Adapter.Biz
         {
             try
             {
-                HeartVersion heartJd =  jdParkBiz.HeartBeatCheckJd2();
+                HeartVersion heartJd = jdParkBiz.HeartBeatCheckJd();
+                
                 if (heartJd.ReturnCode == "Fail")
                 {
                     //客户端未验证
@@ -62,7 +63,7 @@ namespace Smart.API.Adapter.Biz
                     LogHelper.Error(string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.Description));
                     return true;
                 }
-                if (heartJd.Version != ParkBiz.version)
+                //if (heartJd.Version != ParkBiz.version)
                 {
                     ParkBiz.version = heartJd.Version;
                     ParkBiz.overFlowCount = heartJd.OverFlowCount;
@@ -82,11 +83,11 @@ namespace Smart.API.Adapter.Biz
         /// <summary>
         /// 更新白名单到本地
         /// </summary>
-        public async void UpdateWhiteList(string version)
+        public void UpdateWhiteList(string version)
         {
             try
             {
-                VehicleLegality vehicleJd = await jdParkBiz.QueryVehicleLegalityJd(version);
+                VehicleLegality vehicleJd = jdParkBiz.QueryVehicleLegalityJd2(version);
                 //服务端不可用，每隔 5s 进行重试， 5次后如仍不行， 客户端 应用 需邮件 通知 服务端 人
                 //服务端处理失败,一般是校验问题
                 if (vehicleJd.ReturnCode == "fail")
