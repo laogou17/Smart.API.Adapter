@@ -67,8 +67,11 @@
     <Compile Include="Core\InterfaceSyncProxyException.cs" />
     <Compile Include="DTO\BaseJdRes.cs" />
     <Compile Include="DTO\HeartVersion.cs" />
+
     <Compile Include="DTO\JD\RequestEquipmentInfo.cs" />
     <Compile Include="DTO\JD\RequestJDBase.cs" />
+
+    <Compile Include="DTO\ParkPlaceCount.cs" />
     <Compile Include="DTO\RemainCountReq.cs" />
     <Compile Include="DTO\RemainInfo.cs" />
     <Compile Include="DTO\TotalCountReq.cs" />
