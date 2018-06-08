@@ -177,7 +177,7 @@ namespace Smart.API.Adapter.Biz
                 {
                     requestEquipmentInfo.device = LjdEquipment.ToJson();
 
-                    ApiResult<BaseJdRes> apiResult = httpApi.PostRaw<BaseJdRes>("/checkEquipment", requestEquipmentInfo);
+                    ApiResult<BaseJdRes> apiResult = httpApi.PostRaw<BaseJdRes>("checkEquipment", requestEquipmentInfo);
                     if (!apiResult.successed)//请求JD接口失败
                     {
                         PostEquipmentStatusCount++;
@@ -186,6 +186,10 @@ namespace Smart.API.Adapter.Biz
                         {
                             apiBaseResult.msg = apiResult.data.Description;
                         }
+                    }
+                    else
+                    {
+                        PostEquipmentStatusCount = 0;
                     }
                 }
 

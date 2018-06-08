@@ -178,6 +178,23 @@ namespace Smart.API.Adapter.Common {
             }
         }
 
+        /// <summary>
+        /// 请求第三方超时时间，默认5秒
+        /// </summary>
+        public static int PostTimeOut
+        {
+            get 
+            {
+                string PostTimeOut = ConfigurationManager.AppSettings["PostTimeOut"];
+                int iPostTimeOut = 0;
+                int.TryParse(PostTimeOut, out iPostTimeOut);
+                if (iPostTimeOut <= 0)
+                {
+                    iPostTimeOut = 5;
+                }
+                return iPostTimeOut;
+            }
+        }
 
     }
 }
