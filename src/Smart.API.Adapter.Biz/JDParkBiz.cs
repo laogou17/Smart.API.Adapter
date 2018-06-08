@@ -163,6 +163,10 @@ namespace Smart.API.Adapter.Biz
                             apiBaseResult.msg = apiResult.data.Description;
                         }
                     }
+                    else
+                    {
+                        PostEquipmentStatusCount = 0;
+                    }
                 }
 
             }
