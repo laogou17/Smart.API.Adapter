@@ -44,9 +44,14 @@ namespace Smart.API.Adapter.Api.Controllers.V1
             return Request.CreateResponse(vehicleJd);
         }
 
+        /// <summary>
+        /// 同步设备状态，jielink+调用此接口
+        /// </summary>
+        /// <param name="LEquipmentStatus"></param>
+        /// <returns></returns>
         [HttpPost, WriteLog, ActionName("equipmentstatus")]
         public HttpResponseMessage equipmentstatus(List<EquipmentStatus> LEquipmentStatus)
-        {
+        {       
             APIResultBase result = jdParkBiz.PostEquipmentStatus(LEquipmentStatus);
             return Request.CreateResponse(result);
         }

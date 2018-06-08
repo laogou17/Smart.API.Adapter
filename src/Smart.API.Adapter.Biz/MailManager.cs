@@ -18,7 +18,7 @@ namespace Smart.API.Adapter.Biz
         public MailManager()
         {
             EmailAddressTo = new List<string>();
-            EmailAddressTo.Add(CommonSettings.EmailTo1);
+            EmailAddressTo.Add(CommonSettings.EmailTo);
             EmailFrom = CommonSettings.EmailFrom;
         }
 
