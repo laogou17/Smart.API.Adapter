@@ -23,8 +23,8 @@ namespace Smart.API.Adapter.Api.Controllers.V1
         /// </summary>
         /// <param name="requestModel"></param>
         /// <returns></returns>
-        [HttpPost, WriteLog, ActionName("checkEquipment")]
-        public HttpResponseMessage demotest(RequestEquipmentInfo test)
+        [HttpPost, WriteLog, ActionName("heartbeatCheck")]
+        public HttpResponseMessage demotest([FromUri]heart test)
         {
             if (test != null)
             {
@@ -42,6 +42,15 @@ namespace Smart.API.Adapter.Api.Controllers.V1
             //string serverSign = BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(sn))).Replace("-", "");
 
             return Request.CreateResponse(jdres);
+        }
+
+        public class heart
+        {
+            public string sysId { get; set; }
+
+            public string parkLotCode { get; set; }
+
+            public string token { get; set; }
         }
     }
 }

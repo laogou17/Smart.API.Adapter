@@ -8,10 +8,10 @@ namespace Smart.API.Adapter.Models
 {
     public  class TotalCountReq
     {
-        public string ParkLotCode { get; set; }
+        public string parkLotCode { get; set; }
 
-        public int TotalCount { get; set; }
+        public int totalCount { get; set; }
 
-        public List<TotalInfo> Data { get; set; } 
+        public List<TotalInfo> data { get; set; } 
     }
 }

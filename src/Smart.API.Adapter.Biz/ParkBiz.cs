@@ -50,27 +50,28 @@ namespace Smart.API.Adapter.Biz
         {
             try
             {
-                HeartVersion heartJd = jdParkBiz.HeartBeatCheckJd2();
+                HeartVersion heartJd = jdParkBiz.HeartBeatCheckJd();
                 
-                if (heartJd.ReturnCode == "Fail")
+                if (heartJd.returnCode == "fail")
                 {
                     //客户端未验证
-                    LogHelper.Error(string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.Description));
+                    LogHelper.Error(string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.description));
                     return true;
                 }
-                if (heartJd.ReturnCode == "exception")
+                if (heartJd.returnCode == "exception")
                 {
                     //服务端异常
-                    LogHelper.Error(string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.Description));
+                    LogHelper.Error(string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.description));
                     return true;
                 }
                 if (heartJd.Version != ParkBiz.version)
-                {
+                {                    
+                    //版本号不一致需要同步白名单
+                    UpdateWhiteList(ParkBiz.version);
+
                     ParkBiz.version = heartJd.Version;
                     ParkBiz.overFlowCount = heartJd.OverFlowCount;
                     UpdateHeartVersion(heartJd);
-                    //版本号不一致需要同步白名单
-                    UpdateWhiteList(heartJd.Version);
                 }
                 return true;
             }
@@ -88,29 +89,29 @@ namespace Smart.API.Adapter.Biz
         {
             try
             {
-                VehicleLegality vehicleJd = jdParkBiz.QueryVehicleLegalityJd2(version);
+                VehicleLegality vehicleJd = jdParkBiz.QueryVehicleLegalityJd(version);
                 //服务端不可用，每隔 5s 进行重试， 5次后如仍不行， 客户端 应用 需邮件 通知 服务端 人
                 //服务端处理失败,一般是校验问题
-                if (vehicleJd.ReturnCode == "fail")
+                if (vehicleJd.returnCode == "fail")
                 {
-                    LogHelper.Error(string.Format("{0}:获取白名单Fail:{1}", DateTime.Now.ToString(), vehicleJd.Description));
+                    LogHelper.Error(string.Format("{0}:获取白名单Fail:{1}", DateTime.Now.ToString(), vehicleJd.description));
                     return;
                 }
 
                 //服务端异常
-                if (vehicleJd.ReturnCode == "exception")
+                if (vehicleJd.returnCode == "exception")
                 {
-                    LogHelper.Error(string.Format("{0}:获取白名单exception:{1}", DateTime.Now.ToString(), vehicleJd.Description));
+                    LogHelper.Error(string.Format("{0}:获取白名单exception:{1}", DateTime.Now.ToString(), vehicleJd.description));
                     return;
                 }
                 //更新到数据库
                 try
                 {
-                    foreach (VehicleInfo v in vehicleJd.Data)
+                    foreach (VehicleInfo v in vehicleJd.data)
                     {
-                        if (dataBase.IsExist(v.VehicleNo))
+                        if (dataBase.IsExist(v.vehicleNo))
                         {
-                            dataBase.Update<VehicleInfo>(v, v.VehicleNo);
+                            dataBase.Update<VehicleInfo>(v, v.vehicleNo);
                         }
                         else
                         {
@@ -128,30 +129,6 @@ namespace Smart.API.Adapter.Biz
             {
                 LogHelper.Error(string.Format("{0}:获取京东白名单出错:{1}", DateTime.Now.ToString(), ex.Message));                
             } 
-        }
-
-        public void Test()
-        {
-            VehicleLegality res = new VehicleLegality();
-            res.ReturnCode = "OK";
-            res.Version = "1";
-            res.Description = "Test";
-            res.Data = new List<VehicleInfo>();
-            res.Data.Add(new VehicleInfo() { ParkLotCode = "1", VehicleNo = "001", Yn = "9" });
-            res.Data.Add(new VehicleInfo() { ParkLotCode = "1", VehicleNo = "002", Yn = "6" });
-            res.Data.Add(new VehicleInfo() { ParkLotCode = "1", VehicleNo = "004", Yn = "0" });
-            foreach (VehicleInfo v in res.Data)
-            {
-                if (dataBase.IsExist(v.VehicleNo))
-                {
-                    dataBase.Update<VehicleInfo>(v, v.VehicleNo);
-                }
-                else
-                {
-                    dataBase.Insert<VehicleInfo>(v);
-                }
-            }          
- 
         }
 
 
@@ -207,27 +184,27 @@ namespace Smart.API.Adapter.Biz
 
                 //Demo数据
                 totalReq = new TotalCountReq();
-                totalReq.ParkLotCode = CommonSettings.ParkLotCode;
-                totalReq.TotalCount = 1300;
-                totalReq.Data = new List<TotalInfo>();
-                totalReq.Data.Add(new TotalInfo() { RegionCode = "A1", TotalCount = 100 });
-                totalReq.Data.Add(new TotalInfo() { RegionCode = "A2", TotalCount = 150 });
-                totalReq.Data.Add(new TotalInfo() { RegionCode = "B1", TotalCount = 200 });
-                totalReq.Data.Add(new TotalInfo() { RegionCode = "B2", TotalCount = 200 });
-                totalReq.Data.Add(new TotalInfo() { RegionCode = "C1", TotalCount = 200 });
-                totalReq.Data.Add(new TotalInfo() { RegionCode = "C2", TotalCount = 200 });
-                totalReq.Data.Add(new TotalInfo() { RegionCode = "C3", TotalCount = 250 });
+                totalReq.parkLotCode = CommonSettings.ParkLotCode;
+                totalReq.totalCount = 1300;
+                totalReq.data = new List<TotalInfo>();
+                totalReq.data.Add(new TotalInfo() { regionCode = "A1", count = 100 });
+                totalReq.data.Add(new TotalInfo() { regionCode = "A2", count = 150 });
+                totalReq.data.Add(new TotalInfo() { regionCode = "B1", count = 200 });
+                totalReq.data.Add(new TotalInfo() { regionCode = "B2", count = 200 });
+                totalReq.data.Add(new TotalInfo() { regionCode = "C1", count = 200 });
+                totalReq.data.Add(new TotalInfo() { regionCode = "C2", count = 200 });
+                totalReq.data.Add(new TotalInfo() { regionCode = "C3", count = 250 });
 
                 //数据推给京东
                 BaseJdRes jdRes =await  jdParkBiz.ModifyParkTotalCount(totalReq);
-                if (jdRes.ReturnCode == "Fail")
+                if (jdRes.returnCode == "fail")
                 {
-                    LogHelper.Error(string.Format("{0}:更新车位总数响应Fail:{1}",DateTime.Now.ToString(), jdRes.Description));
+                    LogHelper.Error(string.Format("{0}:更新车位总数响应Fail:{1}",DateTime.Now.ToString(), jdRes.description));
                     //客户端未验证
                 }
-                if (jdRes.ReturnCode == "exception")
+                if (jdRes.returnCode == "exception")
                 {
-                    LogHelper.Error(string.Format("{0}:更新车位总数响应Exception:{1}", DateTime.Now.ToString(), jdRes.Description));
+                    LogHelper.Error(string.Format("{0}:更新车位总数响应Exception:{1}", DateTime.Now.ToString(), jdRes.description));
                     //服务端异常
                 }
                 return true;
@@ -271,27 +248,27 @@ namespace Smart.API.Adapter.Biz
 
                 //Demo数据
                 totalReq = new RemainCountReq();
-                totalReq.ParkLotCode = CommonSettings.ParkLotCode;
-                totalReq.RemainTotalCount = 500;
-                totalReq.Data = new List<RemainInfo>();
-                totalReq.Data.Add(new RemainInfo() { RegionCode = "A1", RemainCount = 50 });
-                totalReq.Data.Add(new RemainInfo() { RegionCode = "A2", RemainCount = 100 });
-                totalReq.Data.Add(new RemainInfo() { RegionCode = "B1", RemainCount = 50 });
-                totalReq.Data.Add(new RemainInfo() { RegionCode = "B2", RemainCount = 50 });
-                totalReq.Data.Add(new RemainInfo() { RegionCode = "C1", RemainCount = 50 });
-                totalReq.Data.Add(new RemainInfo() { RegionCode = "C2", RemainCount = 100 });
-                totalReq.Data.Add(new RemainInfo() { RegionCode = "C3", RemainCount = 100 });
+                totalReq.parkLotCode = CommonSettings.ParkLotCode;
+                totalReq.remainTotalCount = 500;
+                totalReq.data = new List<RemainInfo>();
+                totalReq.data.Add(new RemainInfo() { regionCode = "A1", count = 50 });
+                totalReq.data.Add(new RemainInfo() { regionCode = "A2", count = 100 });
+                totalReq.data.Add(new RemainInfo() { regionCode = "B1", count = 50 });
+                totalReq.data.Add(new RemainInfo() { regionCode = "B2", count = 50 });
+                totalReq.data.Add(new RemainInfo() { regionCode = "C1", count = 50 });
+                totalReq.data.Add(new RemainInfo() { regionCode = "C2", count = 100 });
+                totalReq.data.Add(new RemainInfo() { regionCode = "C3", count = 100 });
 
                 //数据推给京东
                 BaseJdRes jdRes = await jdParkBiz.ModifyParkRemainCount(totalReq);
-                if (jdRes.ReturnCode == "Fail")
+                if (jdRes.returnCode == "fail")
                 {
-                    LogHelper.Error(string.Format("{0}:更新车位剩余数响应Fail:{1}", DateTime.Now.ToString(), jdRes.Description));
+                    LogHelper.Error(string.Format("{0}:更新车位剩余数响应Fail:{1}", DateTime.Now.ToString(), jdRes.description));
                     //客户端未验证
                 }
-                if (jdRes.ReturnCode == "exception")
+                if (jdRes.returnCode == "exception")
                 {
-                    LogHelper.Error(string.Format("{0}:更新车位剩余数响应Exception:{1}", DateTime.Now.ToString(), jdRes.Description));
+                    LogHelper.Error(string.Format("{0}:更新车位剩余数响应Exception:{1}", DateTime.Now.ToString(), jdRes.description));
                     //服务端异常
                 }
                 return true;

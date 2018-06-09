@@ -32,7 +32,7 @@ namespace Smart.API.Adapter.Biz
                 });
                 var result = client.PostAsync("heartbeatCheck", content).Result;
                 HeartVersion  heartJd= result.Content.ReadAsStringAsync().Result.FromJson<HeartVersion>();
-
+                LogHelper.Info("PostResponse:heartbeatCheck" + result.Content.ReadAsStringAsync().Result);//记录日志
                 return heartJd;
             }
         }
@@ -42,12 +42,12 @@ namespace Smart.API.Adapter.Biz
 
             HeartReq req = new HeartReq()
             {
+                sysId = CommonSettings.SysId,
                 parkLotCode = CommonSettings.ParkLotCode,
-                SysId = CommonSettings.SysId,
                 token = CommonSettings.Token
             };
 
-            ApiResult<HeartVersion> result =  requestApi.PostRaw<HeartVersion>("HeartBeatCheck",req);
+            ApiResult<HeartVersion> result = requestApi.PostRaw<HeartVersion>("heartbeatCheck", req);
 
             if (result.data == null)
             {
@@ -60,7 +60,7 @@ namespace Smart.API.Adapter.Biz
         /// 调用京东接口获取白名单
         /// </summary>
         /// <returns></returns>
-        public async Task<VehicleLegality> QueryVehicleLegalityJd(string version)
+        public  VehicleLegality QueryVehicleLegalityJd(string version)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -71,9 +71,10 @@ namespace Smart.API.Adapter.Biz
                     {"version", version}  ,
                     {"token", CommonSettings.Token}                 
                 });
-                var result = await client.PostAsync("QueryVehicleLegality", content);
+                var result =  client.PostAsync("queryVehicleLegality", content).Result;
 
-                VehicleLegality vehicleJd = result.Content.ToJson().FromJson<VehicleLegality>();
+                VehicleLegality vehicleJd = result.Content.ReadAsStringAsync().Result.FromJson<VehicleLegality>();
+                LogHelper.Info("PostResponse:queryVehicleLegality" + result.Content.ReadAsStringAsync().Result);//记录日志
                 return vehicleJd;
             }
         }
@@ -86,8 +87,8 @@ namespace Smart.API.Adapter.Biz
         {
             InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
             WhiteListReq req = new WhiteListReq();
-            req.Version = version;
-            ApiResult<VehicleLegality> result = requestApi.PostRaw<VehicleLegality>("QueryVehicleLegality", req);
+            req.version = version;
+            ApiResult<VehicleLegality> result = requestApi.PostRaw<VehicleLegality>("queryVehicleLegality", req);
             if (result.data == null)
             {
                 throw new Exception(result.message);
@@ -98,29 +99,29 @@ namespace Smart.API.Adapter.Biz
         public async Task<BaseJdRes> ModifyParkRemainCount(RemainCountReq remainCountReq)
         {
 
-            InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
-            ParkCountReq req = new ParkCountReq();
-            req.Param = remainCountReq.ToJson();
-            ApiResult<BaseJdRes> result = await requestApi.PostAsync<BaseJdRes>("ModifyParkLotTotalCount", req);
-            if (result.data == null)
-            {
-                throw new Exception(result.message);
-            }
-            return result.data;
-
-            //using (HttpClient client = new HttpClient())
+            //InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+            //ParkCountReq req = new ParkCountReq();
+            //req.Param = remainCountReq.ToJson();
+            //ApiResult<BaseJdRes> result = await requestApi.PostAsync<BaseJdRes>("ModifyParkLotTotalCount", req);
+            //if (result.data == null)
             //{
-            //    client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
-            //    var content = new FormUrlEncodedContent(new Dictionary<string, string>()
-            //    {
-            //        {"param", remainCountReq.ToJson()},  
-            //        {"token", CommonSettings.Token}                 
-            //    });
-            //    var result = await client.PostAsync("ModifyParkLotRemainCount", content);
-
-            //    BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
-            //    return resJd;
+            //    throw new Exception(result.message);
             //}
+            //return result.data;
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
+                var content = new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    {"param", remainCountReq.ToJson()},  
+                    {"token", CommonSettings.Token}                 
+                });
+                var result = await client.PostAsync("modifyParkLotRemainCount", content);
+
+                BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
+                return resJd;
+            }
         }
 
         public async Task<BaseJdRes> ModifyParkTotalCount(TotalCountReq totalCountReq)
@@ -128,7 +129,7 @@ namespace Smart.API.Adapter.Biz
             InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
             ParkCountReq req = new ParkCountReq();
             req.Param = totalCountReq.ToJson();
-            ApiResult<BaseJdRes> result = await  requestApi.PostAsync<BaseJdRes>("ModifyParkLotTotalCount", req);
+            ApiResult<BaseJdRes> result = await  requestApi.PostAsync<BaseJdRes>("modifyParkLotTotalCount", req);
             if (result.data == null)
             {
                 throw new Exception(result.message);
@@ -192,7 +193,7 @@ namespace Smart.API.Adapter.Biz
                         apiBaseResult.code = "1";
                         if (apiResult.data != null)
                         {
-                            apiBaseResult.msg = apiResult.data.Description;
+                            apiBaseResult.msg = apiResult.data.description;
                         }
                         else
                         {

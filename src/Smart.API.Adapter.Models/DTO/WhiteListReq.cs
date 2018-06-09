@@ -9,6 +9,6 @@ namespace Smart.API.Adapter.Models
 {
     public class WhiteListReq : RequestJDBase
     {
-        public string Version { get; set; }
+        public string version { get; set; }
     }
 }

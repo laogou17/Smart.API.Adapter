@@ -12,8 +12,8 @@ namespace Smart.API.Adapter.Models
     /// </summary>
     public  class VehicleLegality : BaseJdRes
     {
-        public string Version { get; set; }
+        public string version { get; set; }
 
-        public List<VehicleInfo> Data { get; set; }
+        public List<VehicleInfo> data { get; set; }
     }
 }

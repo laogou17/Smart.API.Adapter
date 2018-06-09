@@ -11,11 +11,11 @@ namespace Smart.API.Adapter.Models
     /// </summary>
     public  class RemainCountReq
     {
-        public string ParkLotCode { get; set; }
+        public string parkLotCode { get; set; }
 
-        public int RemainTotalCount { get; set; }
+        public int remainTotalCount { get; set; }
 
-        public List<RemainInfo> Data { get; set; } 
+        public List<RemainInfo> data { get; set; } 
 
     }
 }

@@ -12,7 +12,7 @@ namespace Smart.API.Adapter.Models
     public  class BaseJdRes
     {
         
-        public string ReturnCode { get; set; }
-        public string Description { get; set; }
+        public string returnCode { get; set; }
+        public string description { get; set; }
     }
 }

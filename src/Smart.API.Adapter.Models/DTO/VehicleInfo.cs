@@ -12,9 +12,9 @@ namespace Smart.API.Adapter.Models
     /// </summary>
     public  class VehicleInfo
     {
-        public string VehicleNo { get; set; }
-        public string ParkLotCode { get; set; }
-        public string Yn { get; set; }
+        public string vehicleNo { get; set; }
+        public string parkLotCode { get; set; }
+        public string yn { get; set; }
         
     }
 }
