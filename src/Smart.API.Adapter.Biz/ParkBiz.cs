@@ -185,15 +185,15 @@ namespace Smart.API.Adapter.Biz
                 //Demo数据
                 totalReq = new TotalCountReq();
                 totalReq.parkLotCode = CommonSettings.ParkLotCode;
-                totalReq.totalCount = 1300;
+                totalReq.totalCount = "1300";
                 totalReq.data = new List<TotalInfo>();
-                totalReq.data.Add(new TotalInfo() { regionCode = "A1", count = 100 });
-                totalReq.data.Add(new TotalInfo() { regionCode = "A2", count = 150 });
-                totalReq.data.Add(new TotalInfo() { regionCode = "B1", count = 200 });
-                totalReq.data.Add(new TotalInfo() { regionCode = "B2", count = 200 });
-                totalReq.data.Add(new TotalInfo() { regionCode = "C1", count = 200 });
-                totalReq.data.Add(new TotalInfo() { regionCode = "C2", count = 200 });
-                totalReq.data.Add(new TotalInfo() { regionCode = "C3", count = 250 });
+                totalReq.data.Add(new TotalInfo() { regionCode = "A1", count = "100" });
+                totalReq.data.Add(new TotalInfo() { regionCode = "A2", count = "150" });
+                totalReq.data.Add(new TotalInfo() { regionCode = "B1", count = "200" });
+                totalReq.data.Add(new TotalInfo() { regionCode = "B2", count = "200" });
+                totalReq.data.Add(new TotalInfo() { regionCode = "C1", count = "200" });
+                totalReq.data.Add(new TotalInfo() { regionCode = "C2", count = "200" });
+                totalReq.data.Add(new TotalInfo() { regionCode = "C3", count = "250" });
 
                 //数据推给京东
                 BaseJdRes jdRes =await  jdParkBiz.ModifyParkTotalCount(totalReq);
@@ -249,15 +249,15 @@ namespace Smart.API.Adapter.Biz
                 //Demo数据
                 totalReq = new RemainCountReq();
                 totalReq.parkLotCode = CommonSettings.ParkLotCode;
-                totalReq.remainTotalCount = 500;
+                totalReq.remainTotalCount = "500";
                 totalReq.data = new List<RemainInfo>();
-                totalReq.data.Add(new RemainInfo() { regionCode = "A1", count = 50 });
-                totalReq.data.Add(new RemainInfo() { regionCode = "A2", count = 100 });
-                totalReq.data.Add(new RemainInfo() { regionCode = "B1", count = 50 });
-                totalReq.data.Add(new RemainInfo() { regionCode = "B2", count = 50 });
-                totalReq.data.Add(new RemainInfo() { regionCode = "C1", count = 50 });
-                totalReq.data.Add(new RemainInfo() { regionCode = "C2", count = 100 });
-                totalReq.data.Add(new RemainInfo() { regionCode = "C3", count = 100 });
+                totalReq.data.Add(new RemainInfo() { regionCode = "A1", remainCount = "50" });
+                totalReq.data.Add(new RemainInfo() { regionCode = "A2", remainCount = "100" });
+                totalReq.data.Add(new RemainInfo() { regionCode = "B1", remainCount = "50" });
+                totalReq.data.Add(new RemainInfo() { regionCode = "B2", remainCount = "50" });
+                totalReq.data.Add(new RemainInfo() { regionCode = "C1", remainCount = "50" });
+                totalReq.data.Add(new RemainInfo() { regionCode = "C2", remainCount = "100" });
+                totalReq.data.Add(new RemainInfo() { regionCode = "C3", remainCount = "100" });
 
                 //数据推给京东
                 BaseJdRes jdRes = await jdParkBiz.ModifyParkRemainCount(totalReq);

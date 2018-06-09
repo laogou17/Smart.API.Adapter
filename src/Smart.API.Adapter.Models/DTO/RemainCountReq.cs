@@ -13,7 +13,7 @@ namespace Smart.API.Adapter.Models
     {
         public string parkLotCode { get; set; }
 
-        public int remainTotalCount { get; set; }
+        public string remainTotalCount { get; set; }
 
         public List<RemainInfo> data { get; set; } 
 

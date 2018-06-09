@@ -19,9 +19,9 @@ namespace Smart.API.Adapter.Models
         public string ParkAreaNo { get; set; }
         public string ParkAreaName { get; set; }
 
-        public int ParkCount { get; set; }
+        public string ParkCount { get; set; }
 
-        public int ParkRemainCount { get; set; }
+        public string ParkRemainCount { get; set; }
 
         public List<ParkRegionCount> AreaParkList { get; set; }
 
@@ -33,8 +33,8 @@ namespace Smart.API.Adapter.Models
 
         public string AreaName { get; set; }
 
-        public int AreaParkCount { get; set; }
+        public string AreaParkCount { get; set; }
 
-        public int AreaParkRemainCount { get; set; }
+        public string AreaParkRemainCount { get; set; }
     }
 }

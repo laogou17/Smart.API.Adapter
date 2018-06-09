@@ -111,6 +111,8 @@ namespace Smart.API.Adapter.Biz
 
             using (HttpClient client = new HttpClient())
             {
+                LogHelper.Info("PostRequest:modifyParkLotRemainCount" + remainCountReq.ToJson());//记录日志
+
                 client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
                 var content = new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
@@ -119,22 +121,40 @@ namespace Smart.API.Adapter.Biz
                 });
                 var result = await client.PostAsync("modifyParkLotRemainCount", content);
 
-                BaseJdRes resJd = result.Content.ToJson().FromJson<BaseJdRes>();
+                BaseJdRes resJd = result.Content.ReadAsStringAsync().Result.FromJson<BaseJdRes>();
+                LogHelper.Info("PostResponse:modifyParkLotRemainCount" + result.Content.ReadAsStringAsync().Result);//记录日志
                 return resJd;
             }
         }
 
         public async Task<BaseJdRes> ModifyParkTotalCount(TotalCountReq totalCountReq)
         {
-            InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
-            ParkCountReq req = new ParkCountReq();
-            req.Param = totalCountReq.ToJson();
-            ApiResult<BaseJdRes> result = await  requestApi.PostAsync<BaseJdRes>("modifyParkLotTotalCount", req);
-            if (result.data == null)
+            using (HttpClient client = new HttpClient())
             {
-                throw new Exception(result.message);
+                LogHelper.Info("PostRequest:modifyParkLotTotalCount" + totalCountReq.ToJson());//记录日志
+
+                client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
+                var content = new FormUrlEncodedContent(new Dictionary<string, string>()
+                {
+                    {"param", totalCountReq.ToJson()},  
+                    {"token", CommonSettings.Token}                 
+                });
+                var result = await client.PostAsync("modifyParkLotTotalCount", content);
+
+                BaseJdRes resJd = result.Content.ReadAsStringAsync().Result.FromJson<BaseJdRes>();
+                LogHelper.Info("PostResponse:modifyParkLotTotalCount" + result.Content.ReadAsStringAsync().Result);//记录日志
+                return resJd;
             }
-            return result.data;
+
+            //InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+            //ParkCountReq req = new ParkCountReq();
+            //req.Param = totalCountReq.ToJson();
+            //ApiResult<BaseJdRes> result = await  requestApi.PostAsync<BaseJdRes>("modifyParkLotTotalCount", req);
+            //if (result.data == null)
+            //{
+            //    throw new Exception(result.message);
+            //}
+            //return result.data;
         }
 
         /// <summary>
