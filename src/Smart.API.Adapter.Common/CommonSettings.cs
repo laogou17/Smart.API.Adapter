@@ -74,15 +74,94 @@ namespace Smart.API.Adapter.Common {
         /// <summary>
         /// 邮件地址
         /// </summary>
-        public static string EmailTo1
+        public static string EmailTo
         {
             get
             {
-                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EmailTo1"]))
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EmailTo"]))
                 {
-                    return ConfigurationManager.AppSettings["EmailTo1"];
+                    return ConfigurationManager.AppSettings["EmailTo"];
                 }
                 return "";
+            }
+        }
+
+        /// <summary>
+        /// 邮件地址
+        /// </summary>
+        public static string EmailSMTP
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EmailSMTP"]))
+                {
+                    return ConfigurationManager.AppSettings["EmailSMTP"];
+                }
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// 邮件端口
+        /// </summary>
+        public static int EmailPort
+        {
+            get
+            {
+                int iPort = 0;
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EmailPort"]))
+                {
+                    int.TryParse(ConfigurationManager.AppSettings["EmailPort"], out iPort);
+                }
+                return iPort;
+            }
+        }
+
+
+        /// <summary>
+        /// 邮件账户
+        /// </summary>
+        public static string EmailUserName
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EmailUserName"]))
+                {
+                    return ConfigurationManager.AppSettings["EmailUserName"];
+                }
+                return "";
+            }
+        }
+
+
+        /// <summary>
+        /// 邮件密码
+        /// </summary>
+        public static string EmailPassword
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EmailPassword"]))
+                {
+                    return ConfigurationManager.AppSettings["EmailPassword"];
+                }
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// 邮件启用SSL
+        /// </summary>
+        public static bool EmailSSL
+        {
+            get
+            {
+                bool enableSSL = false;
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["EmailSSL"]))
+                {
+                    bool.TryParse(ConfigurationManager.AppSettings["EmailSSL"], out enableSSL);
+                }
+                return enableSSL;
             }
         }
 

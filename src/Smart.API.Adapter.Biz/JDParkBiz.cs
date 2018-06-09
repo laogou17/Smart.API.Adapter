@@ -162,6 +162,10 @@ namespace Smart.API.Adapter.Biz
                         {
                             apiBaseResult.msg = apiResult.data.Description;
                         }
+                        else
+                        {
+                            apiBaseResult.msg = apiResult.message;
+                        }
                     }
                     else
                     {
@@ -182,8 +186,8 @@ namespace Smart.API.Adapter.Biz
                 //超过5次失败发送邮件
                 PostEquipmentStatusCount = 0;
                 //发送邮件
-                new MailManager().SendMail();
-
+                SendMailHelper mail = new SendMailHelper();
+                mail.SendMail();
             }
             return apiBaseResult;
         }

@@ -18,7 +18,7 @@ namespace Smart.API.Adapter.Models.DTO.JD
                 string parkLotCode = ConfigurationManager.AppSettings["ParkLotCode"];
                 if (string.IsNullOrWhiteSpace(parkLotCode))
                 {
-                    parkLotCode = "1";
+                    parkLotCode = "";
                 }
                 return parkLotCode;
             }
@@ -31,7 +31,7 @@ namespace Smart.API.Adapter.Models.DTO.JD
                 string token = ConfigurationManager.AppSettings["Token"];
                 if (string.IsNullOrWhiteSpace(token))
                 {
-                    token = "1";
+                    token = "";
                 }
                 return token;
             }
