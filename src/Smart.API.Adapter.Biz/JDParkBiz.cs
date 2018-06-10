@@ -191,22 +191,18 @@ namespace Smart.API.Adapter.Biz
                             jdEquipment.position = GetDevPositonByIoType(item.deviceIoType);
                             jdEquipment.status = GetDevStatus(item.deviceStatus);
                             jdEquipment.sysTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
-
                             LjdEquipment.Add(jdEquipment);
                             if (!dicDevStatus.ContainsKey(item.deviceGuid))
                             {
                                 dicDevStatus.Add(item.deviceGuid, item.deviceStatus);
                             }
                         }
-
                     }
                 }
                 if (LjdEquipment.Count > 0)
                 {
                     requestEquipmentInfo.device = LjdEquipment.ToJson();
-
-                    ApiResult<BaseJdRes> apiResult = httpApi.PostRaw<BaseJdRes>("checkEquipment", requestEquipmentInfo);
+                    ApiResult<BaseJdRes> apiResult = httpApi.PostUrl<BaseJdRes>("checkEquipment", requestEquipmentInfo);
                     if (!apiResult.successed)//请求JD接口失败
                     {
                         PostEquipmentStatusCount++;
@@ -225,12 +221,11 @@ namespace Smart.API.Adapter.Biz
                         PostEquipmentStatusCount = 0;
                     }
                 }
-
             }
             catch (Exception ex)
             {
                 apiBaseResult.code = "1";
-                apiBaseResult.msg = ex.Message;
+                apiBaseResult.msg = "请求第三方失败，"+ex.Message;
                 PostEquipmentStatusCount++;
                 LogHelper.Error("请求设备状态错误:", ex);
             }
@@ -242,7 +237,7 @@ namespace Smart.API.Adapter.Biz
                 SendMailHelper mail = new SendMailHelper();
                 mail.SendMail();
             }
-            return apiBaseResult;
+            return null;
         }
 
         /// <summary>

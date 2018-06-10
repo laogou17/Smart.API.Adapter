@@ -26,16 +26,16 @@ namespace Smart.API.Adapter.Api.Controllers.V1
         public async Task<HttpResponseMessage> ModifyParkRemainCount(object jsonObj)
         {
 
-            VehicleLegality vehicleJd = await jdParkBiz.QueryVehicleLegalityJd("1");
+            VehicleLegality vehicleJd =  jdParkBiz.QueryVehicleLegalityJd("1");
 
             //服务端不可用，每隔 5s 进行重试， 5次后如仍不行， 客户端 应用 需邮件 通知 服务端 人
             //服务端处理失败,一般是校验问题
-            if (vehicleJd.ReturnCode == "fail")
+            if (vehicleJd.returnCode == "fail")
             {
             }
 
             //服务端异常
-            if (vehicleJd.ReturnCode == "exception")
+            if (vehicleJd.returnCode == "exception")
             {
             }
 

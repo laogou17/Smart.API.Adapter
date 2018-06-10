@@ -18,24 +18,39 @@ namespace Smart.API.Adapter.Common
             _BaseAddress = BaseAddress;
         }
 
-        public ApiResult PostRaw(string relativeUri, object parameters, TimeSpan? timeout = null)
+        /// <summary>
+        /// 请求方式参数为FromUri
+        /// </summary>
+        /// <param name="relativeUri"></param>
+        /// <param name="parameters"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public ApiResult PostUrl(string relativeUri, object parameters, TimeSpan? timeout = null)
         {
             string sJson = parameters.ToJson();
             LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
-                var response = client.PostAsync(relativeUri, new RestfulFormUrlEncodedContent(parameters)).Result;
+                var response = client.PostAsync(relativeUri, new FormUrlEncodedContent(ToMapDic(parameters))).Result;
                 return HandleApiResult(response);
             }
         }
 
-        public ApiResult<T> PostRaw<T>(string relativeUri, object parameters, TimeSpan? timeout = null)
+        /// <summary>
+        /// 请求方式参数为FromUri
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="relativeUri"></param>
+        /// <param name="parameters"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public ApiResult<T> PostUrl<T>(string relativeUri, object parameters, TimeSpan? timeout = null)
         {
             string sJson = parameters.ToJson();
             LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
-                var response = client.PostAsync(relativeUri, new RestfulFormUrlEncodedContent(parameters)).Result;
+                var response = client.PostAsync(relativeUri, new FormUrlEncodedContent(ToMapDic(parameters))).Result;
                 if (response.IsSuccessStatusCode)
                 {
                     LogHelper.Info("PostResponse:[" + relativeUri + "]" + response.Content.ReadAsStringAsync().Result);//记录日志
@@ -43,13 +58,55 @@ namespace Smart.API.Adapter.Common
                 return HandleApiResult<T>(response);
             }
         }
+
+        /// <summary>
+        /// 请求方式参数为FromBody
+        /// </summary>
+        /// <param name="relativeUri"></param>
+        /// <param name="parameters"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public ApiResult PostRaw(string relativeUri, object parameters, TimeSpan? timeout = null)
+        {
+            string sJson = parameters.ToJson();
+            LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
+            using (var client = GetHttpClient(timeout))
+            {
+                var response = client.PostAsync(relativeUri, new RestfulFormRawJsonContent(parameters)).Result;
+                return HandleApiResult(response);
+            }
+        }
+
+        /// <summary>
+        /// 请求方式参数为FromBody
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="relativeUri"></param>
+        /// <param name="parameters"></param>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public ApiResult<T> PostRaw<T>(string relativeUri, object parameters, TimeSpan? timeout = null)
+        {
+            string sJson = parameters.ToJson();
+            LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
+            using (var client = GetHttpClient(timeout))
+            {
+                var response = client.PostAsync(relativeUri, new RestfulFormRawJsonContent(parameters)).Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    LogHelper.Info("PostResponse:[" + relativeUri + "]" + response.Content.ReadAsStringAsync().Result);//记录日志
+                }
+                return HandleApiResult<T>(response);
+            }
+        }
+
         public async Task<ApiResult<T>> PostAsync<T>(string relativeUri, object parameters, TimeSpan? timeout = null)
         {
             string sJson = parameters.ToJson();
             LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
-                var response = await client.PostAsync(relativeUri, new RestfulFormUrlEncodedContent(parameters));
+                var response = await client.PostAsync(relativeUri, new FormUrlEncodedContent(ToMapDic(parameters)));
                 return HandleApiResult<T>(response);
             }
         }
@@ -105,100 +162,132 @@ namespace Smart.API.Adapter.Common
             return apiResult;
         }
 
-        private class RestfulFormUrlEncodedContent : ByteArrayContent
+        private Dictionary<string, string> ToMapDic(Object o)
         {
-            public RestfulFormUrlEncodedContent(object data)
-                : base(GetContentByteArray(data))
+            Dictionary<string, string> map = new Dictionary<string, string>();
+
+            Type t = o.GetType();
+
+            PropertyInfo[] pi = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (PropertyInfo p in pi)
             {
-                Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-from-urlencoded");
+                MethodInfo mi = p.GetGetMethod();
 
-            }
-
-            /// <summary>  
-            ///   
-            /// 将对象属性转换为key-value对  
-            /// </summary>  
-            /// <param name="o"></param>  
-            /// <returns></returns>  
-            public static Dictionary<String, Object> ToMap(Object o)
-            {
-                Dictionary<String, Object> map = new Dictionary<string, object>();
-
-                Type t = o.GetType();
-
-                PropertyInfo[] pi = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-                foreach (PropertyInfo p in pi)
+                if (mi != null && mi.IsPublic)
                 {
-                    MethodInfo mi = p.GetGetMethod();
-
-                    if (mi != null && mi.IsPublic)
-                    {
-                        map.Add(p.Name, mi.Invoke(o, new Object[] { }));
-                    }
-                }
-
-                return map;
-
-            }  
-
-            private static byte[] GetContentByteArray(object data)
-            {
-                if (data == null)
-                {
-                    throw new ArgumentNullException("data");
-                }
-                StringBuilder builder = new StringBuilder();
-                Dictionary<String, Object> nameValueCollection = ToMap(data);
-                foreach (string key in nameValueCollection.Keys)
-                {
-                    if (builder.Length > 0)
-                    {
-                        builder.Append('&');
-                    }
-                    builder.Append(Encode(key));
-                    builder.Append("=");
                     string value = "";
-                    if (nameValueCollection[key] != null)
+                    object oVal = p.GetValue(o);
+                    if (oVal != null)
                     {
-                        value = nameValueCollection[key].ToString();
+                        value = oVal.ToString();
                     }
-                    builder.Append(Encode(value));
+                    map.Add(p.Name, value);
                 }
-
-                return Encoding.UTF8.GetBytes(builder.ToString());
             }
 
-            private static string Encode(string data)
-            {
-                if (string.IsNullOrEmpty(data))
-                {
-                    return string.Empty;
-                }
-                int limit = 32766;
-                StringBuilder sb = new StringBuilder();
-                if (data.Length < limit)
-                {
-                    sb.Append(Uri.EscapeDataString(data));
-                }
-                else
-                {
-                    int loops = data.Length / limit;
-                    for (int i = 0; i <= loops; i++)
-                    {
-                        if (i<loops)
-	                    {
-                            sb.Append(Uri.EscapeDataString(data.Substring(limit*i,limit)));
-	                    }
-                        else
-                        {
-                            sb.Append(Uri.EscapeDataString(data.Substring(limit*i)));
-                        }
-                    }
-                }
-                return sb.ToString().Replace("%20", "+");
-            }
+            return map;
         }
+
+        //private class RestfulFormUrlEncodedContent : ByteArrayContent
+        //{
+        //    public RestfulFormUrlEncodedContent(object data)
+        //        : base(GetContentByteArray(data))
+        //    {
+        //        Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-from-urlencoded");
+
+        //    }
+
+        //    /// <summary>  
+        //    ///   
+        //    /// 将对象属性转换为key-value对  
+        //    /// </summary>  
+        //    /// <param name="o"></param>  
+        //    /// <returns></returns>  
+        //    public static Dictionary<string, string> ToMap(Object o)
+        //    {
+        //        Dictionary<string, string> map = new Dictionary<string, string>();
+
+        //        Type t = o.GetType();
+
+        //        PropertyInfo[] pi = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        //        foreach (PropertyInfo p in pi)
+        //        {
+        //            MethodInfo mi = p.GetGetMethod();
+
+        //            if (mi != null && mi.IsPublic)
+        //            {
+        //                string value = "";
+        //                if (o != null)
+        //                {
+        //                    value = o.ToString();
+        //                }
+        //                map.Add(p.Name, value);
+        //            }
+        //        }
+
+        //        return map;
+
+        //    }  
+
+        //    private static byte[] GetContentByteArray(object data)
+        //    {
+        //        if (data == null)
+        //        {
+        //            throw new ArgumentNullException("data");
+        //        }
+        //        StringBuilder builder = new StringBuilder();
+        //        Dictionary<String, Object> nameValueCollection = ToMap(data);
+        //        foreach (string key in nameValueCollection.Keys)
+        //        {
+        //            if (builder.Length > 0)
+        //            {
+        //                builder.Append('&');
+        //            }
+        //            builder.Append(Encode(key));
+        //            builder.Append("=");
+        //            string value = "";
+        //            if (nameValueCollection[key] != null)
+        //            {
+        //                value = nameValueCollection[key].ToString();
+        //            }
+        //            builder.Append(Encode(value));
+        //        }
+
+        //        return Encoding.UTF8.GetBytes(builder.ToString());
+        //    }
+
+        //    private static string Encode(string data)
+        //    {
+        //        if (string.IsNullOrEmpty(data))
+        //        {
+        //            return string.Empty;
+        //        }
+        //        int limit = 32766;
+        //        StringBuilder sb = new StringBuilder();
+        //        if (data.Length < limit)
+        //        {
+        //            sb.Append(Uri.EscapeDataString(data));
+        //        }
+        //        else
+        //        {
+        //            int loops = data.Length / limit;
+        //            for (int i = 0; i <= loops; i++)
+        //            {
+        //                if (i<loops)
+        //                {
+        //                    sb.Append(Uri.EscapeDataString(data.Substring(limit*i,limit)));
+        //                }
+        //                else
+        //                {
+        //                    sb.Append(Uri.EscapeDataString(data.Substring(limit*i)));
+        //                }
+        //            }
+        //        }
+        //        return sb.ToString().Replace("%20", "+");
+        //    }
+        //}
 
         private class RestfulFormRawJsonContent : ByteArrayContent
         {

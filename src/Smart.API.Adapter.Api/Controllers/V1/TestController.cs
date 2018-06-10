@@ -18,39 +18,6 @@ namespace Smart.API.Adapter.Api.Controllers.V1
 
     public class TestController : ApiControllerBase
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="requestModel"></param>
-        /// <returns></returns>
-        [HttpPost, WriteLog, ActionName("heartbeatCheck")]
-        public HttpResponseMessage demotest([FromUri]heart test)
-        {
-            if (test != null)
-            {
-                LogHelper.Info("JD接收:" + test.ToJson());
-            }
-            BaseJdRes jdres = new BaseJdRes();
-            jdres.ReturnCode = "0";
-            //签名规则
-
-            //string random = "123456";
-            //long timestamp = Smart.API.Adapter.Common.StringHelper.ConvertDateTimeInt(DateTime.Now);
-            //string key = "B018D3F4-9029-4C38-BFB2-3477358C6FF6";
-            //string sn = "random" + random + "timestamp" + timestamp + "key" + key.ToLower();
-            //MD5 md5 = MD5.Create();
-            //string serverSign = BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(sn))).Replace("-", "");
-
-            return Request.CreateResponse(jdres);
-        }
-
-        public class heart
-        {
-            public string sysId { get; set; }
-
-            public string parkLotCode { get; set; }
-
-            public string token { get; set; }
-        }
+      
     }
 }

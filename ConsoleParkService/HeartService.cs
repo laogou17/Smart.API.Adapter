@@ -28,7 +28,7 @@ namespace ConsoleParkService
         /// <param name="obj"></param>
         private async void HeartCheck(object obj)
         {
-            bool result = await parkBiz.HeartCheck();
+            bool result =  parkBiz.HeartCheck();
             if (!result)
             {
                 faliTimes++;

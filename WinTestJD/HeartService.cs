@@ -39,6 +39,7 @@ namespace WinTestJD
             bool result = parkBiz.HeartCheck();
             if (!result)
             {
+                timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
                 LogHelper.Error(string.Format("{0}:心跳检测失败，服务端出错", DateTime.Now.ToString()));                
                 faliTimes++;
             }
@@ -50,7 +51,7 @@ namespace WinTestJD
                 return;    
                 //emailManager.SendMail();
             }
-            timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
+            //timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
         }
 
         public void UpdateParkTotalCount()
