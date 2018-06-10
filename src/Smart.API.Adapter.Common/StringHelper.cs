@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -98,5 +99,39 @@ namespace Smart.API.Adapter.Common {
 				return "";
 			}
 		}
+
+        /// <summary>
+        /// 通过图片Url地址获取图片字节字符串
+        /// </summary>
+        /// <param name="picUrl"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static string GetPicStringByUrl(string picUrl, out string fileName)
+        {
+            string fileBase64 = "";
+            fileName = "";
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    picUrl.TrimEnd('/');
+                    if (picUrl.Contains('/'))
+                    {
+                        fileName = picUrl.Substring(picUrl.LastIndexOf('/') + 1);
+                    }
+                    byte[] imgByte = client.GetByteArrayAsync(picUrl).Result;
+                    if (imgByte != null)
+                    {
+                        fileBase64 = Convert.ToBase64String(imgByte);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error("获取图片：" + picUrl + "错误：", ex);
+            }
+
+            return fileBase64;
+        }
 	}
 }

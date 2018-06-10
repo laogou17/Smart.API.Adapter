@@ -64,12 +64,15 @@
     <Compile Include="Core\ApiResult.cs" />
     <Compile Include="Core\APIResultBase.cs" />
     <Compile Include="Core\Equipmentstatus.cs" />
+    <Compile Include="Core\InRecognitionRecord.cs" />
     <Compile Include="Core\InterfaceSyncProxyException.cs" />
     <Compile Include="DTO\BaseJdRes.cs" />
     <Compile Include="DTO\HeartReq.cs" />
     <Compile Include="DTO\HeartVersion.cs" />
+    <Compile Include="DTO\JD\JDParkConfig.cs" />
     <Compile Include="DTO\JD\RequestEquipmentInfo.cs" />
     <Compile Include="DTO\JD\RequestJDBase.cs" />
+    <Compile Include="DTO\JD\RequestVehicleLog.cs" />
     <Compile Include="DTO\ParkCountReq.cs" />
     <Compile Include="DTO\ParkPlaceCount.cs" />
     <Compile Include="DTO\RemainCountReq.cs" />

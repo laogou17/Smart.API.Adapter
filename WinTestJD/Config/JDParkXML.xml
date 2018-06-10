@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<JDParkConfig>
+  <JDTimerConifg>
+    <!--key唯一标识，不能修改。 ReconnectCount 请求失败后立即重试次数。TimeSpan:重试之后，
+    还是失败则间隔该时间继续重试。RePostCount：代表继续重试的总次数，0代表直到成功为止 -->
+    <JDTimer key="1" name="InRecognition" ReConnectCount="5" TimeSpan="3600" RePostCount="0" />
+    <JDTimer key="2" name="InCross" ReConnectCount="5" TimeSpan="3600" RePostCount="0" />
+    <JDTimer key="3" name="OutRecognition" ReConnectCount="5" TimeSpan="3600" RePostCount="0" />
+    <JDTimer key="4" name="OutCross" ReConnectCount="5" TimeSpan="3600" RePostCount="0" />
+  </JDTimerConifg>
+</JDParkConfig>

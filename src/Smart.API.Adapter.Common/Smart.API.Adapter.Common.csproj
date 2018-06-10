@@ -87,6 +87,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SendMailHelper.cs" />
     <Compile Include="StringHelper.cs" />
+    <Compile Include="XMLHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Smart.API.Adapter.Models\Smart.API.Adapter.Models.csproj">

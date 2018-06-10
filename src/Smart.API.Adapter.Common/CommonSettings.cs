@@ -1,29 +1,38 @@
-﻿using System;
+﻿using Smart.API.Adapter.Models;
+using Smart.API.Adapter.Models.DTO.JD;
+using System;
 using System.Configuration;
-namespace Smart.API.Adapter.Common {
-	public class CommonSettings {
-		/// <summary>
-		/// 获取应用程序名称。
-		/// </summary>
-		public static string ApplicationName {
-			get {
-				string cfgAppName = ConfigurationManager.AppSettings["ApplicationName"];
-				if(string.IsNullOrWhiteSpace(cfgAppName)) {
-					cfgAppName = AppDomain.CurrentDomain.SetupInformation.ApplicationName;
-				}
-				return cfgAppName;
-			}
-		}
-		/// <summary>
-		/// 获取是否开发调试模式。
-		/// </summary>
-		public static bool IsDev {
-			get {
-				bool isDev = false;
-				string dev = ConfigurationManager.AppSettings["isdev"];
-				return bool.TryParse(dev, out isDev) && isDev;
-			}
-		}
+namespace Smart.API.Adapter.Common
+{
+    public class CommonSettings
+    {
+        /// <summary>
+        /// 获取应用程序名称。
+        /// </summary>
+        public static string ApplicationName
+        {
+            get
+            {
+                string cfgAppName = ConfigurationManager.AppSettings["ApplicationName"];
+                if (string.IsNullOrWhiteSpace(cfgAppName))
+                {
+                    cfgAppName = AppDomain.CurrentDomain.SetupInformation.ApplicationName;
+                }
+                return cfgAppName;
+            }
+        }
+        /// <summary>
+        /// 获取是否开发调试模式。
+        /// </summary>
+        public static bool IsDev
+        {
+            get
+            {
+                bool isDev = false;
+                string dev = ConfigurationManager.AppSettings["isdev"];
+                return bool.TryParse(dev, out isDev) && isDev;
+            }
+        }
 
         /// <summary>
         /// JieLink接口地址
@@ -262,7 +271,7 @@ namespace Smart.API.Adapter.Common {
         /// </summary>
         public static int PostTimeOut
         {
-            get 
+            get
             {
                 string PostTimeOut = ConfigurationManager.AppSettings["PostTimeOut"];
                 int iPostTimeOut = 0;
@@ -275,5 +284,35 @@ namespace Smart.API.Adapter.Common {
             }
         }
 
+        private static JDParkConfig _JDParkConfig;
+        public static JDParkConfig JDParkConfigInfo
+        {
+            get
+            {
+                if (_JDParkConfig == null)
+                {
+                    _JDParkConfig = XMLHelper.FromXMLToObject<JDParkConfig>(AppDomain.CurrentDomain.BaseDirectory + "\\Config\\JDParkXML.xml");
+                }
+                return _JDParkConfig;
+            }
+        }
+
+        /// <summary>
+        /// JD配置参数
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static JDTimer JDTimerInfo(enumJDBusinessType type)
+        {
+            JDParkConfig jdConfig = JDParkConfigInfo;
+            if (jdConfig != null && jdConfig.LJDTime != null
+                && jdConfig.LJDTime.Count > 0)
+            {
+                //通过xml配置文件获取 Timer配置
+                return jdConfig.LJDTime[(int)type - 1];
+
+            }
+            return null;
+        }
     }
 }

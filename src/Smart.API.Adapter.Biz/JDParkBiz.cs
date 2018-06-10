@@ -13,13 +13,19 @@ namespace Smart.API.Adapter.Biz
 {
     public class JDParkBiz
     {
-        static int PostEquipmentStatusCount = 0;
+        /// <summary>
+        /// key: 1表示到达入口
+        /// 2：车辆入场
+        /// 3：到达出口
+        /// 4：车辆出场
+        /// </summary>
+        static Dictionary<int, JDPostInfo> dicReConnectInfo = new Dictionary<int, JDPostInfo>();
         static Dictionary<string, string> dicDevStatus = new Dictionary<string, string>();
         /// <summary>
         /// 调用京东接口获取白名单数据版本
         /// </summary>
         /// <returns></returns>
-        public  HeartVersion HeartBeatCheckJd()
+        public HeartVersion HeartBeatCheckJd()
         {
             using (HttpClient client = new HttpClient())
             {
@@ -31,7 +37,7 @@ namespace Smart.API.Adapter.Biz
                     {"token", CommonSettings.Token}                 
                 });
                 var result = client.PostAsync("heartbeatCheck", content).Result;
-                HeartVersion  heartJd= result.Content.ReadAsStringAsync().Result.FromJson<HeartVersion>();
+                HeartVersion heartJd = result.Content.ReadAsStringAsync().Result.FromJson<HeartVersion>();
                 LogHelper.Info("PostResponse:heartbeatCheck" + result.Content.ReadAsStringAsync().Result);//记录日志
                 return heartJd;
             }
@@ -60,7 +66,7 @@ namespace Smart.API.Adapter.Biz
         /// 调用京东接口获取白名单
         /// </summary>
         /// <returns></returns>
-        public  VehicleLegality QueryVehicleLegalityJd(string version)
+        public VehicleLegality QueryVehicleLegalityJd(string version)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -71,7 +77,7 @@ namespace Smart.API.Adapter.Biz
                     {"version", version}  ,
                     {"token", CommonSettings.Token}                 
                 });
-                var result =  client.PostAsync("queryVehicleLegality", content).Result;
+                var result = client.PostAsync("queryVehicleLegality", content).Result;
 
                 VehicleLegality vehicleJd = result.Content.ReadAsStringAsync().Result.FromJson<VehicleLegality>();
                 LogHelper.Info("PostResponse:queryVehicleLegality" + result.Content.ReadAsStringAsync().Result);//记录日志
@@ -83,7 +89,7 @@ namespace Smart.API.Adapter.Biz
         /// 调用京东接口获取白名单
         /// </summary>
         /// <returns></returns>
-        public  VehicleLegality QueryVehicleLegalityJd2(string version)
+        public VehicleLegality QueryVehicleLegalityJd2(string version)
         {
             InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
             WhiteListReq req = new WhiteListReq();
@@ -170,6 +176,23 @@ namespace Smart.API.Adapter.Biz
 
             try
             {
+                bool bReTry = true;
+                string sReType = "unavailable";
+                JDTimer jdTimer = CommonSettings.JDTimerInfo(enumJDBusinessType.EquipmentStatus);
+                if (dicReConnectInfo.ContainsKey((int)enumJDBusinessType.EquipmentStatus))
+                {
+                    bReTry = dicReConnectInfo[(int)enumJDBusinessType.EquipmentStatus].IsReTry;
+                    sReType = dicReConnectInfo[(int)enumJDBusinessType.EquipmentStatus].ReType;
+                }
+                if (!bReTry)
+                {
+                    JDRePostUpdatePostTime(enumJDBusinessType.EquipmentStatus, sReType);
+                    apiBaseResult.code = "1";
+                    apiBaseResult.msg = "等待第三方重试的时间间隔";
+                    return apiBaseResult;
+                }
+
+
                 List<JDEquipmentInfo> LjdEquipment = new List<JDEquipmentInfo>();
                 if (LEquipmentStatus != null && LEquipmentStatus.Count > 0)
                 {
@@ -205,7 +228,6 @@ namespace Smart.API.Adapter.Biz
                     ApiResult<BaseJdRes> apiResult = httpApi.PostUrl<BaseJdRes>("checkEquipment", requestEquipmentInfo);
                     if (!apiResult.successed)//请求JD接口失败
                     {
-                        PostEquipmentStatusCount++;
                         apiBaseResult.code = "1";
                         if (apiResult.data != null)
                         {
@@ -215,29 +237,45 @@ namespace Smart.API.Adapter.Biz
                         {
                             apiBaseResult.msg = apiResult.message;
                         }
+                        //处理失败超过次数，则发送邮件
+                        JDRePostAndEail(enumJDBusinessType.EquipmentStatus, "unavailable");
                     }
                     else
                     {
-                        PostEquipmentStatusCount = 0;
+                        if (apiResult.data != null)
+                        {
+                            if (apiResult.data.returnCode == "success")
+                            {
+                                if (dicReConnectInfo.ContainsKey((int)enumJDBusinessType.EquipmentStatus))
+                                {
+                                    dicReConnectInfo.Remove((int)enumJDBusinessType.EquipmentStatus);
+                                }
+                            }
+                            else if (apiResult.data.returnCode == "fail")
+                            {
+
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                        else
+                        {
+
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
                 apiBaseResult.code = "1";
-                apiBaseResult.msg = "请求第三方失败，"+ex.Message;
-                PostEquipmentStatusCount++;
+                apiBaseResult.msg = "请求第三方失败，" + ex.Message;
                 LogHelper.Error("请求设备状态错误:", ex);
+                //处理失败超过次数，则发送邮件
+                JDRePostAndEail(enumJDBusinessType.EquipmentStatus, "unavailable");
             }
-            if (PostEquipmentStatusCount > 5)
-            {
-                //超过5次失败发送邮件
-                PostEquipmentStatusCount = 0;
-                //发送邮件
-                SendMailHelper mail = new SendMailHelper();
-                mail.SendMail();
-            }
-            return null;
+            return apiBaseResult;
         }
 
         /// <summary>
@@ -296,6 +334,196 @@ namespace Smart.API.Adapter.Biz
                     break;
             }
             return sStatus;
+        }
+
+
+        /// <summary>
+        /// 到达入口
+        /// </summary>
+        /// <param name="inRecognitionRecord"></param>
+        /// <returns></returns>
+        public APIResultBase PostInRecognition(InRecognitionRecord inRecognitionRecord)
+        {
+            APIResultBase apiBaseResult = new APIResultBase();
+            try
+            {
+                InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+                RequestVehicleLog reqVehicleLog = new RequestVehicleLog();
+                reqVehicleLog.logNo = inRecognitionRecord.inRecordId;
+                reqVehicleLog.actionDescId = "100";
+                reqVehicleLog.vehicleNo = inRecognitionRecord.plateNumber;
+                reqVehicleLog.actionTime = inRecognitionRecord.recognitionTime;
+                reqVehicleLog.actionPositionCode = inRecognitionRecord.inDeviceId;
+                reqVehicleLog.actionPosition = inRecognitionRecord.inDeviceName;
+                string fileName = "";
+                reqVehicleLog.photoStr = StringHelper.GetPicStringByUrl(inRecognitionRecord.inImage, out fileName);
+                reqVehicleLog.photoName = fileName;
+                reqVehicleLog.resend = "1";
+                bool bReTry = true;
+                JDTimer jdTimer = CommonSettings.JDTimerInfo(enumJDBusinessType.InRecognition);
+                string sReType = "unavailable";
+                if (dicReConnectInfo.ContainsKey((int)enumJDBusinessType.InRecognition))
+                {
+                    if (dicReConnectInfo[(int)enumJDBusinessType.InRecognition].ReCount > jdTimer.ReConnectCount)
+                    {
+                        reqVehicleLog.resend = "0";
+                        bReTry = dicReConnectInfo[(int)enumJDBusinessType.InRecognition].IsReTry;
+                        sReType = dicReConnectInfo[(int)enumJDBusinessType.InRecognition].ReType;
+                    }
+                }
+                if (!bReTry)
+                {
+                    JDRePostUpdatePostTime(enumJDBusinessType.InRecognition, sReType);
+                    apiBaseResult.code = "99";//99代表数据需要重传 ,由jielink+ 会发请重试，频率是每5秒重试一次。
+                    apiBaseResult.msg = "等待第三方重试的时间间隔";
+                    return apiBaseResult;
+                }
+
+                ApiResult<BaseJdRes> apiResult = httpApi.PostUrl<BaseJdRes>("createVehicleLogDetail", reqVehicleLog);
+                if (!apiResult.successed)
+                {
+                    apiBaseResult.code = "99";//99代表数据需要重传 ,由jielink+ 会发请重试，频率是每5秒重试一次。
+                    apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
+                    JDRePostAndEail(enumJDBusinessType.InRecognition, "unavailable");//重试计数和发送邮件
+                }
+                else
+                {
+                    if (apiResult.data != null)
+                    {
+                        if (apiResult.data.returnCode == "success")
+                        {
+                            if (dicReConnectInfo.ContainsKey((int)enumJDBusinessType.InRecognition))
+                            {
+                                dicReConnectInfo.Remove((int)enumJDBusinessType.InRecognition);
+                            }
+                        }
+                        else if (apiResult.data.returnCode == "fail")
+                        {
+                            JDRePostAndEail(enumJDBusinessType.InRecognition, "fail");//重试计数和发送邮件
+                        }
+                        else
+                        {
+                            JDRePostAndEail(enumJDBusinessType.InRecognition, "exception");//重试计数和发送邮件
+                        }
+                    }
+                    else
+                    {
+                        reqVehicleLog.resend = "0";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                apiBaseResult.code = "99";//99代表数据需要重传
+                apiBaseResult.msg = "请求第三方失败，" + ex.Message;
+                LogHelper.Error("请求设备状态错误:", ex);
+                JDRePostAndEail(enumJDBusinessType.InRecognition, "unavailable");//重试计数和发送邮件
+            }
+            return apiBaseResult;
+        }
+
+        /// <summary>
+        /// 重试计数,间隔时间再次重试和发送邮件
+        /// </summary>
+        /// <param name="type"></param>
+        private void JDRePostAndEail(enumJDBusinessType type, string failType)
+        {
+            try
+            {
+                int ReConnectCount = 5;
+                bool bSendEmail = false;
+                JDTimer jdTimer = CommonSettings.JDTimerInfo(type);
+
+                //通过xml配置文件获取重试的次数
+                ReConnectCount = jdTimer.ReConnectCount;
+                //是否发送邮件
+                bSendEmail = jdTimer.SendEmail;
+
+                if (!dicReConnectInfo.ContainsKey((int)type))
+                {
+                    JDPostInfo jdPostInfo = new JDPostInfo();
+                    jdPostInfo.ReCount++;
+                    jdPostInfo.ReTime = DateTime.Now;
+                    jdPostInfo.IsReTry = true;
+                    jdPostInfo.ReType = failType;
+                    dicReConnectInfo.Add((int)type, jdPostInfo);
+                }
+                else
+                {
+                    dicReConnectInfo[(int)type].ReType = failType;
+                    if (dicReConnectInfo[(int)type].ReCount > ReConnectCount)
+                    {
+                        JDRePostUpdatePostTime(type, failType);
+                        return;
+                    }
+                    dicReConnectInfo[(int)type].ReCount++;
+                    dicReConnectInfo[(int)type].ReTime = DateTime.Now;
+                }
+
+                if (dicReConnectInfo[(int)type].ReCount > ReConnectCount)
+                {
+                    //超过重试最大次数后，不再计数增加，防止溢出
+                    dicReConnectInfo[(int)type].ReCount = ReConnectCount + 1;
+                    //超过5次失败发送邮件
+                    if (bSendEmail)
+                    {
+                        //发送邮件
+                        SendMailHelper mail = new SendMailHelper();
+                        mail.SendMail();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Error("重试请求错误：", ex);
+            }
+        }
+
+
+        /// <summary>
+        /// 更新请求时间
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="failType"></param>
+        private void JDRePostUpdatePostTime(enumJDBusinessType type, string failType)
+        {
+            JDTimer jdTimer = CommonSettings.JDTimerInfo(type);
+            if (failType == "fail")
+            {
+                if (DateTime.Now.Subtract(dicReConnectInfo[(int)type].ReTime).TotalSeconds > jdTimer.FailTimeSpan)
+                {
+                    dicReConnectInfo[(int)type].IsReTry = true;
+                    dicReConnectInfo[(int)type].ReTime = DateTime.Now;
+                }
+                else
+                {
+                    dicReConnectInfo[(int)type].IsReTry = false;
+                }
+            }
+            else if (failType == "exception")
+            {
+                if (DateTime.Now.Subtract(dicReConnectInfo[(int)type].ReTime).TotalSeconds > jdTimer.ExceptionTimeSpan)
+                {
+                    dicReConnectInfo[(int)type].IsReTry = true;
+                    dicReConnectInfo[(int)type].ReTime = DateTime.Now;
+                }
+                else
+                {
+                    dicReConnectInfo[(int)type].IsReTry = false;
+                }
+            }
+            else
+            {
+                if (DateTime.Now.Subtract(dicReConnectInfo[(int)type].ReTime).TotalSeconds > jdTimer.UnavailableTimeSpan)
+                {
+                    dicReConnectInfo[(int)type].IsReTry = true;
+                    dicReConnectInfo[(int)type].ReTime = DateTime.Now;
+                }
+                else
+                {
+                    dicReConnectInfo[(int)type].IsReTry = false;
+                }
+            }
         }
     }
 }

@@ -19,31 +19,7 @@ namespace Smart.API.Adapter.Api.Controllers.V1
     /// </summary>
 
     public class ParkController : ApiControllerBase
-    {
-
-        private JDParkBiz jdParkBiz = new JDParkBiz();
-
-        public async Task<HttpResponseMessage> ModifyParkRemainCount(object jsonObj)
-        {
-
-            VehicleLegality vehicleJd =  jdParkBiz.QueryVehicleLegalityJd("1");
-
-            //服务端不可用，每隔 5s 进行重试， 5次后如仍不行， 客户端 应用 需邮件 通知 服务端 人
-            //服务端处理失败,一般是校验问题
-            if (vehicleJd.returnCode == "fail")
-            {
-            }
-
-            //服务端异常
-            if (vehicleJd.returnCode == "exception")
-            {
-            }
-
-            //VehicleLegality test =  result.ToJson().FromJson<VehicleLegality>();
-
-            return Request.CreateResponse(vehicleJd);
-        }
-
+    {    
         /// <summary>
         /// 同步设备状态，jielink+调用此接口
         /// </summary>
@@ -52,7 +28,19 @@ namespace Smart.API.Adapter.Api.Controllers.V1
         [HttpPost, WriteLog, ActionName("equipmentstatus")]
         public HttpResponseMessage equipmentstatus(List<EquipmentStatus> LEquipmentStatus)
         {       
-            APIResultBase result = jdParkBiz.PostEquipmentStatus(LEquipmentStatus);
+            APIResultBase result = new JDParkBiz().PostEquipmentStatus(LEquipmentStatus);
+            return Request.CreateResponse(result);
+        }
+
+        /// <summary>
+        /// 接收车辆入场识别记录，jielink+调用此接口
+        /// </summary>
+        /// <param name="LEquipmentStatus"></param>
+        /// <returns></returns>
+        [HttpPost, WriteLog, ActionName("inrecognition")]
+        public HttpResponseMessage inrecognition(InRecognitionRecord requestdata)
+        {
+            APIResultBase result = new JDParkBiz().PostInRecognition(requestdata);
             return Request.CreateResponse(result);
         }
     }
