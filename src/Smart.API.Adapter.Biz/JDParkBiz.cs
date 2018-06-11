@@ -369,13 +369,13 @@ namespace Smart.API.Adapter.Biz
                     if (!bIsWhiteList)//非法车辆，补推记录，但不开闸
                     {
                         apiBaseResult.code = "98";// 约定jielink+ api code="98" ，不开闸，但补推记录
-                        apiBaseResult.msg = "请求第三方失败，非法车辆不开闸，补推记录";
+                        apiBaseResult.msg = apiBaseResult.msg + ",非法车辆不开闸，补推记录";
                     }
                     else
                     {
                         //白名单，推送记录失败，开闸，补推记录。
                         apiBaseResult.code = "99";// 约定jielink+ api code="99" ，开闸，补推记录
-                        apiBaseResult.msg = "请求第三方失败，白名单开闸，补推记录";
+                        apiBaseResult.msg = apiBaseResult.msg + ",白名单开闸，补推记录";
                     }
                 }
                 else  //请求第三方成功
@@ -514,16 +514,18 @@ namespace Smart.API.Adapter.Biz
                 RequestVehicleLog reqVehicleLog = new RequestVehicleLog();
                 reqVehicleLog.logNo = inCrossRecord.inRecordId;
                 reqVehicleLog.actionDescId = "1";//自动抬杆进入停车场
-
-                //TODO:jielink+需要加参数 是否手动抬杆和抬杆的原因。 Jielink+加了是否手动抬杆标识后，下面不用判断是否白名单
-                ICollection<VehicleInfo> VehicleInfoCollection = JDCommonSettings.ParkWhiteList;
-                var query = VehicleInfoCollection.Where(p => p.vehicleNo == inCrossRecord.plateNumber).FirstOrDefault();
-                if (query == null)
+              
+                if (inCrossRecord.parkEventType.ToUpper() == "BRUSHCARD" || inCrossRecord.parkEventType.ToUpper() == "OVERTIME")
                 {
-                    reqVehicleLog.actionDescId = "2";//非白名单 手动抬杆
-                    reqVehicleLog.reasonCode = "";
-                    reqVehicleLog.reason = "";
+                    reqVehicleLog.actionDescId = "1";
                 }
+                else
+                {
+                    //TODO:需要添加手动抬杆的原因。
+                    reqVehicleLog.actionDescId = "2";
+                }
+               
+               
 
                 reqVehicleLog.vehicleNo = inCrossRecord.plateNumber;
                 reqVehicleLog.actionTime = inCrossRecord.inTime;
@@ -615,7 +617,7 @@ namespace Smart.API.Adapter.Biz
             {
                 InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
                 RequestVehicleLog reqVehicleLog = new RequestVehicleLog();
-                reqVehicleLog.logNo = outRecognitionRecord.inRecordId;
+                reqVehicleLog.logNo = string.IsNullOrWhiteSpace(outRecognitionRecord.inRecordId) ? outRecognitionRecord.outRecordId : outRecognitionRecord.inRecordId;
                 reqVehicleLog.actionDescId = "101";
                 reqVehicleLog.entryTime = outRecognitionRecord.inTime;
                 reqVehicleLog.vehicleNo = outRecognitionRecord.plateNumber;
@@ -731,14 +733,23 @@ namespace Smart.API.Adapter.Biz
             {
                 InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
                 RequestVehicleLog reqVehicleLog = new RequestVehicleLog();
-                reqVehicleLog.logNo = outCrossRecord.inRecordId;
-                reqVehicleLog.actionDescId = "5";//TODO:需要jielink+ 增加是否手动开闸标识 和开闸原因
+                reqVehicleLog.logNo = string.IsNullOrWhiteSpace(outCrossRecord.inRecordId) ? outCrossRecord.outRecordId : outCrossRecord.inRecordId;
+                reqVehicleLog.actionDescId = "5";
+                if (outCrossRecord.parkEventType.ToUpper() == "BRUSHCARD" || outCrossRecord.parkEventType.ToUpper() == "OVERTIME")
+                {
+                    reqVehicleLog.actionDescId = "5";
+                }
+                else
+                {
+                    reqVehicleLog.actionDescId = "4";
+                }
                 reqVehicleLog.entryTime = outCrossRecord.inTime;
                 reqVehicleLog.vehicleNo = outCrossRecord.plateNumber;
                 reqVehicleLog.actionTime = outCrossRecord.outTime;
                 reqVehicleLog.actionPositionCode = outCrossRecord.outDeviceId;
                 reqVehicleLog.actionPosition = outCrossRecord.outDeviceName;
                 reqVehicleLog.resend = "1";
+
                 if (outCrossRecord.reTrySend == "1")
                 {
                     reqVehicleLog.resend = "0";//补发的记录
@@ -762,6 +773,10 @@ namespace Smart.API.Adapter.Biz
                     apiBaseResult.msg = "等待第三方重试的时间间隔";
                     return apiBaseResult;
                 }
+                //TODO:出场成功，先查询reasonCode和reason ，进行赋值，并将JD账单记录进行归档,
+                reqVehicleLog.reasonCode = "";
+                reqVehicleLog.reason = "";
+
 
                 ApiResult<ResponseOutRecognition> apiResult = httpApi.PostUrl<ResponseOutRecognition>("external/createVehicleLogDetail", reqVehicleLog);
                 if (!apiResult.successed)
@@ -781,7 +796,7 @@ namespace Smart.API.Adapter.Biz
                                 dicReConnectInfo.Remove((int)businessType);
                             }
 
-                            //TODO:出场成功，将JD账单记录进行归档
+
 
                         }
                         else if (apiResult.data.returnCode == "fail")
@@ -830,12 +845,12 @@ namespace Smart.API.Adapter.Biz
                 JDBillModel model = new JDBillBLL().GetJDBillByLogNo(requestThirdCharging.inRecordId);
                 if (model != null)
                 {
-                    int iCharge = 0;
-                    int.TryParse(model.Cost, out iCharge);
-                    thirdCharging.charge = iCharge;
-                    thirdCharging.chargeTotal = iCharge;
+                    float fCharge = 0;
+                    float.TryParse(model.Cost, out fCharge);
+                    thirdCharging.charge = (int)fCharge * 100;
+                    thirdCharging.chargeTotal = (int)fCharge * 100;
                     thirdCharging.discountAmount = 0;
-                    if (iCharge <= 0)
+                    if (fCharge <= 0)
                     {
                         thirdCharging.isOpenGate = 1;
                     }

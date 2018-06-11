@@ -116,5 +116,24 @@ namespace Smart.API.Adapter.Models.Core
             get;
             set;
         }
+
+
+        /// <summary>
+        /// 事件类型
+        /// </summary>
+        public string parkEventType
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 备注
+        /// </summary>
+        public string remark
+        {
+            get;
+            set;
+        }
     }
 }

@@ -56,6 +56,24 @@ namespace Smart.API.Adapter.Models.Core.JD
             get;
             set;
         }
+
+        /// <summary>
+        /// 原因代码
+        /// </summary>
+        public string ReasonCode
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 原因
+        /// </summary>
+        public string Reason
+        {
+            get;
+            set;
+        }
         
 
         public DateTime CreatTime
