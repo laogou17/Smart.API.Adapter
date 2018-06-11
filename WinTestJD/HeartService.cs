@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using Smart.API.Adapter.Biz;
 using Smart.API.Adapter.Common;
+using System.Globalization;
 
 namespace WinTestJD
 {
@@ -17,16 +18,27 @@ namespace WinTestJD
         private Timer timerUpdateParkTotalCount;
         private Timer timerUpdateParkRemainCount;
         private Timer timerUpdateEquipmentStatus;
+        private Timer timerCheckNowTime;
         private int faliTimes = 0;
         private int faliTimesUpdateParkTotalCount = 0;
         private int faliTimesUpdateParkRemainCount = 0;
         private int faliTimesUpdateEquipmentStatus = 0;
+        private bool updateParkTotalByTimeFlag = false;
+
+        private Timer timerUpdateTotal;
 
         public void Start()
         {
-            //初始化版本：
+            
+            //客户端初始化时 每隔 5s向京东服务端调用心跳接口，以检测是否存活
+            //客户端应用 初始化时获取白名单，在第一次心跳处理
+
             LogHelper.Info(string.Format("{0}:服务启动，心跳检测开始.", DateTime.Now.ToString()));
             timerHeart = new Timer(new TimerCallback(HeartCheck), null, 0, Timeout.Infinite);
+
+            //客户端应用初始化时同步停车场总车位数，之后每天0点同步一次
+            timerUpdateTotal = new Timer(new TimerCallback(UpdateParkTotalByTime), null, 0, Timeout.Infinite);
+
 
         }
 
@@ -54,9 +66,48 @@ namespace WinTestJD
             //timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
         }
 
+        private void UpdateParkTotalByTime(object obj)
+        {
+            UpdateParkTotalCount();
+            //一分钟后每隔一分钟检测一次
+            timerCheckNowTime = new Timer(new TimerCallback(CheckTime), null, 1000 * 60, 1000 * 60);
+        }
+
+        private void CheckTime(object obj)
+        {
+            //00:00执行
+            if (DateTime.Now.Hour == 0 && DateTime.Now.Minute == 0)
+            {
+                timerUpdateTotal.Change(0, Timeout.Infinite);
+            }
+
+        }
+        //一下注释为00:00执行后，后面每24小时执行一次，上面为每分钟检测一次
+        //private void UpdateParkTotalByTime(object obj)
+        //{
+        //    UpdateParkTotalCount();
+        //    //执行过后，每隔一分钟检查时间
+        //    if (!updateParkTotalByTimeFlag)
+        //    {
+        //        timerCheckNowTime = new Timer(new TimerCallback(CheckTime), null, 0, 1000 * 60);
+        //    }
+        //    updateParkTotalByTimeFlag = true;
+        //}
+
+        //private void CheckTime(object obj)
+        //{ 
+        //    //00:00执行后，后面每24小时执行一次
+        //    if (DateTime.Now.Hour == 0 && DateTime.Now.Minute == 0)
+        //    {
+        //        //不再检测时间
+        //        timerCheckNowTime.Dispose();
+        //        timerUpdateTotal.Change(0, 1000 * 60 * 60 * 24);
+        //    }
+ 
+        //}
+
         public void UpdateParkTotalCount()
         {
-
             LogHelper.Info(string.Format("{0}:更新车场车位总数", DateTime.Now.ToString()));
             timerUpdateParkTotalCount = new Timer(new TimerCallback(UpdateParkTotalCountCallBack), null, 0, Timeout.Infinite);
 
