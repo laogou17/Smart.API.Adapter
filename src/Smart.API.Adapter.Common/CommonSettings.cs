@@ -183,7 +183,7 @@ namespace Smart.API.Adapter.Common
             {
                 if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["BaseAddressJd"]))
                 {
-                    return ConfigurationManager.AppSettings["BaseAddressJd"];
+                    return ConfigurationManager.AppSettings["BaseAddressJd"].TrimEnd('/')+"/";
                 }
                 return "http://test.spl.jd.com/external/";
             }
@@ -313,6 +313,36 @@ namespace Smart.API.Adapter.Common
 
             }
             return null;
+        }
+
+        /// <summary>
+        /// 请求第三方计费错误，默认返回码
+        /// </summary>
+        public static string ThirdChargingFailCode
+        {
+            get
+            {
+                string thirdChargingFailCode = ConfigurationManager.AppSettings["ThirdChargingFailCode"];
+                if (string.IsNullOrWhiteSpace(thirdChargingFailCode))
+                {
+                    thirdChargingFailCode = "1";
+                }
+                return thirdChargingFailCode;
+            }
+        }
+
+        /// <summary>
+        /// 请求计费错误，默认返回开闸标识
+        /// </summary>
+        public static int ThirdChargingIsOpenGate
+        {
+            get
+            {
+                string ThirdChargingIsOpenGate = ConfigurationManager.AppSettings["ThirdChargingIsOpenGate"];
+                int iThirdChargingIsOpenGate = 0;
+                int.TryParse(ThirdChargingIsOpenGate, out iThirdChargingIsOpenGate);
+                return iThirdChargingIsOpenGate;
+            }
         }
     }
 }

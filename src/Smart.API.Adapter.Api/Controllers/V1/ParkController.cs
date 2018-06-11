@@ -40,7 +40,67 @@ namespace Smart.API.Adapter.Api.Controllers.V1
         [HttpPost, WriteLog, ActionName("inrecognition")]
         public HttpResponseMessage inrecognition(InRecognitionRecord requestdata)
         {
-            APIResultBase result = new JDParkBiz().PostInRecognition(requestdata);
+            APIResultBase result = new JDParkBiz().CheckWhiteList(requestdata, enumJDBusinessType.InRecognition);
+            return Request.CreateResponse(result);
+        }
+
+        /// <summary>
+        /// 接收车辆入场过闸记录，jielink+调用此接口
+        /// </summary>
+        /// <param name="LEquipmentStatus"></param>
+        /// <returns></returns>
+        [HttpPost, WriteLog, ActionName("carin")]
+        public HttpResponseMessage carin(InCrossRecord requestdata)
+        {
+            APIResultBase result = new JDParkBiz().PostCarIn(requestdata, enumJDBusinessType.InCross);
+            return Request.CreateResponse(result);
+        }
+
+        /// <summary>
+        /// 接收车辆出场识别记录，jielink+调用此接口
+        /// </summary>
+        /// <param name="LEquipmentStatus"></param>
+        /// <returns></returns>
+        [HttpPost, WriteLog, ActionName("outrecognition")]
+        public HttpResponseMessage outrecognition(OutRecognitionRecord requestdata)
+        {
+            APIResultBase result = new JDParkBiz().PostOutRecognition(requestdata, enumJDBusinessType.OutRecognition);
+            return Request.CreateResponse(result);
+        }
+
+        /// <summary>
+        /// 接收车辆出场过闸记录，jielink+调用此接口
+        /// </summary>
+        /// <param name="LEquipmentStatus"></param>
+        /// <returns></returns>
+        [HttpPost, WriteLog, ActionName("carout")]
+        public HttpResponseMessage carout(OutCrossRecord requestdata)
+        {
+            APIResultBase result = new JDParkBiz().PostCarOut(requestdata, enumJDBusinessType.OutCross);
+            return Request.CreateResponse(result);
+        }
+
+        /// <summary>
+        /// 请求第三方计费，jielink+调用此接口
+        /// </summary>
+        /// <param name="LEquipmentStatus"></param>
+        /// <returns></returns>
+        [HttpPost, WriteLog, ActionName("thirdcharging")]
+        public HttpResponseMessage thirdcharging(RequestThirdCharging requestdata)
+        {
+            APIResultBase result = new JDParkBiz().ThirdCharging(requestdata);
+            return Request.CreateResponse(result);
+        }
+
+        /// <summary>
+        /// 支付结果反查，jielink+调用此接口
+        /// </summary>
+        /// <param name="LEquipmentStatus"></param>
+        /// <returns></returns>
+        [HttpPost, WriteLog, ActionName("paycheck")]
+        public HttpResponseMessage paycheck(RequestPayCheck requestdata)
+        {
+            APIResultBase result = new JDParkBiz().ThirdCharging(requestdata);
             return Request.CreateResponse(result);
         }
     }

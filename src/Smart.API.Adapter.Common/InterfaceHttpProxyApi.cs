@@ -51,9 +51,13 @@ namespace Smart.API.Adapter.Common
             using (var client = GetHttpClient(timeout))
             {
                 var response = client.PostAsync(relativeUri, new FormUrlEncodedContent(ToMapDic(parameters))).Result;
-                if (response.IsSuccessStatusCode)
+                try
                 {
                     LogHelper.Info("PostResponse:[" + relativeUri + "]" + response.Content.ReadAsStringAsync().Result);//记录日志
+                }
+                catch (Exception)
+                {
+                   
                 }
                 return HandleApiResult<T>(response);
             }
@@ -100,13 +104,21 @@ namespace Smart.API.Adapter.Common
             }
         }
 
-        public async Task<ApiResult<T>> PostAsync<T>(string relativeUri, object parameters, TimeSpan? timeout = null)
+        public async Task<ApiResult<T>> PostUrlAsync<T>(string relativeUri, object parameters, TimeSpan? timeout = null)
         {
             string sJson = parameters.ToJson();
             LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
                 var response = await client.PostAsync(relativeUri, new FormUrlEncodedContent(ToMapDic(parameters)));
+                try
+                {
+                    LogHelper.Info("PostResponse:[" + relativeUri + "]" + response.Content.ReadAsStringAsync().Result);//记录日志
+                }
+                catch (Exception)
+                {
+
+                }
                 return HandleApiResult<T>(response);
             }
         }

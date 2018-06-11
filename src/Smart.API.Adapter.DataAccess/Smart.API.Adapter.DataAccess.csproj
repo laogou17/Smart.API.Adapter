@@ -60,6 +60,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\JD\JDBillDAL.cs" />
+    <Compile Include="Core\JD\ParkWhiteListDAL.cs" />
     <Compile Include="Sys\SequenceDAL.cs" />
     <Compile Include="Task\TaskQueueDAL.cs" />
     <Compile Include="Sys\ApiAccessDAL.cs" />

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Smart.API.Adapter.Models.Core
 {
-    public class InRecognitionRecord
+    public class OutRecognitionRecord
     {
         /// <summary>
-        /// 入场记录唯一标识
+        /// 出场id
         /// </summary>
-        public string inRecordId
+        public string outRecordId
         {
             get;
             set;
@@ -21,6 +21,43 @@ namespace Smart.API.Adapter.Models.Core
         /// 车场ID
         /// </summary>
         public string parkId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 出场设备ID
+        /// </summary>
+        public string outDeviceId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 出场设备名称
+        /// </summary>
+        public string outDeviceName
+        {
+            get;
+            set;
+        }
+
+
+        /// <summary>
+        /// 出场识别时间
+        /// </summary>
+        public string recognitionTime
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 入场记录唯一标识
+        /// </summary>
+        public string inRecordId
         {
             get;
             set;
@@ -45,9 +82,9 @@ namespace Smart.API.Adapter.Models.Core
         }
 
         /// <summary>
-        /// 入场识别时间
+        /// 入场时间
         /// </summary>
-        public string recognitionTime
+        public string inTime
         {
             get;
             set;
@@ -57,6 +94,15 @@ namespace Smart.API.Adapter.Models.Core
         /// 车牌图片地址
         /// </summary>
         public string inImage
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 车牌图片地址
+        /// </summary>
+        public string outImage
         {
             get;
             set;
@@ -80,6 +126,16 @@ namespace Smart.API.Adapter.Models.Core
             set;
         }
 
+
+        /// <summary>
+        /// 套餐名
+        /// </summary>
+        public string sealName
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// 重试标识
         /// 1代表为补发的记录   
@@ -98,5 +154,6 @@ namespace Smart.API.Adapter.Models.Core
             get;
             set;
         }
+
     }
 }

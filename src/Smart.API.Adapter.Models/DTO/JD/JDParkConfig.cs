@@ -106,6 +106,9 @@ namespace Smart.API.Adapter.Models.DTO.JD
             set;
         }
 
+        /// <summary>
+        /// 重试的业务类型
+        /// </summary>
         public string ReType
         {
             get;

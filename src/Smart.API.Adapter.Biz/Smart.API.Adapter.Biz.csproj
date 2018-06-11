@@ -73,6 +73,10 @@
     <Compile Include="TaskBLL.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Smart.API.Adapter.BizCore\Smart.API.Adapter.BizCore.csproj">
+      <Project>{a5fd8416-0244-4efd-85e0-4caa1827f11f}</Project>
+      <Name>Smart.API.Adapter.BizCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Smart.API.Adapter.Common\Smart.API.Adapter.Common.csproj">
       <Project>{3c2de953-e82e-42b4-b093-91e30ad2fb28}</Project>
       <Name>Smart.API.Adapter.Common</Name>

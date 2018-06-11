@@ -64,8 +64,15 @@
     <Compile Include="Core\ApiResult.cs" />
     <Compile Include="Core\APIResultBase.cs" />
     <Compile Include="Core\Equipmentstatus.cs" />
+    <Compile Include="Core\InCrossRecord.cs" />
     <Compile Include="Core\InRecognitionRecord.cs" />
     <Compile Include="Core\InterfaceSyncProxyException.cs" />
+    <Compile Include="Core\JD\JDBillModel.cs" />
+    <Compile Include="Core\OutCrossRecord.cs" />
+    <Compile Include="Core\OutRecognitionRecord.cs" />
+    <Compile Include="Core\RequestPayCheck.cs" />
+    <Compile Include="Core\RequestThirdCharging.cs" />
+    <Compile Include="Core\ResponsePayCheck.cs" />
     <Compile Include="DTO\BaseJdRes.cs" />
     <Compile Include="DTO\HeartReq.cs" />
     <Compile Include="DTO\HeartVersion.cs" />
@@ -73,6 +80,9 @@
     <Compile Include="DTO\JD\RequestEquipmentInfo.cs" />
     <Compile Include="DTO\JD\RequestJDBase.cs" />
     <Compile Include="DTO\JD\RequestVehicleLog.cs" />
+    <Compile Include="DTO\JD\RequsetJDQueryPay.cs" />
+    <Compile Include="DTO\JD\ResponseJDQueryPay.cs" />
+    <Compile Include="DTO\JD\ResponseOutRecognition.cs" />
     <Compile Include="DTO\ParkCountReq.cs" />
     <Compile Include="DTO\ParkPlaceCount.cs" />
     <Compile Include="DTO\RemainCountReq.cs" />
@@ -87,6 +97,7 @@
     <Compile Include="Log\InterfaceLog.cs" />
     <Compile Include="Log\ServiceLog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Core\ResponseThirdCharging.cs" />
     <Compile Include="Task\ArchivedTaskQueueEntity.cs" />
     <Compile Include="Task\TaskQueueEntity.cs" />
   </ItemGroup>

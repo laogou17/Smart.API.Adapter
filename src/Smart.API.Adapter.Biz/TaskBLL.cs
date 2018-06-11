@@ -31,7 +31,7 @@ namespace Smart.API.Adapter.Biz
             {
                 if (TaskQueueDAL.ProxyInstance.SetTaskCompleted(taskId,successful))
                 {
-                    //if (successful) 无论成功还是失败，都归档任务
+                    if (successful) 
                     {
                         TaskQueueDAL.ProxyInstance.SetTaskArchived(taskId);
                     }

@@ -1,6 +1,9 @@
-﻿using Smart.API.Adapter.Common;
+﻿using Smart.API.Adapter.BizCore.JD;
+using Smart.API.Adapter.Common;
+using Smart.API.Adapter.Common.JD;
 using Smart.API.Adapter.Models;
 using Smart.API.Adapter.Models.Core;
+using Smart.API.Adapter.Models.Core.JD;
 using Smart.API.Adapter.Models.DTO.JD;
 using System;
 using System.Collections.Generic;
@@ -36,7 +39,7 @@ namespace Smart.API.Adapter.Biz
                     {"parkLotCode", CommonSettings.ParkLotCode}  ,
                     {"token", CommonSettings.Token}                 
                 });
-                var result = client.PostAsync("heartbeatCheck", content).Result;
+                var result = client.PostAsync("external/heartbeatCheck", content).Result;
                 HeartVersion heartJd = result.Content.ReadAsStringAsync().Result.FromJson<HeartVersion>();
                 LogHelper.Info("PostResponse:heartbeatCheck" + result.Content.ReadAsStringAsync().Result);//记录日志
                 return heartJd;
@@ -53,7 +56,7 @@ namespace Smart.API.Adapter.Biz
                 token = CommonSettings.Token
             };
 
-            ApiResult<HeartVersion> result = requestApi.PostRaw<HeartVersion>("heartbeatCheck", req);
+            ApiResult<HeartVersion> result = requestApi.PostRaw<HeartVersion>("external/heartbeatCheck", req);
 
             if (result.data == null)
             {
@@ -77,7 +80,7 @@ namespace Smart.API.Adapter.Biz
                     {"version", version}  ,
                     {"token", CommonSettings.Token}                 
                 });
-                var result = client.PostAsync("queryVehicleLegality", content).Result;
+                var result = client.PostAsync("external/queryVehicleLegality", content).Result;
 
                 VehicleLegality vehicleJd = result.Content.ReadAsStringAsync().Result.FromJson<VehicleLegality>();
                 LogHelper.Info("PostResponse:queryVehicleLegality" + result.Content.ReadAsStringAsync().Result);//记录日志
@@ -94,7 +97,7 @@ namespace Smart.API.Adapter.Biz
             InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
             WhiteListReq req = new WhiteListReq();
             req.version = version;
-            ApiResult<VehicleLegality> result = requestApi.PostRaw<VehicleLegality>("queryVehicleLegality", req);
+            ApiResult<VehicleLegality> result = requestApi.PostRaw<VehicleLegality>("external/queryVehicleLegality", req);
             if (result.data == null)
             {
                 throw new Exception(result.message);
@@ -125,7 +128,7 @@ namespace Smart.API.Adapter.Biz
                     {"param", remainCountReq.ToJson()},  
                     {"token", CommonSettings.Token}                 
                 });
-                var result = await client.PostAsync("modifyParkLotRemainCount", content);
+                var result = await client.PostAsync("external/modifyParkLotRemainCount", content);
 
                 BaseJdRes resJd = result.Content.ReadAsStringAsync().Result.FromJson<BaseJdRes>();
                 LogHelper.Info("PostResponse:modifyParkLotRemainCount" + result.Content.ReadAsStringAsync().Result);//记录日志
@@ -145,7 +148,7 @@ namespace Smart.API.Adapter.Biz
                     {"param", totalCountReq.ToJson()},  
                     {"token", CommonSettings.Token}                 
                 });
-                var result = await client.PostAsync("modifyParkLotTotalCount", content);
+                var result = await client.PostAsync("external/modifyParkLotTotalCount", content);
 
                 BaseJdRes resJd = result.Content.ReadAsStringAsync().Result.FromJson<BaseJdRes>();
                 LogHelper.Info("PostResponse:modifyParkLotTotalCount" + result.Content.ReadAsStringAsync().Result);//记录日志
@@ -225,7 +228,7 @@ namespace Smart.API.Adapter.Biz
                 if (LjdEquipment.Count > 0)
                 {
                     requestEquipmentInfo.device = LjdEquipment.ToJson();
-                    ApiResult<BaseJdRes> apiResult = httpApi.PostUrl<BaseJdRes>("checkEquipment", requestEquipmentInfo);
+                    ApiResult<BaseJdRes> apiResult = httpApi.PostUrl<BaseJdRes>("external/checkEquipment", requestEquipmentInfo);
                     if (!apiResult.successed)//请求JD接口失败
                     {
                         apiBaseResult.code = "1";
@@ -246,6 +249,7 @@ namespace Smart.API.Adapter.Biz
                         {
                             if (apiResult.data.returnCode == "success")
                             {
+                                apiBaseResult.code = "0";
                                 if (dicReConnectInfo.ContainsKey((int)enumJDBusinessType.EquipmentStatus))
                                 {
                                     dicReConnectInfo.Remove((int)enumJDBusinessType.EquipmentStatus);
@@ -253,11 +257,13 @@ namespace Smart.API.Adapter.Biz
                             }
                             else if (apiResult.data.returnCode == "fail")
                             {
-
+                                apiBaseResult.code = "1";
+                                apiBaseResult.msg = "请求第三方失败，返回[fail]:" + apiResult.data.description;
                             }
                             else
                             {
-
+                                apiBaseResult.code = "1";
+                                apiBaseResult.msg = "请求第三方失败，返回[exception]:" + apiResult.data.description;
                             }
                         }
                         else
@@ -338,13 +344,72 @@ namespace Smart.API.Adapter.Biz
 
 
         /// <summary>
+        /// 检查是否白名单(第三方鉴权)
+        /// </summary>
+        /// <param name="inRecognitionRecord"></param>
+        /// <returns></returns>
+        public APIResultBase CheckWhiteList(InRecognitionRecord inRecognitionRecord, enumJDBusinessType businessType)
+        {
+            APIResultBase apiBaseResult = new APIResultBase();
+            apiBaseResult.code = "0";
+            apiBaseResult.msg = "";
+            try
+            {
+                ICollection<VehicleInfo> VehicleInfoCollection = JDCommonSettings.ParkWhiteList;
+                bool bIsWhiteList = true;
+                var query = VehicleInfoCollection.Where(p => p.vehicleNo == inRecognitionRecord.plateNumber).FirstOrDefault();
+                if (query == null)
+                {
+                    bIsWhiteList = false;
+                }
+                apiBaseResult = PostInRecognition(inRecognitionRecord, businessType);
+                if (apiBaseResult.code != "0")//请求第三方接口失败
+                {
+                    //推送识别记录失败
+                    if (!bIsWhiteList)//非法车辆，补推记录，但不开闸
+                    {
+                        apiBaseResult.code = "98";// 约定jielink+ api code="98" ，不开闸，但补推记录
+                        apiBaseResult.msg = "请求第三方失败，非法车辆不开闸，补推记录";
+                    }
+                    else
+                    {
+                        //白名单，推送记录失败，开闸，补推记录。
+                        apiBaseResult.code = "99";// 约定jielink+ api code="99" ，开闸，补推记录
+                        apiBaseResult.msg = "请求第三方失败，白名单开闸，补推记录";
+                    }
+                }
+                else  //请求第三方成功
+                {
+                    if (bIsWhiteList)//白名单
+                    {
+                        apiBaseResult.code = "0";
+                        apiBaseResult.msg = "";
+                    }
+                    else
+                    {
+                        apiBaseResult.code = "1";
+                        apiBaseResult.msg = "非法车辆";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                apiBaseResult.msg = "检查白名单失败";
+                LogHelper.Error("检查白名单错误:", ex);
+            }
+            return apiBaseResult;
+        }
+
+        /// <summary>
         /// 到达入口
         /// </summary>
         /// <param name="inRecognitionRecord"></param>
         /// <returns></returns>
-        public APIResultBase PostInRecognition(InRecognitionRecord inRecognitionRecord)
+        public APIResultBase PostInRecognition(InRecognitionRecord inRecognitionRecord, enumJDBusinessType businessType)
         {
             APIResultBase apiBaseResult = new APIResultBase();
+            apiBaseResult.code = "99";//99代表数据需要重传 ,发请重试，频率是每5秒重试一次。
+            apiBaseResult.msg = "";
             try
             {
                 InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
@@ -359,32 +424,35 @@ namespace Smart.API.Adapter.Biz
                 reqVehicleLog.photoStr = StringHelper.GetPicStringByUrl(inRecognitionRecord.inImage, out fileName);
                 reqVehicleLog.photoName = fileName;
                 reqVehicleLog.resend = "1";
-                bool bReTry = true;
-                JDTimer jdTimer = CommonSettings.JDTimerInfo(enumJDBusinessType.InRecognition);
-                string sReType = "unavailable";
-                if (dicReConnectInfo.ContainsKey((int)enumJDBusinessType.InRecognition))
+                if (inRecognitionRecord.reTrySend == "1")
                 {
-                    if (dicReConnectInfo[(int)enumJDBusinessType.InRecognition].ReCount > jdTimer.ReConnectCount)
+                    reqVehicleLog.resend = "0";//补发的记录
+                }
+                bool bReTry = true;
+                JDTimer jdTimer = CommonSettings.JDTimerInfo(businessType);
+                string sReType = "unavailable";
+                if (dicReConnectInfo.ContainsKey((int)businessType))
+                {
+                    if (dicReConnectInfo[(int)businessType].ReCount > jdTimer.ReConnectCount)
                     {
                         reqVehicleLog.resend = "0";
-                        bReTry = dicReConnectInfo[(int)enumJDBusinessType.InRecognition].IsReTry;
-                        sReType = dicReConnectInfo[(int)enumJDBusinessType.InRecognition].ReType;
+                        bReTry = dicReConnectInfo[(int)businessType].IsReTry;
+                        sReType = dicReConnectInfo[(int)businessType].ReType;
                     }
                 }
+
                 if (!bReTry)
                 {
-                    JDRePostUpdatePostTime(enumJDBusinessType.InRecognition, sReType);
-                    apiBaseResult.code = "99";//99代表数据需要重传 ,由jielink+ 会发请重试，频率是每5秒重试一次。
+                    JDRePostUpdatePostTime(businessType, sReType);
                     apiBaseResult.msg = "等待第三方重试的时间间隔";
                     return apiBaseResult;
                 }
 
-                ApiResult<BaseJdRes> apiResult = httpApi.PostUrl<BaseJdRes>("createVehicleLogDetail", reqVehicleLog);
+                ApiResult<BaseJdRes> apiResult = httpApi.PostUrl<BaseJdRes>("external/createVehicleLogDetail", reqVehicleLog);
                 if (!apiResult.successed)
                 {
-                    apiBaseResult.code = "99";//99代表数据需要重传 ,由jielink+ 会发请重试，频率是每5秒重试一次。
                     apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
-                    JDRePostAndEail(enumJDBusinessType.InRecognition, "unavailable");//重试计数和发送邮件
+                    JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
                 }
                 else
                 {
@@ -392,35 +460,524 @@ namespace Smart.API.Adapter.Biz
                     {
                         if (apiResult.data.returnCode == "success")
                         {
-                            if (dicReConnectInfo.ContainsKey((int)enumJDBusinessType.InRecognition))
+                            apiBaseResult.code = "0";//请求成功
+                            if (dicReConnectInfo.ContainsKey((int)businessType))
                             {
-                                dicReConnectInfo.Remove((int)enumJDBusinessType.InRecognition);
+                                dicReConnectInfo.Remove((int)businessType);
                             }
                         }
                         else if (apiResult.data.returnCode == "fail")
                         {
-                            JDRePostAndEail(enumJDBusinessType.InRecognition, "fail");//重试计数和发送邮件
+                            JDRePostAndEail(businessType, "fail");//重试计数和发送邮件
+                            apiBaseResult.msg = "请求第三方失败，返回[fail]:" + apiResult.data.description;
                         }
                         else
                         {
-                            JDRePostAndEail(enumJDBusinessType.InRecognition, "exception");//重试计数和发送邮件
+                            JDRePostAndEail(businessType, "exception");//重试计数和发送邮件
+                            apiBaseResult.msg = "请求第三方失败，返回[exception]:" + apiResult.data.description;
                         }
                     }
                     else
                     {
-                        reqVehicleLog.resend = "0";
+                        apiBaseResult.msg = "请求第三方失败，返回的data为null";
+                        JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
                     }
                 }
             }
             catch (Exception ex)
             {
-                apiBaseResult.code = "99";//99代表数据需要重传
                 apiBaseResult.msg = "请求第三方失败，" + ex.Message;
-                LogHelper.Error("请求设备状态错误:", ex);
-                JDRePostAndEail(enumJDBusinessType.InRecognition, "unavailable");//重试计数和发送邮件
+                LogHelper.Error("请求第三方入场识别错误:", ex);
+                JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
             }
+
+            return apiBaseResult;
+            //TODO:如果推送记录失败，写入任务表，进行定时推送（不采用）
+            //或者不写任务表，修改Jielink+ api  写入SDK失败记录，让中心重新推送（采用此方式）
+
+        }
+
+
+        /// <summary>
+        /// 进入停车场
+        /// </summary>
+        /// <param name="inRecognitionRecord"></param>
+        /// <returns></returns>
+        public APIResultBase PostCarIn(InCrossRecord inCrossRecord, enumJDBusinessType businessType)
+        {
+            APIResultBase apiBaseResult = new APIResultBase();
+            apiBaseResult.code = "99";//99代表数据需要重传 ,jielink+中心发请重试，频率是每5秒重试一次。
+            apiBaseResult.msg = "";
+            try
+            {
+                InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+                RequestVehicleLog reqVehicleLog = new RequestVehicleLog();
+                reqVehicleLog.logNo = inCrossRecord.inRecordId;
+                reqVehicleLog.actionDescId = "1";//自动抬杆进入停车场
+
+                //TODO:jielink+需要加参数 是否手动抬杆和抬杆的原因。 Jielink+加了是否手动抬杆标识后，下面不用判断是否白名单
+                ICollection<VehicleInfo> VehicleInfoCollection = JDCommonSettings.ParkWhiteList;
+                var query = VehicleInfoCollection.Where(p => p.vehicleNo == inCrossRecord.plateNumber).FirstOrDefault();
+                if (query == null)
+                {
+                    reqVehicleLog.actionDescId = "2";//非白名单 手动抬杆
+                    reqVehicleLog.reasonCode = "";
+                    reqVehicleLog.reason = "";
+                }
+
+                reqVehicleLog.vehicleNo = inCrossRecord.plateNumber;
+                reqVehicleLog.actionTime = inCrossRecord.inTime;
+                reqVehicleLog.actionPositionCode = inCrossRecord.inDeviceId;
+                reqVehicleLog.actionPosition = inCrossRecord.inDeviceName;
+                reqVehicleLog.resend = "1";
+                if (inCrossRecord.reTrySend == "1")
+                {
+                    reqVehicleLog.resend = "0";//补发的记录
+                }
+                bool bReTry = true;
+                JDTimer jdTimer = CommonSettings.JDTimerInfo(businessType);
+                string sReType = "unavailable";
+                if (dicReConnectInfo.ContainsKey((int)businessType))
+                {
+                    if (dicReConnectInfo[(int)businessType].ReCount > jdTimer.ReConnectCount)
+                    {
+                        reqVehicleLog.resend = "0";
+                        bReTry = dicReConnectInfo[(int)businessType].IsReTry;
+                        sReType = dicReConnectInfo[(int)businessType].ReType;
+                    }
+                }
+                if (!bReTry)
+                {
+                    JDRePostUpdatePostTime(businessType, sReType);
+                    apiBaseResult.code = "99";//99代表数据需要重传 ,jielink+中心会发起重试，频率是每5秒重试一次。
+                    apiBaseResult.msg = "等待第三方重试的时间间隔";
+                    return apiBaseResult;
+                }
+
+                ApiResult<BaseJdRes> apiResult = httpApi.PostUrl<BaseJdRes>("external/createVehicleLogDetail", reqVehicleLog);
+                if (!apiResult.successed)
+                {
+                    apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
+                    JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
+                }
+                else
+                {
+                    if (apiResult.data != null)
+                    {
+                        if (apiResult.data.returnCode == "success")
+                        {
+                            apiBaseResult.code = "0";//请求成功
+                            if (dicReConnectInfo.ContainsKey((int)businessType))
+                            {
+                                dicReConnectInfo.Remove((int)businessType);
+                            }
+                        }
+                        else if (apiResult.data.returnCode == "fail")
+                        {
+                            JDRePostAndEail(businessType, "fail");//重试计数和发送邮件
+                            apiBaseResult.msg = "请求第三方失败，返回[fail]:" + apiResult.data.description;
+                        }
+                        else
+                        {
+                            JDRePostAndEail(businessType, "exception");//重试计数和发送邮件
+                            apiBaseResult.msg = "请求第三方失败，返回[exception]:" + apiResult.data.description;
+                        }
+                    }
+                    else
+                    {
+                        apiBaseResult.msg = "请求第三方失败，返回的data为null";
+                        JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                apiBaseResult.msg = "请求第三方失败，" + ex.Message;
+                LogHelper.Error("请求第三方入场过闸错误:", ex);
+                JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
+            }
+
             return apiBaseResult;
         }
+
+
+        /// <summary>
+        /// 到达出口
+        /// </summary>
+        /// <param name="inRecognitionRecord"></param>
+        /// <returns></returns>
+        public APIResultBase PostOutRecognition(OutRecognitionRecord outRecognitionRecord, enumJDBusinessType businessType)
+        {
+            APIResultBase apiBaseResult = new APIResultBase();
+            apiBaseResult.code = "99";//99代表数据需要重传 ,jielink+中心发请重试，频率是每5秒重试一次。
+            apiBaseResult.msg = "";
+            try
+            {
+                InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+                RequestVehicleLog reqVehicleLog = new RequestVehicleLog();
+                reqVehicleLog.logNo = outRecognitionRecord.inRecordId;
+                reqVehicleLog.actionDescId = "101";
+                reqVehicleLog.entryTime = outRecognitionRecord.inTime;
+                reqVehicleLog.vehicleNo = outRecognitionRecord.plateNumber;
+                reqVehicleLog.actionTime = outRecognitionRecord.recognitionTime;
+                reqVehicleLog.actionPositionCode = outRecognitionRecord.outDeviceId;
+                reqVehicleLog.actionPosition = outRecognitionRecord.outDeviceName;
+                reqVehicleLog.resend = "1";
+                if (outRecognitionRecord.reTrySend == "1")
+                {
+                    reqVehicleLog.resend = "0";//补发的记录
+                }
+
+                string fileName = "";
+                reqVehicleLog.photoStr = StringHelper.GetPicStringByUrl(outRecognitionRecord.outImage, out fileName);
+                reqVehicleLog.photoName = fileName;
+
+                bool bReTry = true;
+                JDTimer jdTimer = CommonSettings.JDTimerInfo(businessType);
+                string sReType = "unavailable";
+                if (dicReConnectInfo.ContainsKey((int)businessType))
+                {
+                    if (dicReConnectInfo[(int)businessType].ReCount > jdTimer.ReConnectCount)
+                    {
+                        reqVehicleLog.resend = "0";
+                        bReTry = dicReConnectInfo[(int)businessType].IsReTry;
+                        sReType = dicReConnectInfo[(int)businessType].ReType;
+                    }
+                }
+                if (!bReTry)
+                {
+                    JDRePostUpdatePostTime(businessType, sReType);
+                    apiBaseResult.msg = "等待第三方重试的时间间隔";
+                    return apiBaseResult;
+                }
+
+                ApiResult<ResponseOutRecognition> apiResult = httpApi.PostUrl<ResponseOutRecognition>("external/createVehicleLogDetail", reqVehicleLog);
+                if (!apiResult.successed)
+                {
+                    apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
+                    JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
+                }
+                else
+                {
+                    if (apiResult.data != null)
+                    {
+                        if (apiResult.data.returnCode == "success")
+                        {
+                            apiBaseResult.code = "0";//请求成功
+                            if (dicReConnectInfo.ContainsKey((int)businessType))
+                            {
+                                dicReConnectInfo.Remove((int)businessType);
+                            }
+
+                            //保存JD账单
+                            if (apiResult.data.resultCode != "1")//需要缴费
+                            {
+                                if (outRecognitionRecord.reTrySend != "1")//并且不是补发的记录
+                                {
+                                    JDBillModel model = new JDBillModel();
+                                    model.LogNo = reqVehicleLog.logNo;
+                                    model.ResultCode = apiResult.data.resultCode;
+                                    model.QrCode = apiResult.data.qrCode;
+                                    model.Cost = apiResult.data.cost;
+
+                                    new JDBillBLL().Insert(model);
+                                }
+                                else
+                                {
+                                    //补发的记录处理，是否进行账单归档？ 暂不做处理
+                                }
+                            }
+                        }
+                        else if (apiResult.data.returnCode == "fail")
+                        {
+                            JDRePostAndEail(businessType, "fail");//重试计数和发送邮件
+                            apiBaseResult.msg = "请求第三方失败，返回[fail]:" + apiResult.data.description;
+                        }
+                        else
+                        {
+                            JDRePostAndEail(businessType, "exception");//重试计数和发送邮件
+                            apiBaseResult.msg = "请求第三方失败，返回[exception]:" + apiResult.data.description;
+                        }
+                    }
+                    else
+                    {
+                        apiBaseResult.msg = "请求第三方失败，返回的data为null";
+                        JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                apiBaseResult.msg = "请求第三方失败，" + ex.Message;
+                LogHelper.Error("请求第三方出场识别错误:", ex);
+                JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
+            }
+
+            return apiBaseResult;
+        }
+
+
+        /// <summary>
+        /// 离开停车场
+        /// </summary>
+        /// <param name="inRecognitionRecord"></param>
+        /// <returns></returns>
+        public APIResultBase PostCarOut(OutCrossRecord outCrossRecord, enumJDBusinessType businessType)
+        {
+            APIResultBase apiBaseResult = new APIResultBase();
+            apiBaseResult.code = "99";//99代表数据需要重传 ,jielink+中心发请重试，频率是每5秒重试一次。
+            apiBaseResult.msg = "";
+            try
+            {
+                InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+                RequestVehicleLog reqVehicleLog = new RequestVehicleLog();
+                reqVehicleLog.logNo = outCrossRecord.inRecordId;
+                reqVehicleLog.actionDescId = "5";//TODO:需要jielink+ 增加是否手动开闸标识 和开闸原因
+                reqVehicleLog.entryTime = outCrossRecord.inTime;
+                reqVehicleLog.vehicleNo = outCrossRecord.plateNumber;
+                reqVehicleLog.actionTime = outCrossRecord.outTime;
+                reqVehicleLog.actionPositionCode = outCrossRecord.outDeviceId;
+                reqVehicleLog.actionPosition = outCrossRecord.outDeviceName;
+                reqVehicleLog.resend = "1";
+                if (outCrossRecord.reTrySend == "1")
+                {
+                    reqVehicleLog.resend = "0";//补发的记录
+                }
+
+                bool bReTry = true;
+                JDTimer jdTimer = CommonSettings.JDTimerInfo(businessType);
+                string sReType = "unavailable";
+                if (dicReConnectInfo.ContainsKey((int)businessType))
+                {
+                    if (dicReConnectInfo[(int)businessType].ReCount > jdTimer.ReConnectCount)
+                    {
+                        reqVehicleLog.resend = "0";
+                        bReTry = dicReConnectInfo[(int)businessType].IsReTry;
+                        sReType = dicReConnectInfo[(int)businessType].ReType;
+                    }
+                }
+                if (!bReTry)
+                {
+                    JDRePostUpdatePostTime(businessType, sReType);
+                    apiBaseResult.msg = "等待第三方重试的时间间隔";
+                    return apiBaseResult;
+                }
+
+                ApiResult<ResponseOutRecognition> apiResult = httpApi.PostUrl<ResponseOutRecognition>("external/createVehicleLogDetail", reqVehicleLog);
+                if (!apiResult.successed)
+                {
+                    apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
+                    JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
+                }
+                else
+                {
+                    if (apiResult.data != null)
+                    {
+                        if (apiResult.data.returnCode == "success")
+                        {
+                            apiBaseResult.code = "0";//请求成功
+                            if (dicReConnectInfo.ContainsKey((int)businessType))
+                            {
+                                dicReConnectInfo.Remove((int)businessType);
+                            }
+
+                            //TODO:出场成功，将JD账单记录进行归档
+
+                        }
+                        else if (apiResult.data.returnCode == "fail")
+                        {
+                            JDRePostAndEail(businessType, "fail");//重试计数和发送邮件
+                            apiBaseResult.msg = "请求第三方失败，返回[fail]:" + apiResult.data.description;
+                        }
+                        else
+                        {
+                            JDRePostAndEail(businessType, "exception");//重试计数和发送邮件
+                            apiBaseResult.msg = "请求第三方失败，返回[exception]:" + apiResult.data.description;
+                        }
+                    }
+                    else
+                    {
+                        apiBaseResult.msg = "请求第三方失败，返回的data为null";
+                        JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                apiBaseResult.msg = "请求第三方失败，" + ex.Message;
+                LogHelper.Error("请求第三方出场过闸错误:", ex);
+                JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
+            }
+
+            return apiBaseResult;
+        }
+
+        /// <summary>
+        /// 请求第三方计费（读取JD的账单表）
+        /// </summary>
+        /// <param name="inRecognitionRecord"></param>
+        /// <returns></returns>
+        public APIResultBase<ResponseThirdCharging> ThirdCharging(RequestThirdCharging requestThirdCharging)
+        {
+            APIResultBase<ResponseThirdCharging> apiBaseResult = new APIResultBase<ResponseThirdCharging>();
+            apiBaseResult.code = "0";
+            apiBaseResult.msg = "";
+            ResponseThirdCharging thirdCharging = new ResponseThirdCharging();
+            thirdCharging.isOpenGate = 1;
+            try
+            {
+                //查询JD账单表
+                JDBillModel model = new JDBillBLL().GetJDBillByLogNo(requestThirdCharging.inRecordId);
+                if (model != null)
+                {
+                    int iCharge = 0;
+                    int.TryParse(model.Cost, out iCharge);
+                    thirdCharging.charge = iCharge;
+                    thirdCharging.chargeTotal = iCharge;
+                    thirdCharging.discountAmount = 0;
+                    if (iCharge <= 0)
+                    {
+                        thirdCharging.isOpenGate = 1;
+                    }
+                    else
+                    {
+                        thirdCharging.isOpenGate = 0;
+                    }
+                    thirdCharging.paid = 0;
+                    thirdCharging.payQrcodeLink = model.QrCode;
+                    thirdCharging.payType = "OTHER";
+                }
+            }
+            catch (Exception ex)
+            {
+                apiBaseResult.code = CommonSettings.ThirdChargingFailCode;
+                thirdCharging.isOpenGate = CommonSettings.ThirdChargingIsOpenGate;
+                apiBaseResult.msg = "请求第三方计费失败，" + ex.Message;
+                LogHelper.Error("请求第三方计费失败:", ex);
+            }
+            apiBaseResult.data = thirdCharging;
+            return apiBaseResult;
+        }
+
+
+        /// <summary>
+        /// 支付反查
+        /// </summary>
+        /// <param name="inRecognitionRecord"></param>
+        /// <returns></returns>
+        public APIResultBase<ResponsePayCheck> PayCheck(RequestPayCheck requesPayCheck)
+        {
+            APIResultBase<ResponsePayCheck> apiBaseResult = new APIResultBase<ResponsePayCheck>();
+            apiBaseResult.code = "0";
+            apiBaseResult.msg = "";
+            ResponsePayCheck responsePayCheck = new ResponsePayCheck();
+
+            try
+            {
+                RequsetJDQueryPay queryPay = new RequsetJDQueryPay();
+                queryPay.logNo = requesPayCheck.payNo;
+
+                //查询JD账单表
+                JDBillModel model = new JDBillBLL().GetJDBillByLogNo(queryPay.logNo);
+                if (model != null)
+                {
+                    queryPay.payType = model.ResultCode;
+                }
+                InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
+                ApiResult<ResponseJDQueryPay> apiResult = new ApiResult<ResponseJDQueryPay>();
+                try
+                {
+                    apiResult = httpApi.PostUrl<ResponseJDQueryPay>("external/queryPay", queryPay);
+                }
+                catch (Exception ex)
+                {
+                    apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
+                    responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    responsePayCheck.payStatus = 1;
+                    responsePayCheck.payType = "OTHER";
+                    responsePayCheck.transactionId = queryPay.logNo;
+                    //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+
+                    apiBaseResult.data = responsePayCheck;
+                    return apiBaseResult;
+                }
+
+                if (!apiResult.successed)
+                {
+                    apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
+                    responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    responsePayCheck.payStatus = 1;
+                    responsePayCheck.payType = "OTHER";
+                    responsePayCheck.transactionId = queryPay.logNo;
+                    //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                }
+                else
+                {
+                    if (apiResult.data != null)
+                    {
+                        if (apiResult.data.returnCode == "success")
+                        {
+                            apiBaseResult.code = "0";//请求成功
+                            //完成缴费，开闸
+                            responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            responsePayCheck.payStatus = 1;
+                            responsePayCheck.payType = "OTHER";
+                            responsePayCheck.transactionId = queryPay.logNo;
+                        }
+                        else if (apiResult.data.returnCode == "fail")
+                        {
+                            apiBaseResult.msg = "请求第三方失败，返回[fail]:" + apiResult.data.description;
+
+                            responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            responsePayCheck.payStatus = 0;
+                            responsePayCheck.payType = "OTHER";
+                            responsePayCheck.transactionId = queryPay.logNo;
+                            if (apiResult.data.resultCode == null)
+                            {
+                                responsePayCheck.payStatus = 0;
+                                //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                            }
+                            else if (apiResult.data.returnCode == "2")
+                            {
+                                //TODO:每隔3秒重试，重试3次后，更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                            }
+                            else if (apiResult.data.returnCode == "0")
+                            {
+                                //TODO:等待20秒，等待二维码支付，重试3次后不再重试，开闸出场，更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                            }
+                        }
+                        else
+                        {
+                            apiBaseResult.msg = "请求第三方失败，返回[exception]:" + apiResult.data.description;
+                            responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            responsePayCheck.payStatus = 1;
+                            responsePayCheck.payType = "OTHER";
+                            responsePayCheck.transactionId = queryPay.logNo;
+                            //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                        }
+                    }
+                    else
+                    {
+                        apiBaseResult.msg = "请求第三方失败，返回的data为null";
+                        responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                        responsePayCheck.payStatus = 1;
+                        responsePayCheck.payType = "OTHER";
+                        responsePayCheck.transactionId = queryPay.logNo;
+                        //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                    }
+                }
+            }
+            catch (Exception ex)//TODO: 重试3次后 ，服务端错误，发送邮件
+            {
+                apiBaseResult.msg = "请求第三方支付反查失败，" + ex.Message;
+                LogHelper.Error("请求第三方支付反查失败:", ex);
+            }
+
+
+            apiBaseResult.data = responsePayCheck;
+            return apiBaseResult;
+        }
+
 
         /// <summary>
         /// 重试计数,间隔时间再次重试和发送邮件

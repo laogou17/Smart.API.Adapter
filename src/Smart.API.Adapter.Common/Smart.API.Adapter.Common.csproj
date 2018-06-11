@@ -75,6 +75,7 @@
     <Compile Include="EnumHelper.cs" />
     <Compile Include="IDictionaryExtentions.cs" />
     <Compile Include="InterfaceHttpProxyApi.cs" />
+    <Compile Include="JD\JDCommonSettings.cs" />
     <Compile Include="LogHelper.cs" />
     <Compile Include="Mail\Enum\EmailAddrType.cs" />
     <Compile Include="Mail\Enum\EmailType.cs" />
@@ -90,6 +91,10 @@
     <Compile Include="XMLHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Smart.API.Adapter.BizCore\Smart.API.Adapter.BizCore.csproj">
+      <Project>{a5fd8416-0244-4efd-85e0-4caa1827f11f}</Project>
+      <Name>Smart.API.Adapter.BizCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Smart.API.Adapter.Models\Smart.API.Adapter.Models.csproj">
       <Project>{61d25332-37c7-48ca-83d6-8731893bf032}</Project>
       <Name>Smart.API.Adapter.Models</Name>

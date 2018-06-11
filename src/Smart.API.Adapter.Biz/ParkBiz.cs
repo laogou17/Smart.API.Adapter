@@ -1,4 +1,5 @@
 ﻿using Smart.API.Adapter.Common;
+using Smart.API.Adapter.Common.JD;
 using Smart.API.Adapter.DataAccess;
 using Smart.API.Adapter.Models;
 using Smart.API.Adapter.Models.Core;
@@ -68,9 +69,11 @@ namespace Smart.API.Adapter.Biz
                 {                    
                     //版本号不一致需要同步白名单
                     UpdateWhiteList(ParkBiz.version);
-
+                    //TODO: 黑白名单请求失败，fail,exception 处理！白名单更新失败，仍然把版本号更新了，那白名单数据还怎么更新？
                     ParkBiz.version = heartJd.Version;
                     ParkBiz.overFlowCount = heartJd.OverFlowCount;
+
+                    
                     UpdateHeartVersion(heartJd);
                 }
                 return true;
@@ -117,7 +120,10 @@ namespace Smart.API.Adapter.Biz
                         {
                             dataBase.Insert<VehicleInfo>(v);
                         }
-                    }         
+                    }
+         
+                    //白名单已经更新，需要重载白名单数据缓存
+                    JDCommonSettings.ReLoadWhiteList();
                 }
                 catch (Exception ex)
                 {

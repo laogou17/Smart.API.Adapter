@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Smart.API.Adapter.Models.Core
 {
-    public class InRecognitionRecord
+    public class InCrossRecord
     {
         /// <summary>
         /// 入场记录唯一标识
@@ -45,9 +45,9 @@ namespace Smart.API.Adapter.Models.Core
         }
 
         /// <summary>
-        /// 入场识别时间
+        /// 入场时间
         /// </summary>
-        public string recognitionTime
+        public string inTime
         {
             get;
             set;
@@ -75,6 +75,24 @@ namespace Smart.API.Adapter.Models.Core
         /// 车牌颜色
         /// </summary>
         public string plateColor
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 操作员
+        /// </summary>
+        public string stationOperator
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 套餐名
+        /// </summary>
+        public string sealName
         {
             get;
             set;

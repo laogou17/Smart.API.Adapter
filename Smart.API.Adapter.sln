@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smart.API.Adapter.Api", "src\Smart.API.Adapter.Api\Smart.API.Adapter.Api.csproj", "{8C732F07-6B73-486D-8D78-F7D1F806AA61}"
 EndProject
@@ -34,6 +34,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleParkService", "ConsoleParkService\ConsoleParkService.csproj", "{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinTestJD", "WinTestJD\WinTestJD.csproj", "{1B9C77E2-6993-4DBD-B952-7D2193EF40B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smart.API.Adapter.BizCore", "src\Smart.API.Adapter.BizCore\Smart.API.Adapter.BizCore.csproj", "{A5FD8416-0244-4EFD-85E0-4CAA1827F11F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,6 +104,12 @@ Global
 		{1B9C77E2-6993-4DBD-B952-7D2193EF40B5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1B9C77E2-6993-4DBD-B952-7D2193EF40B5}.Uat|Any CPU.ActiveCfg = Release|Any CPU
 		{1B9C77E2-6993-4DBD-B952-7D2193EF40B5}.Uat|Any CPU.Build.0 = Release|Any CPU
+		{A5FD8416-0244-4EFD-85E0-4CAA1827F11F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5FD8416-0244-4EFD-85E0-4CAA1827F11F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5FD8416-0244-4EFD-85E0-4CAA1827F11F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5FD8416-0244-4EFD-85E0-4CAA1827F11F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5FD8416-0244-4EFD-85E0-4CAA1827F11F}.Uat|Any CPU.ActiveCfg = Release|Any CPU
+		{A5FD8416-0244-4EFD-85E0-4CAA1827F11F}.Uat|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -117,5 +125,6 @@ Global
 		{B67CC3BF-01AD-4FD9-B915-4592458D0284} = {3F1A7AB1-14DB-4809-98C9-41B57C0678DE}
 		{0A5E56E4-14EE-4368-9F92-6D3F4197F9F9} = {3F1A7AB1-14DB-4809-98C9-41B57C0678DE}
 		{1B9C77E2-6993-4DBD-B952-7D2193EF40B5} = {3F1A7AB1-14DB-4809-98C9-41B57C0678DE}
+		{A5FD8416-0244-4EFD-85E0-4CAA1827F11F} = {9E6828A1-8902-4553-9A6A-81727C9BBD04}
 	EndGlobalSection
 EndGlobal
