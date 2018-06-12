@@ -1,19 +1,16 @@
-﻿using System;
+﻿using Smart.API.Adapter.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
-using Smart.API.Adapter.Biz;
-using Smart.API.Adapter.Common;
-using System.Globalization;
+using System.Threading.Tasks;
 
-namespace WinTestJD
+namespace Smart.API.Adapter.Biz
 {
-    class HeartService
+    public  class HeartService
     {
         private ParkBiz parkBiz = new ParkBiz();
-        private MailManager emailManager = new MailManager();
         private Timer timerHeart;
         private Timer timerUpdateParkTotalCount;
         private Timer timerUpdateParkRemainCount;
@@ -32,11 +29,10 @@ namespace WinTestJD
         public void Start()
         {
 
-            mail.SendMail();
             //客户端初始化时 每隔 5s向京东服务端调用心跳接口，以检测是否存活
             //客户端应用 初始化时获取白名单，在第一次心跳处理
 
-            LogHelper.Info(string.Format("{0}:服务启动，心跳检测开始.", DateTime.Now.ToString()));
+            LogHelper.Info(string.Format("{0}:服务启动，心跳检测开始,同步车位总数.", DateTime.Now.ToString()));
             timerHeart = new Timer(new TimerCallback(HeartCheck), null, 0, Timeout.Infinite);
 
             //客户端应用初始化时同步停车场总车位数，之后每天0点同步一次
@@ -51,22 +47,23 @@ namespace WinTestJD
         /// <param name="obj"></param>
         private void HeartCheck(object obj)
         {
+            LogHelper.Info(string.Format("{0}:心跳检测：", DateTime.Now.ToString()));
             bool result = parkBiz.HeartCheck();
             if (!result)
             {
-                timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
-                LogHelper.Error(string.Format("{0}:心跳检测失败，服务端出错", DateTime.Now.ToString()));                
                 faliTimes++;
+                LogHelper.Error(string.Format("{0}:心跳检测失败，服务端出错", DateTime.Now.ToString()));
+                if (faliTimes >= 5)
+                {
+                    LogHelper.Error(string.Format("{0}:超过5次,停止检测", DateTime.Now.ToString()));
+                    faliTimes = 0;
+                    mail.SendMail();
+                    return;
+                }
+                //timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
             }
-            //5次不行则发邮件通知 ,在没有任何反馈时
-            if (faliTimes >= 5)
-            {
-                LogHelper.Error(string.Format("{0}:超过5次,停止检测", DateTime.Now.ToString()));
-                faliTimes = 0;
-                mail.SendMail();
-                return;  
-            }
-            //timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
+            //5次不行则发邮件通知 ,在没有任何反馈时            
+            timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
         }
 
         private void UpdateParkTotalByTime(object obj)
@@ -106,7 +103,7 @@ namespace WinTestJD
         //        timerCheckNowTime.Dispose();
         //        timerUpdateTotal.Change(0, 1000 * 60 * 60 * 24);
         //    }
- 
+
         //}
 
         public void UpdateParkTotalCount()
@@ -166,9 +163,9 @@ namespace WinTestJD
             timerUpdateEquipmentStatus = new Timer(new TimerCallback(UpdateEquipmentStatusCallBack), null, 0, Timeout.Infinite);
 
         }
-        private  void UpdateEquipmentStatusCallBack(object obj)
+        private void UpdateEquipmentStatusCallBack(object obj)
         {
-            bool result =  parkBiz.UpdateEquipmentStatus();
+            bool result = parkBiz.UpdateEquipmentStatus();
             ReTryAndEmail(result, ref faliTimesUpdateEquipmentStatus, timerUpdateEquipmentStatus, "更新设备状态");
             //if (!result)
             //{
@@ -186,7 +183,7 @@ namespace WinTestJD
             //}
         }
 
-        private void ReTryAndEmail(bool result,ref int tryCount,Timer timer,string eventStr)
+        private void ReTryAndEmail(bool result, ref int tryCount, Timer timer, string eventStr)
         {
             if (!result)
             {
@@ -203,14 +200,6 @@ namespace WinTestJD
                 timer.Change(parkBiz.HeartInterval, Timeout.Infinite);
             }
             //5次不行则发邮件通知
-           
- 
         }
-
-
-
-
-
-
     }
 }

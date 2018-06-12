@@ -89,6 +89,7 @@
     <Compile Include="DTO\RemainInfo.cs" />
     <Compile Include="DTO\TotalCountReq.cs" />
     <Compile Include="DTO\VehicleInfo.cs" />
+    <Compile Include="DTO\VehicleInfoDb.cs" />
     <Compile Include="DTO\VehicleLegality.cs" />
     <Compile Include="DTO\WhiteListReq.cs" />
     <Compile Include="Enum\ParkEnums.cs" />

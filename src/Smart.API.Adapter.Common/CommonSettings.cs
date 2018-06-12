@@ -218,21 +218,6 @@ namespace Smart.API.Adapter.Common
                 return "0";
             }
         }
-        /// <summary>
-        /// 白名单版本号
-        /// </summary>
-        public static string Version
-        {
-            get
-            {
-                string version = ConfigurationManager.AppSettings["Version"];
-                if (string.IsNullOrWhiteSpace(version))
-                {
-                    version = "1";
-                }
-                return version;
-            }
-        }
 
         /// <summary>
         /// 京东车场Code
