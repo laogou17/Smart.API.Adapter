@@ -27,9 +27,12 @@ namespace WinTestJD
 
         private Timer timerUpdateTotal;
 
+        private SendMailHelper mail = new SendMailHelper();
+
         public void Start()
         {
-            
+
+            mail.SendMail();
             //客户端初始化时 每隔 5s向京东服务端调用心跳接口，以检测是否存活
             //客户端应用 初始化时获取白名单，在第一次心跳处理
 
@@ -60,8 +63,8 @@ namespace WinTestJD
             {
                 LogHelper.Error(string.Format("{0}:超过5次,停止检测", DateTime.Now.ToString()));
                 faliTimes = 0;
-                return;    
-                //emailManager.SendMail();
+                mail.SendMail();
+                return;  
             }
             //timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
         }
@@ -115,19 +118,21 @@ namespace WinTestJD
         private async void UpdateParkTotalCountCallBack(object obj)
         {
             bool result = await parkBiz.UpdateToltalCount();
-            if (!result)
-            {
-                faliTimesUpdateParkTotalCount++;
-                LogHelper.Error(string.Format("{0}:更新车位数量出错{1}次", DateTime.Now.ToString(), faliTimesUpdateParkTotalCount));
-                //如果出错5s后重试
-                timerUpdateParkTotalCount.Change(parkBiz.HeartInterval, Timeout.Infinite);
-            }
-            //5次不行则发邮件通知
-            if (faliTimesUpdateParkTotalCount >= 5)
-            {
-                LogHelper.Error(string.Format("{0}::更新车位数量出错超过5次,停止重试", DateTime.Now.ToString()));
-                //emailManager.SendMail();
-            }
+            ReTryAndEmail(result, ref faliTimesUpdateParkTotalCount, timerUpdateParkTotalCount, "更新总车位数量");
+            //if (!result)
+            //{
+            //    faliTimesUpdateParkTotalCount++;
+            //    LogHelper.Error(string.Format("{0}:更新车位数量出错{1}次", DateTime.Now.ToString(), faliTimesUpdateParkTotalCount));
+            //    //如果出错5s后重试
+            //    timerUpdateParkTotalCount.Change(parkBiz.HeartInterval, Timeout.Infinite);
+            //}
+            ////5次不行则发邮件通知
+            //if (faliTimesUpdateParkTotalCount >= 5)
+            //{
+            //    LogHelper.Error(string.Format("{0}::更新车位数量出错超过5次,停止重试", DateTime.Now.ToString()));
+            //    faliTimesUpdateParkTotalCount = 0;
+            //    mail.SendMail();
+            //}
         }
         public void UpdateParkRemainCount()
         {
@@ -138,19 +143,21 @@ namespace WinTestJD
         private async void UpdateParkRemainCountCallBack(object obj)
         {
             bool result = await parkBiz.UpdateRemainCount();
-            if (!result)
-            {
-                faliTimesUpdateParkRemainCount++;
-                LogHelper.Error(string.Format("{0}:更新车位数量出错{1}次", DateTime.Now.ToString(), faliTimesUpdateParkRemainCount));
-                //如果出错5s后重试
-                timerUpdateParkRemainCount.Change(parkBiz.HeartInterval, Timeout.Infinite);
-            }
-            //5次不行则发邮件通知
-            if (faliTimesUpdateParkRemainCount >= 5)
-            {
-                LogHelper.Error(string.Format("{0}::更新车位数量出错超过5次,停止重试", DateTime.Now.ToString()));
-                //emailManager.SendMail();
-            }
+            ReTryAndEmail(result, ref faliTimesUpdateParkRemainCount, timerUpdateParkRemainCount, "更新剩余车位数量");
+            //if (!result)
+            //{
+            //    faliTimesUpdateParkRemainCount++;
+            //    LogHelper.Error(string.Format("{0}:更新车位数量出错{1}次", DateTime.Now.ToString(), faliTimesUpdateParkRemainCount));
+            //    //如果出错5s后重试
+            //    timerUpdateParkRemainCount.Change(parkBiz.HeartInterval, Timeout.Infinite);
+            //}
+            ////5次不行则发邮件通知
+            //if (faliTimesUpdateParkRemainCount >= 5)
+            //{
+            //    LogHelper.Error(string.Format("{0}::更新车位数量出错超过5次,停止重试", DateTime.Now.ToString()));
+            //    faliTimesUpdateParkRemainCount = 0;
+            //    mail.SendMail();
+            //}
         }
 
         public void UpdateEquipmentStatus()
@@ -162,19 +169,42 @@ namespace WinTestJD
         private  void UpdateEquipmentStatusCallBack(object obj)
         {
             bool result =  parkBiz.UpdateEquipmentStatus();
+            ReTryAndEmail(result, ref faliTimesUpdateEquipmentStatus, timerUpdateEquipmentStatus, "更新设备状态");
+            //if (!result)
+            //{
+            //    faliTimesUpdateEquipmentStatus++;
+            //    LogHelper.Error(string.Format("{0}:更新设备状态出错{1}次", DateTime.Now.ToString(), faliTimesUpdateParkRemainCount));
+            //    //如果出错5s后重试
+            //    timerUpdateEquipmentStatus.Change(parkBiz.HeartInterval, Timeout.Infinite);
+            //}
+            ////5次不行则发邮件通知
+            //if (faliTimesUpdateEquipmentStatus >= 5)
+            //{
+            //    LogHelper.Error(string.Format("{0}::更新设备状态出错超过5次,停止重试", DateTime.Now.ToString()));
+            //    faliTimesUpdateEquipmentStatus = 0;
+            //    mail.SendMail();
+            //}
+        }
+
+        private void ReTryAndEmail(bool result,ref int tryCount,Timer timer,string eventStr)
+        {
             if (!result)
             {
-                faliTimesUpdateEquipmentStatus++;
-                LogHelper.Error(string.Format("{0}:更新设备状态出错{1}次", DateTime.Now.ToString(), faliTimesUpdateParkRemainCount));
+                tryCount++;
+                LogHelper.Error(string.Format("{0}:{2}出错{1}次", DateTime.Now.ToString(), tryCount, eventStr));
+                //超过5次后不再重试，发邮件
+                if (tryCount >= 5)
+                {
+                    LogHelper.Error(string.Format("{0}:{1}出错超过5次,停止重试", DateTime.Now.ToString(), eventStr));
+                    tryCount = 0;
+                    mail.SendMail();
+                }
                 //如果出错5s后重试
-                timerUpdateEquipmentStatus.Change(parkBiz.HeartInterval, Timeout.Infinite);
+                timer.Change(parkBiz.HeartInterval, Timeout.Infinite);
             }
             //5次不行则发邮件通知
-            if (faliTimesUpdateEquipmentStatus >= 5)
-            {
-                LogHelper.Error(string.Format("{0}::更新设备状态出错超过5次,停止重试", DateTime.Now.ToString()));
-                //emailManager.SendMail();
-            }
+           
+ 
         }
 
 
