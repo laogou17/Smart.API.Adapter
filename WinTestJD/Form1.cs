@@ -93,7 +93,7 @@ namespace WinTestJD
             inrecognition.parkId = "";
             inrecognition.inDeviceId = "E6C6A279-1389-4F8E-8B75-55ADE585C5CD".ToLower();
             inrecognition.inDeviceName = "入口";
-            inrecognition.recognitionTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            inrecognition.recognitionTime = new DateTime(2018, 6, 11, 8, 0, 0).ToString("yyyy-MM-dd HH:mm:ss");
             inrecognition.inImage = "http://localhost:8093/Pic/152233_SB1.jpg";
             inrecognition.plateNumber = txt_plateNumber.Text;
             inrecognition.plateColor = "BLUE";
@@ -113,12 +113,13 @@ namespace WinTestJD
             record.parkId = "";
             record.inDeviceId = "E6C6A279-1389-4F8E-8B75-55ADE585C5CD".ToLower();
             record.inDeviceName = "入口";
-            record.inTime = inTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            record.inTime = inTime = new DateTime(2018, 6, 11, 8, 0, 0).ToString("yyyy-MM-dd HH:mm:ss");
             record.inImage = "http://localhost:8093/Pic/152233_SB1.jpg";
             record.plateNumber = txt_plateNumber.Text;
             record.plateColor = "BLUE";
             record.reTrySend = "0";
             record.parkEventType = txt_EventType.Text;
+            record.remark = txt_Remark.Text;
             APIResultBase result = new JDParkBiz().PostCarIn(record, enumJDBusinessType.InCross);
             richText_Msg.Text = record.ToJson() + "\r\n" + richText_Msg.Text;
             richText_Msg.Text = result.ToJson() + "\r\n" + richText_Msg.Text;
@@ -161,6 +162,7 @@ namespace WinTestJD
             record.plateColor = "BLUE";
             record.reTrySend = "0";
             record.parkEventType = txt_EventType.Text;
+            record.remark = txt_Remark.Text;
             record.outDeviceId = "5A84433D-A79D-4120-A86D-799F80C2A005".ToLower();
             record.outDeviceName = "出口";
             record.outImage = "http://localhost:8093/Pic/152233_SB1.jpg";
@@ -177,9 +179,34 @@ namespace WinTestJD
             RequestPayCheck payCheck = new RequestPayCheck();
             payCheck.parkId = "";
             payCheck.payNo = txt_LogNo.Text;
-            APIResultBase result = new JDParkBiz().PayCheck(payCheck);
+            APIResultBase<ResponsePayCheck> result = new JDParkBiz().PayCheck(payCheck);
             richText_Msg.Text = payCheck.ToJson() + "\r\n" + richText_Msg.Text;
             richText_Msg.Text = result.ToJson() + "\r\n" + richText_Msg.Text;
+
+            if (result.data != null && result.data.payStatus == 1)
+            {
+                OutCrossRecord record = new OutCrossRecord();
+                record.inRecordId = txt_LogNo.Text;
+                record.parkId = "";
+                record.inDeviceId = "E6C6A279-1389-4F8E-8B75-55ADE585C5CD".ToLower();
+                record.inDeviceName = "入口";
+                record.inTime = inTime;
+                record.inImage = "http://localhost:8093/Pic/152233_SB1.jpg";
+                record.plateNumber = txt_plateNumber.Text;
+                record.plateColor = "BLUE";
+                record.reTrySend = "0";
+                record.parkEventType = txt_EventType.Text;
+                record.remark = txt_Remark.Text;
+                record.outDeviceId = "5A84433D-A79D-4120-A86D-799F80C2A005".ToLower();
+                record.outDeviceName = "出口";
+                record.outImage = "http://localhost:8093/Pic/152233_SB1.jpg";
+                record.outRecordId = outRecordId;
+                record.outTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                APIResultBase result1 = new JDParkBiz().PostCarOut(record, enumJDBusinessType.OutCross);
+                richText_Msg.Text = record.ToJson() + "\r\n" + richText_Msg.Text;
+                richText_Msg.Text = result1.ToJson() + "\r\n" + richText_Msg.Text;
+            }
         }
 
         private void btn_ThirdCharging_Click(object sender, EventArgs e)

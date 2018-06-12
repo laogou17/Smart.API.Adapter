@@ -45,5 +45,14 @@ namespace Smart.API.Adapter.Models.Core
             get;
             set;
         }
+
+        /// <summary>
+        /// 支付二维码链接
+        /// </summary>
+        public string payQrcodeLink
+        {
+            get;
+            set;
+        }
     }
 }

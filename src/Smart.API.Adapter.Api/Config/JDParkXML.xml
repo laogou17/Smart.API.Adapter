@@ -8,5 +8,6 @@
     <JDTimer key="3" name="OutRecognition" ReConnectCount="3" FailTimeSpan="3600" ExceptionTimeSpan="3600" UnavailableTimeSpan="3600" RePostCount="0" SendEmail="1"/>
     <JDTimer key="4" name="OutCross" ReConnectCount="5" FailTimeSpan="3600" ExceptionTimeSpan="3600" UnavailableTimeSpan="3600" RePostCount="0" SendEmail="1"/>
     <JDTimer key="5" name="EquipmentStatus" ReConnectCount="5" FailTimeSpan="5" ExceptionTimeSpan="5" UnavailableTimeSpan="5" RePostCount="0" SendEmail="1"/>
+    <JDTimer key="6" name="PayCheck" ReConnectCount="3" FailTimeSpan="20" ExceptionTimeSpan="1" UnavailableTimeSpan="1" RePostCount="3" SendEmail="1"/>
   </JDTimerConifg>
 </JDParkConfig>

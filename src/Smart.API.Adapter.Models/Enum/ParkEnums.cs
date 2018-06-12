@@ -40,6 +40,11 @@
         /// 设备状态
         /// </summary>
         EquipmentStatus = 5,
+
+        /// <summary>
+        /// 支付反查
+        /// </summary>
+        PayCheck = 6,
     }
 
 }

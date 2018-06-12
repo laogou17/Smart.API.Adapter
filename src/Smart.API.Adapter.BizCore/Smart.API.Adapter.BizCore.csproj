@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="JD\JDBillArchivedBLL.cs" />
     <Compile Include="JD\JDBillBLL.cs" />
     <Compile Include="JD\ParkWhiteListBLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

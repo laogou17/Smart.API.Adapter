@@ -24,6 +24,9 @@ namespace Smart.API.Adapter.Biz
         /// </summary>
         static Dictionary<int, JDPostInfo> dicReConnectInfo = new Dictionary<int, JDPostInfo>();
         static Dictionary<string, string> dicDevStatus = new Dictionary<string, string>();
+
+        static Dictionary<string, int> dicPayCheckCount = new Dictionary<string, int>();
+        static Dictionary<string, DateTime> dicPayCheckTime = new Dictionary<string, DateTime>();
         /// <summary>
         /// 调用京东接口获取白名单数据版本
         /// </summary>
@@ -514,7 +517,7 @@ namespace Smart.API.Adapter.Biz
                 RequestVehicleLog reqVehicleLog = new RequestVehicleLog();
                 reqVehicleLog.logNo = inCrossRecord.inRecordId;
                 reqVehicleLog.actionDescId = "1";//自动抬杆进入停车场
-              
+
                 if (inCrossRecord.parkEventType.ToUpper() == "BRUSHCARD" || inCrossRecord.parkEventType.ToUpper() == "OVERTIME")
                 {
                     reqVehicleLog.actionDescId = "1";
@@ -523,9 +526,11 @@ namespace Smart.API.Adapter.Biz
                 {
                     //TODO:需要添加手动抬杆的原因。
                     reqVehicleLog.actionDescId = "2";
+                    reqVehicleLog.reasonCode = inCrossRecord.parkEventType.ToUpper();
+                    reqVehicleLog.reason = inCrossRecord.remark;
                 }
-               
-               
+
+
 
                 reqVehicleLog.vehicleNo = inCrossRecord.plateNumber;
                 reqVehicleLog.actionTime = inCrossRecord.inTime;
@@ -681,6 +686,9 @@ namespace Smart.API.Adapter.Biz
                                     model.ResultCode = apiResult.data.resultCode;
                                     model.QrCode = apiResult.data.qrCode;
                                     model.Cost = apiResult.data.cost;
+                                    model.ReasonCode = "";
+                                    model.Reason = "";
+
 
                                     new JDBillBLL().Insert(model);
                                 }
@@ -734,6 +742,8 @@ namespace Smart.API.Adapter.Biz
                 InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
                 RequestVehicleLog reqVehicleLog = new RequestVehicleLog();
                 reqVehicleLog.logNo = string.IsNullOrWhiteSpace(outCrossRecord.inRecordId) ? outCrossRecord.outRecordId : outCrossRecord.inRecordId;
+                reqVehicleLog.reasonCode = "";
+                reqVehicleLog.reason = "";
                 reqVehicleLog.actionDescId = "5";
                 if (outCrossRecord.parkEventType.ToUpper() == "BRUSHCARD" || outCrossRecord.parkEventType.ToUpper() == "OVERTIME")
                 {
@@ -742,6 +752,8 @@ namespace Smart.API.Adapter.Biz
                 else
                 {
                     reqVehicleLog.actionDescId = "4";
+                    reqVehicleLog.reasonCode = outCrossRecord.parkEventType.ToUpper();
+                    reqVehicleLog.reason = outCrossRecord.remark;
                 }
                 reqVehicleLog.entryTime = outCrossRecord.inTime;
                 reqVehicleLog.vehicleNo = outCrossRecord.plateNumber;
@@ -774,8 +786,23 @@ namespace Smart.API.Adapter.Biz
                     return apiBaseResult;
                 }
                 //TODO:出场成功，先查询reasonCode和reason ，进行赋值，并将JD账单记录进行归档,
-                reqVehicleLog.reasonCode = "";
-                reqVehicleLog.reason = "";
+                JDBillBLL jdBillBLL = new JDBillBLL();
+                //查询JD账单表
+                JDBillModel model = jdBillBLL.GetJDBillByLogNo(reqVehicleLog.logNo);
+                if (model != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(model.ReasonCode))
+                    {
+                        reqVehicleLog.reasonCode = model.ReasonCode;
+                        reqVehicleLog.reason = model.Reason;
+                    }
+
+
+                    //进行账单归档
+                    jdBillBLL.Delete(model);
+                    new JDBillArchivedBLL().Insert(model);
+                }
+
 
 
                 ApiResult<ResponseOutRecognition> apiResult = httpApi.PostUrl<ResponseOutRecognition>("external/createVehicleLogDetail", reqVehicleLog);
@@ -886,11 +913,12 @@ namespace Smart.API.Adapter.Biz
             apiBaseResult.code = "0";
             apiBaseResult.msg = "";
             ResponsePayCheck responsePayCheck = new ResponsePayCheck();
-
+            string sLogNo = requesPayCheck.payNo;
+            bool bFlagUpdateBill = false;//是否需要更新JD账单 失败原因
             try
             {
                 RequsetJDQueryPay queryPay = new RequsetJDQueryPay();
-                queryPay.logNo = requesPayCheck.payNo;
+                queryPay.logNo = sLogNo;
 
                 //查询JD账单表
                 JDBillModel model = new JDBillBLL().GetJDBillByLogNo(queryPay.logNo);
@@ -900,19 +928,28 @@ namespace Smart.API.Adapter.Biz
                 }
                 InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
                 ApiResult<ResponseJDQueryPay> apiResult = new ApiResult<ResponseJDQueryPay>();
+                JDTimer jdTimer = CommonSettings.JDTimerInfo(enumJDBusinessType.PayCheck);
                 try
                 {
                     apiResult = httpApi.PostUrl<ResponseJDQueryPay>("external/queryPay", queryPay);
                 }
                 catch (Exception ex)
                 {
+                    JDRePostAndEail(enumJDBusinessType.PayCheck, "unavailable");
+                    int iPayStatus = 0;
+                    if (dicReConnectInfo[(int)enumJDBusinessType.PayCheck].ReCount > jdTimer.ReConnectCount)
+                    {
+                        iPayStatus = 1;
+                    }
                     apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
                     responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    responsePayCheck.payStatus = 1;
+                    responsePayCheck.payStatus = iPayStatus;
                     responsePayCheck.payType = "OTHER";
                     responsePayCheck.transactionId = queryPay.logNo;
-                    //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
-
+                    //更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                    bFlagUpdateBill = true;
+                    model.ReasonCode = "serverFault";
+                    model.Reason = "服务端故障";
                     apiBaseResult.data = responsePayCheck;
                     return apiBaseResult;
                 }
@@ -924,7 +961,10 @@ namespace Smart.API.Adapter.Biz
                     responsePayCheck.payStatus = 1;
                     responsePayCheck.payType = "OTHER";
                     responsePayCheck.transactionId = queryPay.logNo;
-                    //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                    // 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                    bFlagUpdateBill = true;
+                    model.ReasonCode = "serverFault";
+                    model.Reason = "服务端故障";
                 }
                 else
                 {
@@ -941,6 +981,11 @@ namespace Smart.API.Adapter.Biz
                         }
                         else if (apiResult.data.returnCode == "fail")
                         {
+                            if (!dicPayCheckCount.ContainsKey(model.LogNo))
+                            {
+                                dicPayCheckCount.Add(model.LogNo, 1);
+                            }
+
                             apiBaseResult.msg = "请求第三方失败，返回[fail]:" + apiResult.data.description;
 
                             responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -949,16 +994,63 @@ namespace Smart.API.Adapter.Biz
                             responsePayCheck.transactionId = queryPay.logNo;
                             if (apiResult.data.resultCode == null)
                             {
+                                dicPayCheckCount[model.LogNo]++;
                                 responsePayCheck.payStatus = 0;
-                                //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                                //更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                                bFlagUpdateBill = true;
+
+                                model.ReasonCode = "fail";
+                                model.Reason = apiResult.data.description;
                             }
-                            else if (apiResult.data.returnCode == "2")
+                            else if (apiResult.data.resultCode == "2")
                             {
-                                //TODO:每隔3秒重试，重试3次后，更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                                //每隔3秒重试，重试3次后，更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                                dicPayCheckCount[model.LogNo]++;
+                                model.ReasonCode = "withholdTimeout";
+                                model.Reason = "等待代扣支付结果超时";
                             }
-                            else if (apiResult.data.returnCode == "0")
+                            else if (apiResult.data.resultCode == "0")
                             {
                                 //TODO:等待20秒，等待二维码支付，重试3次后不再重试，开闸出场，更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+
+                                if ((!string.IsNullOrWhiteSpace(apiResult.data.qrCode)))
+                                {
+                                    apiBaseResult.data.payQrcodeLink = apiResult.data.qrCode;//返回支付二维码链接
+                                    dicPayCheckCount[model.LogNo] = 0;//归零，重新等待3次
+                                    //代扣失败返回的qrcode 更新到账单表
+                                    model.QrCode = apiResult.data.qrCode;
+                                    model.ResultCode = "0";
+
+                                    new JDBillBLL().Update(model);
+                                }
+                                else
+                                {
+                                    if (!dicPayCheckTime.ContainsKey(sLogNo))
+                                    {
+                                        dicPayCheckTime.Add(sLogNo, DateTime.Now);
+                                        dicPayCheckCount[model.LogNo]++;
+                                    }
+                                    else
+                                    {
+                                        if (DateTime.Now.Subtract(dicPayCheckTime[sLogNo]).TotalSeconds > jdTimer.FailTimeSpan)
+                                        {
+                                            dicPayCheckCount[model.LogNo]++;
+                                        }
+                                    }
+
+                                    model.ReasonCode = "qrcodeTimeout";
+                                    model.Reason = "等待聚合支付结果超时";
+                                }
+                            }
+
+                            if (dicPayCheckCount[model.LogNo] > 3)//超过次数后 开闸
+                            {
+                                bFlagUpdateBill = true;
+                                responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                responsePayCheck.payStatus = 1;
+                                responsePayCheck.payType = "OTHER";
+                                responsePayCheck.transactionId = queryPay.logNo;
+
                             }
                         }
                         else
@@ -969,6 +1061,8 @@ namespace Smart.API.Adapter.Biz
                             responsePayCheck.payType = "OTHER";
                             responsePayCheck.transactionId = queryPay.logNo;
                             //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                            model.ReasonCode = "exception";
+                            model.Reason = "服务端异常";
                         }
                     }
                     else
@@ -979,13 +1073,24 @@ namespace Smart.API.Adapter.Biz
                         responsePayCheck.payType = "OTHER";
                         responsePayCheck.transactionId = queryPay.logNo;
                         //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
+                        model.ReasonCode = "returnNull";
+                        model.Reason = "服务端未返回数据";
+                    }
+                }
+
+                if (dicPayCheckCount.ContainsKey(sLogNo) && dicPayCheckCount[sLogNo] > 3)
+                {
+                    if (model != null)
+                    {
+                        new JDBillBLL().Update(model);
+                        dicPayCheckCount.Remove(model.LogNo);
                     }
                 }
             }
             catch (Exception ex)//TODO: 重试3次后 ，服务端错误，发送邮件
             {
-                apiBaseResult.msg = "请求第三方支付反查失败，" + ex.Message;
-                LogHelper.Error("请求第三方支付反查失败:", ex);
+                apiBaseResult.msg = "请求第三方支付反查失败,定制服务错误，" + ex.Message;
+                LogHelper.Error("请求第三方支付反查失败,定制服务错误:", ex);
             }
 
 

@@ -49,6 +49,8 @@
             this.btn_WhiteList = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.txt_EventType = new System.Windows.Forms.TextBox();
+            this.txt_Remark = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -124,8 +126,10 @@
             this.tabPage2.Controls.Add(this.label2);
             this.tabPage2.Controls.Add(this.txt_LogNo);
             this.tabPage2.Controls.Add(this.richText_Msg);
+            this.tabPage2.Controls.Add(this.label4);
             this.tabPage2.Controls.Add(this.label1);
             this.tabPage2.Controls.Add(this.txt_EventType);
+            this.tabPage2.Controls.Add(this.txt_Remark);
             this.tabPage2.Controls.Add(this.txt_plateNumber);
             this.tabPage2.Controls.Add(this.btn_ThirdCharging);
             this.tabPage2.Controls.Add(this.btn_PayCheck);
@@ -221,9 +225,9 @@
             // 
             // richText_Msg
             // 
-            this.richText_Msg.Location = new System.Drawing.Point(6, 82);
+            this.richText_Msg.Location = new System.Drawing.Point(6, 107);
             this.richText_Msg.Name = "richText_Msg";
-            this.richText_Msg.Size = new System.Drawing.Size(770, 383);
+            this.richText_Msg.Size = new System.Drawing.Size(770, 358);
             this.richText_Msg.TabIndex = 3;
             this.richText_Msg.Text = "";
             // 
@@ -270,6 +274,23 @@
             this.txt_EventType.TabIndex = 1;
             this.txt_EventType.Text = "BRUSHCARD";
             // 
+            // txt_Remark
+            // 
+            this.txt_Remark.Location = new System.Drawing.Point(103, 80);
+            this.txt_Remark.Name = "txt_Remark";
+            this.txt_Remark.Size = new System.Drawing.Size(112, 21);
+            this.txt_Remark.TabIndex = 1;
+            this.txt_Remark.Text = "访客车";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(46, 83);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(53, 12);
+            this.label4.TabIndex = 2;
+            this.label4.Text = "开闸原因";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -309,6 +330,8 @@
         private System.Windows.Forms.Button btn_WhiteList;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txt_EventType;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txt_Remark;
     }
 }
 

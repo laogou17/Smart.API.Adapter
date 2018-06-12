@@ -34,5 +34,15 @@ namespace Smart.API.Adapter.BizCore.JD
         {
             return dal.GetJDBillByLogNo(sLogNo);
         }
+
+        public bool Update(JDBillModel model)
+        {
+            return dal.Update<JDBillModel>(model, model.LogNo);
+        }
+
+        public bool Delete(JDBillModel model)
+        {
+            return dal.DeleteByKey(model.LogNo);
+        }
     }
 }
