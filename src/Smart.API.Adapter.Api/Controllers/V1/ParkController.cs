@@ -100,7 +100,7 @@ namespace Smart.API.Adapter.Api.Controllers.V1
         [HttpPost, WriteLog, ActionName("paycheck")]
         public HttpResponseMessage paycheck(RequestPayCheck requestdata)
         {
-            APIResultBase result = new JDParkBiz().ThirdCharging(requestdata);
+            APIResultBase result = new JDParkBiz().PayCheck(requestdata);
             return Request.CreateResponse(result);
         }
     }
