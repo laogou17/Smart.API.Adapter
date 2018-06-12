@@ -183,7 +183,7 @@ namespace WinTestJD
             richText_Msg.Text = payCheck.ToJson() + "\r\n" + richText_Msg.Text;
             richText_Msg.Text = result.ToJson() + "\r\n" + richText_Msg.Text;
 
-            if (result.data != null && result.data.payStatus == 1)
+            if (result.data != null && result.data.payStatus == 0)
             {
                 OutCrossRecord record = new OutCrossRecord();
                 record.inRecordId = txt_LogNo.Text;

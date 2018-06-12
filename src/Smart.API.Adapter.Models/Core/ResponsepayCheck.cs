@@ -37,8 +37,8 @@ namespace Smart.API.Adapter.Models.Core
 
         /// <summary>
         /// 支付状态
-        /// 1:已支付
-        /// 0：未支付
+        /// 1:未支付
+        /// 0：已支付
         /// </summary>
         public int payStatus
         {

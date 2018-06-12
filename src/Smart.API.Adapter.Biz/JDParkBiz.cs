@@ -936,10 +936,10 @@ namespace Smart.API.Adapter.Biz
                 catch (Exception ex)
                 {
                     JDRePostAndEail(enumJDBusinessType.PayCheck, "unavailable");
-                    int iPayStatus = 0;
+                    int iPayStatus = -1;
                     if (dicReConnectInfo[(int)enumJDBusinessType.PayCheck].ReCount > jdTimer.ReConnectCount)
                     {
-                        iPayStatus = 1;
+                        iPayStatus = 0;
                     }
                     apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
                     responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -958,7 +958,7 @@ namespace Smart.API.Adapter.Biz
                 {
                     apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
                     responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    responsePayCheck.payStatus = 1;
+                    responsePayCheck.payStatus = 0;
                     responsePayCheck.payType = "OTHER";
                     responsePayCheck.transactionId = queryPay.logNo;
                     // 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
@@ -975,7 +975,7 @@ namespace Smart.API.Adapter.Biz
                             apiBaseResult.code = "0";//请求成功
                             //完成缴费，开闸
                             responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                            responsePayCheck.payStatus = 1;
+                            responsePayCheck.payStatus = 0;
                             responsePayCheck.payType = "OTHER";
                             responsePayCheck.transactionId = queryPay.logNo;
                         }
@@ -989,13 +989,13 @@ namespace Smart.API.Adapter.Biz
                             apiBaseResult.msg = "请求第三方失败，返回[fail]:" + apiResult.data.description;
 
                             responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                            responsePayCheck.payStatus = 0;
+                            responsePayCheck.payStatus = 1;
                             responsePayCheck.payType = "OTHER";
                             responsePayCheck.transactionId = queryPay.logNo;
                             if (apiResult.data.resultCode == null)
                             {
                                 dicPayCheckCount[model.LogNo]++;
-                                responsePayCheck.payStatus = 0;
+                                responsePayCheck.payStatus = 1;
                                 //更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
                                 bFlagUpdateBill = true;
 
@@ -1047,7 +1047,7 @@ namespace Smart.API.Adapter.Biz
                             {
                                 bFlagUpdateBill = true;
                                 responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                responsePayCheck.payStatus = 1;
+                                responsePayCheck.payStatus = 0;
                                 responsePayCheck.payType = "OTHER";
                                 responsePayCheck.transactionId = queryPay.logNo;
 
@@ -1057,7 +1057,7 @@ namespace Smart.API.Adapter.Biz
                         {
                             apiBaseResult.msg = "请求第三方失败，返回[exception]:" + apiResult.data.description;
                             responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                            responsePayCheck.payStatus = 1;
+                            responsePayCheck.payStatus = 0;
                             responsePayCheck.payType = "OTHER";
                             responsePayCheck.transactionId = queryPay.logNo;
                             //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
@@ -1069,7 +1069,7 @@ namespace Smart.API.Adapter.Biz
                     {
                         apiBaseResult.msg = "请求第三方失败，返回的data为null";
                         responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                        responsePayCheck.payStatus = 1;
+                        responsePayCheck.payStatus = 0;
                         responsePayCheck.payType = "OTHER";
                         responsePayCheck.transactionId = queryPay.logNo;
                         //TODO: 更新JD账单，将失败原因写入账单记录 reasonCode 和 reason,出场时需要带上推送
@@ -1078,7 +1078,7 @@ namespace Smart.API.Adapter.Biz
                     }
                 }
 
-                if (dicPayCheckCount.ContainsKey(sLogNo) && dicPayCheckCount[sLogNo] > 3)
+                if (bFlagUpdateBill)
                 {
                     if (model != null)
                     {
