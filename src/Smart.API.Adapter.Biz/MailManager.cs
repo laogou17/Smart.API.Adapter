@@ -8,6 +8,9 @@ using Smart.API.Adapter.Common;
 
 namespace Smart.API.Adapter.Biz
 {
+    /// <summary>
+    /// 发送邮件，暂时不用
+    /// </summary>
     public class MailManager
     {
 

@@ -7,6 +7,7 @@ using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
+using Smart.API.Adapter.Biz;
 
 namespace Smart.API.Adapter.TaskService
 {
@@ -20,6 +21,8 @@ namespace Smart.API.Adapter.TaskService
         protected override void OnStart(string[] args)
         {
             // TODO:  在此处添加代码以启动服务。
+            HeartService heartService = new HeartService();
+            heartService.Start();
         }
 
         protected override void OnStop()

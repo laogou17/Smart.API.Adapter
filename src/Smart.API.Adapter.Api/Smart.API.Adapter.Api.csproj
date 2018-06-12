@@ -119,6 +119,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\ParkVersion.xml" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
