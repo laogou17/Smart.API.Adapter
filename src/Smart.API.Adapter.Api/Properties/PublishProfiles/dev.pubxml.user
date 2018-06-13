@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+您 Web 项目的发布/打包进程将使用此文件。您可以通过编辑此 MSBuild 文件
+来自定义该进程的行为。若要了解与此相关的详细信息，请访问 http://go.microsoft.com/fwlink/?LinkID=208121。
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PublishTargetUrl>E:\京东项目\API</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="bin/Config/Log4net.config">
+      <publishTime>06/10/2018 15:17:47</publishTime>
+    </File>
+    <File Include="bin/Infrastructure.Common.dll">
+      <publishTime>09/19/2016 09:47:00</publishTime>
+    </File>
+    <File Include="bin/Infrastructure.Logging.dll">
+      <publishTime>09/19/2016 09:47:00</publishTime>
+    </File>
+    <File Include="bin/Infrastructure.Logging.Entity.dll">
+      <publishTime>09/19/2016 09:47:00</publishTime>
+    </File>
+    <File Include="bin/log4net.dll">
+      <publishTime>03/08/2017 19:25:34</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Practices.EnterpriseLibrary.Common.dll">
+      <publishTime>08/03/2016 09:50:08</publishTime>
+    </File>
+    <File Include="bin/Microsoft.Practices.EnterpriseLibrary.Data.dll">
+      <publishTime>08/03/2016 09:50:24</publishTime>
+    </File>
+    <File Include="bin/Newtonsoft.Json.dll">
+      <publishTime>08/03/2016 09:59:44</publishTime>
+    </File>
+    <File Include="bin/Smart.API.Adapter.Api.dll">
+      <publishTime>06/13/2018 20:09:13</publishTime>
+    </File>
+    <File Include="bin/Smart.API.Adapter.Biz.dll">
+      <publishTime>06/13/2018 20:08:40</publishTime>
+    </File>
+    <File Include="bin/Smart.API.Adapter.BizCore.dll">
+      <publishTime>06/13/2018 20:08:39</publishTime>
+    </File>
+    <File Include="bin/Smart.API.Adapter.Common.dll">
+      <publishTime>06/13/2018 20:08:40</publishTime>
+    </File>
+    <File Include="bin/Smart.API.Adapter.DataAccess.dll">
+      <publishTime>06/13/2018 20:08:39</publishTime>
+    </File>
+    <File Include="bin/Smart.API.Adapter.Models.dll">
+      <publishTime>06/13/2018 20:08:38</publishTime>
+    </File>
+    <File Include="bin/Smart.API.Adapter.Web.dll">
+      <publishTime>06/13/2018 20:08:40</publishTime>
+    </File>
+    <File Include="bin/System.Net.Http.Formatting.dll">
+      <publishTime>08/03/2016 09:58:06</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.dll">
+      <publishTime>08/03/2016 09:59:12</publishTime>
+    </File>
+    <File Include="bin/System.Web.Http.WebHost.dll">
+      <publishTime>08/03/2016 09:59:34</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/System.Net.Http.Formatting.resources.dll">
+      <publishTime>08/03/2016 09:58:14</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/System.Web.Http.resources.dll">
+      <publishTime>08/03/2016 09:59:24</publishTime>
+    </File>
+    <File Include="bin/zh-Hans/System.Web.Http.WebHost.resources.dll">
+      <publishTime>08/03/2016 09:59:38</publishTime>
+    </File>
+    <File Include="Config/JDParkXML.xml">
+      <publishTime>06/12/2018 17:38:28</publishTime>
+    </File>
+    <File Include="Config/Log4net.config">
+      <publishTime>06/10/2018 15:17:47</publishTime>
+    </File>
+    <File Include="Config/ParkVersion.xml">
+      <publishTime>06/12/2018 16:42:36</publishTime>
+    </File>
+    <File Include="favicon.ico">
+      <publishTime>06/05/2017 11:14:00</publishTime>
+    </File>
+    <File Include="Global.asax">
+      <publishTime>06/02/2018 13:51:14</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>06/13/2018 20:08:41</publishTime>
+    </File>
+  </ItemGroup>
+</Project>

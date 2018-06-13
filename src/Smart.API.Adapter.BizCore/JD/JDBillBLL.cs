@@ -21,7 +21,7 @@ namespace Smart.API.Adapter.BizCore.JD
         {
             model.QrCode = string.IsNullOrWhiteSpace(model.QrCode) ? "" : model.QrCode;
             model.Cost = string.IsNullOrWhiteSpace(model.Cost) ? "" : model.Cost;
-            model.CreatTime = DateTime.Now;
+            model.CreateTime = DateTime.Now;
             return dal.Insert<JDBillModel>(model);
         }
 

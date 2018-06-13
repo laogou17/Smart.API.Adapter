@@ -76,7 +76,7 @@ namespace Smart.API.Adapter.Models.Core.JD
         }
         
 
-        public DateTime CreatTime
+        public DateTime CreateTime
         {
             get;
             set;
