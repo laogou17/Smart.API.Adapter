@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Logging;
 using Infrastructure.Logging.Entity;
+using Smart.API.Adapter.Common;
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -118,8 +119,11 @@ namespace Smart.API.Adapter.Web.Api {
 						responseContent);
 
 			//Logger.TryLog(log);
-            //TODO:写日志
-
+            //写日志
+            if (CommonSettings.LogType == "1")
+            {
+                LogHelper.Info(log.ToJson());
+            }
 		}
 	}
 }
