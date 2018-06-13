@@ -495,9 +495,6 @@ namespace Smart.API.Adapter.Biz
             }
 
             return apiBaseResult;
-            //TODO:如果推送记录失败，写入任务表，进行定时推送（不采用）
-            //或者不写任务表，修改Jielink+ api  写入SDK失败记录，让中心重新推送（采用此方式）
-
         }
 
 
@@ -529,8 +526,6 @@ namespace Smart.API.Adapter.Biz
                     reqVehicleLog.reasonCode = inCrossRecord.parkEventType.ToUpper();
                     reqVehicleLog.reason = inCrossRecord.remark;
                 }
-
-
 
                 reqVehicleLog.vehicleNo = inCrossRecord.plateNumber;
                 reqVehicleLog.actionTime = inCrossRecord.inTime;
@@ -603,6 +598,9 @@ namespace Smart.API.Adapter.Biz
                 LogHelper.Error("请求第三方入场过闸错误:", ex);
                 JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
             }
+
+            //更新剩余停车位
+            new HeartService().UpdateParkRemainCount();
 
             return apiBaseResult;
         }
@@ -851,6 +849,9 @@ namespace Smart.API.Adapter.Biz
                 JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
             }
 
+            //更新剩余停车位
+            new HeartService().UpdateParkRemainCount();
+
             return apiBaseResult;
         }
 
@@ -1043,7 +1044,7 @@ namespace Smart.API.Adapter.Biz
                                 }
                             }
 
-                            if (dicPayCheckCount[model.LogNo] > 3)//超过次数后 开闸
+                            if (dicPayCheckCount[model.LogNo] > jdTimer.RePostCount)//超过次数后 开闸
                             {
                                 bFlagUpdateBill = true;
                                 responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");

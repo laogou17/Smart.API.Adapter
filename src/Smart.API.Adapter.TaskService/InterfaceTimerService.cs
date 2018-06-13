@@ -18,6 +18,11 @@ namespace Smart.API.Adapter.TaskService
             InitializeComponent();
         }
 
+        public void Start(string[] args)
+        {
+            OnStart(args);
+        }
+
         protected override void OnStart(string[] args)
         {
             // TODO:  在此处添加代码以启动服务。

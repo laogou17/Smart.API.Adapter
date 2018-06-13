@@ -14,5 +14,15 @@ namespace Smart.API.Adapter.DataAccess.Core.JD
         {
 
         }
+
+        /// <summary>
+        /// 获取合法白名单
+        /// </summary>
+        /// <returns></returns>
+        public ICollection<VehicleInfo> GetParkWhiteList()
+        {
+            string sql = "select * from ParkWhiteList where yn = '0' ";
+            return base.GetEnityListBySqlString<VehicleInfo>(sql, null);
+        }
     }
 }

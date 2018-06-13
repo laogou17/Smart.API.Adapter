@@ -56,13 +56,23 @@ namespace Smart.API.Adapter.Biz
                 if (heartJd.returnCode == "fail")
                 {
                     //客户端未验证
-                    LogHelper.Error(string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.description));
+                    string message = string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.description);
+                    if (CommonSettings.IsDev)
+                    {
+                        Console.WriteLine(message);
+                    }
+                    LogHelper.Error(message);
                     return true;
                 }
                 if (heartJd.returnCode == "exception")
                 {
                     //服务端异常
-                    LogHelper.Error(string.Format("{0}:心跳检测响应Fail:{1}", DateTime.Now.ToString(), heartJd.description));
+                    string message = string.Format("{0}:心跳检测响应exception:{1}", DateTime.Now.ToString(), heartJd.description);
+                    if (CommonSettings.IsDev)
+                    {
+                        Console.WriteLine(message);
+                    }
+                    LogHelper.Error(message);
                     return true;
                 }
                 if (heartJd.Version != ParkBiz.version)
@@ -79,7 +89,12 @@ namespace Smart.API.Adapter.Biz
             }
             catch (Exception ex)
             {
-                LogHelper.Error(string.Format("{0}:心跳检测出错:{1}", DateTime.Now.ToString(), ex.Message));
+                string message = string.Format("{0}:心跳检测出错:{1}", DateTime.Now.ToString(), ex.Message);
+                if (CommonSettings.IsDev)
+                {
+                    Console.WriteLine(message);
+                }
+                LogHelper.Error(message);
                 return false;
             }
         }
@@ -96,14 +111,24 @@ namespace Smart.API.Adapter.Biz
                 //服务端处理失败,一般是校验问题
                 if (vehicleJd.returnCode == "fail")
                 {
-                    LogHelper.Error(string.Format("{0}:获取白名单Fail:{1}", DateTime.Now.ToString(), vehicleJd.description));
+                    string message = string.Format("{0}:获取白名单Fail:{1}", DateTime.Now.ToString(), vehicleJd.description);
+                    if (CommonSettings.IsDev)
+                    {
+                        Console.WriteLine(message);
+                    }
+                    LogHelper.Error(message);
                     return false;
                 }
 
                 //服务端异常
                 if (vehicleJd.returnCode == "exception")
                 {
-                    LogHelper.Error(string.Format("{0}:获取白名单exception:{1}", DateTime.Now.ToString(), vehicleJd.description));
+                    string message = string.Format("{0}:获取白名单exception:{1}", DateTime.Now.ToString(), vehicleJd.description);
+                    if (CommonSettings.IsDev)
+                    {
+                        Console.WriteLine(message);
+                    }
+                    LogHelper.Error(message);
                     return false ;
                 }
                 //更新到数据库
@@ -132,13 +157,23 @@ namespace Smart.API.Adapter.Biz
                 }
                 catch (Exception ex)
                 {
-                    LogHelper.Error(string.Format("{0}:更新数据库出错:{1}", DateTime.Now.ToString(), ex.Message));
+                    string message = string.Format("{0}:更新数据库出错:{1}", DateTime.Now.ToString(), ex.Message);
+                    if (CommonSettings.IsDev)
+                    {
+                        Console.WriteLine(message);
+                    }
+                    LogHelper.Error(message);
                     throw ex;
                 } 
             }
             catch(Exception ex)
             {
-                LogHelper.Error(string.Format("{0}:获取京东白名单出错:{1}", DateTime.Now.ToString(), ex.Message));
+                string message = string.Format("{0}:获取京东白名单出错:{1}", DateTime.Now.ToString(), ex.Message);
+                if (CommonSettings.IsDev)
+                {
+                    Console.WriteLine(message);
+                }
+                LogHelper.Error(message);
                 throw ex;
             } 
         }
@@ -159,7 +194,12 @@ namespace Smart.API.Adapter.Biz
             }
             catch(Exception ex)
             {
-                LogHelper.Error(string.Format("{0}:更新xml出错:{1}", DateTime.Now.ToString(), ex.Message));
+                string message = string.Format("{0}:更新xml出错:{1}", DateTime.Now.ToString(), ex.Message);
+                if (CommonSettings.IsDev)
+                {
+                    Console.WriteLine(message);
+                }
+                LogHelper.Error(message);
                 throw ex;
             }
         }
@@ -195,7 +235,12 @@ namespace Smart.API.Adapter.Biz
                 }
                 catch (Exception ex)
                 {
-                    LogHelper.Error(string.Format("{0}:获取jieLink车场数据出错:{1}", DateTime.Now.ToString(), ex.Message));
+                    string message = string.Format("{0}:获取jieLink车场数据出错:{1}", DateTime.Now.ToString(), ex.Message);
+                    if (CommonSettings.IsDev)
+                    {
+                        Console.WriteLine(message);
+                    }
+                    LogHelper.Error(message);
 
                 }
 
@@ -216,19 +261,34 @@ namespace Smart.API.Adapter.Biz
                 BaseJdRes jdRes = await jdParkBiz.ModifyParkTotalCount(totalReq);
                 if (jdRes.returnCode == "fail")
                 {
-                    LogHelper.Error(string.Format("{0}:更新车位总数响应Fail:{1}", DateTime.Now.ToString(), jdRes.description));
+                    string message = string.Format("{0}:更新车位总数响应Fail:{1}", DateTime.Now.ToString(), jdRes.description);
+                    if (CommonSettings.IsDev)
+                    {
+                        Console.WriteLine(message);
+                    }
+                    LogHelper.Error(message);
                     //客户端未验证
                 }
                 if (jdRes.returnCode == "exception")
                 {
-                    LogHelper.Error(string.Format("{0}:更新车位总数响应Exception:{1}", DateTime.Now.ToString(), jdRes.description));
+                    string message = string.Format("{0}:更新车位总数响应exception:{1}", DateTime.Now.ToString(), jdRes.description);
+                    if (CommonSettings.IsDev)
+                    {
+                        Console.WriteLine(message);
+                    }
+                    LogHelper.Error(message);
                     //服务端异常
                 }
                 return true;
             }
             catch (Exception ex)
             {
-                LogHelper.Error(string.Format("{0}:更新车位总数出错:{1}", DateTime.Now.ToString(), ex.Message));
+                string message = string.Format("{0}:更新车位总数出错:{1}", DateTime.Now.ToString(), ex.Message);
+                if (CommonSettings.IsDev)
+                {
+                    Console.WriteLine(message);
+                }
+                LogHelper.Error(message);
                 return false;
 
             }

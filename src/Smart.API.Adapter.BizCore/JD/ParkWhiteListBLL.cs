@@ -12,9 +12,14 @@ namespace Smart.API.Adapter.BizCore.JD
     public class ParkWhiteListBLL
     {
         ParkWhiteListDAL dal = new ParkWhiteListDAL();
+
+        /// <summary>
+        /// 获取合法白名单
+        /// </summary>
+        /// <returns></returns>
         public ICollection<VehicleInfo> GetParkWhiteList()
         {
-            return dal.FindAll<VehicleInfo>();
+            return dal.GetParkWhiteList();
         }
     }
 }
