@@ -298,7 +298,7 @@ namespace Smart.API.Adapter.Biz
             switch (ioType)
             {
                 case 0:
-                    sPosition = "未启用";
+                    sPosition = "其他设备";
                     break;
                 case 1:
                     sPosition = "大车场入口";
