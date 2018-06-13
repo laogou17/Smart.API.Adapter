@@ -394,6 +394,19 @@ namespace Smart.API.Adapter.Biz
                         apiBaseResult.msg = "非法车辆";
                     }
                 }
+
+                if (bIsWhiteList)
+                {
+                    //判断是否满位，仅放行最大放行车辆数
+                    if (JDCommonSettings.RemainTotalCount == 0 && JDCommonSettings.ParkTotalCount >0)
+                    {
+                        if (JDCommonSettings.InParkCount - JDCommonSettings.ParkTotalCount > ParkBiz.overFlowCount)
+                        {
+                            apiBaseResult.code = "1";
+                            apiBaseResult.msg = "车位数已满，已超位入场数:" + ParkBiz.overFlowCount;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {

@@ -16,7 +16,7 @@ namespace Smart.API.Adapter.Biz
     public class ParkBiz
     {
         public  static string version = "1";
-        public  static int overFlowCount = 100;
+        public  static int overFlowCount = 10;
         private DataBase dataBase ;
         private string xmlAddr;
         private JDParkBiz jdParkBiz;
@@ -225,13 +225,15 @@ namespace Smart.API.Adapter.Biz
                     //转换为京东车位数据
                     totalReq = new TotalCountReq();
                     totalReq.parkLotCode = CommonSettings.ParkLotCode;
-                    totalReq.totalCount = parkPlaceRes.Data.parkCount;
+                    totalReq.totalCount = parkPlaceRes.data.parkCount.ToString();
                     totalReq.data = new List<TotalInfo>();
 
-                    parkPlaceRes.Data.areaParkList.ForEach(x =>
+                    parkPlaceRes.data.areaParkList.ForEach(x =>
                     {
-                        totalReq.data.Add(new TotalInfo() { regionCode = x.areaNo, count = x.areaParkCount });
+                        totalReq.data.Add(new TotalInfo() { regionCode = x.areaNo, count = x.areaParkCount.ToString() });
                     });
+
+                    JDCommonSettings.ParkTotalCount = parkPlaceRes.data.parkCount;
                 }
                 catch (Exception ex)
                 {
@@ -315,14 +317,15 @@ namespace Smart.API.Adapter.Biz
                     //转换为京东车位数据
                     totalReq = new RemainCountReq();
                     totalReq.parkLotCode = CommonSettings.ParkLotCode;
-                    totalReq.remainTotalCount = parkPlaceRes.Data.parkRemainCount
-;
+                    totalReq.remainTotalCount = parkPlaceRes.data.parkRemainCount.ToString();
                     totalReq.data = new List<RemainInfo>();
-
-                    parkPlaceRes.Data.areaParkList.ForEach(x =>
+                    parkPlaceRes.data.areaParkList.ForEach(x =>
                     {
-                        totalReq.data.Add(new RemainInfo() { regionCode = x.areaNo, remainCount = x.areaParkRemainCount });
+                        totalReq.data.Add(new RemainInfo() { regionCode = x.areaNo, remainCount = x.areaParkRemainCount.ToString() });
                     });
+
+
+                    JDCommonSettings.RemainTotalCount = parkPlaceRes.data.parkRemainCount;
                 }
                 catch (Exception ex)
                 {
