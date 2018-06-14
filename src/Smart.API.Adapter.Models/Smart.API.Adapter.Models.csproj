@@ -85,6 +85,7 @@
     <Compile Include="DTO\JD\ResponseJDQueryPay.cs" />
     <Compile Include="DTO\JD\ResponseOutRecognition.cs" />
     <Compile Include="DTO\ParkCountReq.cs" />
+    <Compile Include="DTO\ParkDic.cs" />
     <Compile Include="DTO\ParkPlaceCount.cs" />
     <Compile Include="DTO\RemainCountReq.cs" />
     <Compile Include="DTO\RemainInfo.cs" />

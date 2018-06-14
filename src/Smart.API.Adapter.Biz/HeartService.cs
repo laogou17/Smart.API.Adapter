@@ -26,6 +26,30 @@ namespace Smart.API.Adapter.Biz
 
         private SendMailHelper mail = new SendMailHelper();
 
+        private static HeartService _heartService;
+        private static readonly object  objLock=new object();
+        private HeartService()
+        { 
+        }
+
+        public static HeartService GetInstance()
+        {
+            if(_heartService==null)
+            {
+                lock (objLock)
+                {
+                    if (_heartService == null)
+                    {
+                        _heartService = new HeartService();
+ 
+                    }
+ 
+                }
+            }
+            return _heartService;
+        
+        }
+
         public void Start()
         {
 
@@ -126,6 +150,7 @@ namespace Smart.API.Adapter.Biz
 
         //}
 
+        //更新总车位
         public void UpdateParkTotalCount()
         {
             string message = string.Format("{0}:更新车场车位总数", DateTime.Now.ToString());
@@ -135,6 +160,8 @@ namespace Smart.API.Adapter.Biz
             }
             LogHelper.Info(message);
             timerUpdateParkTotalCount = new Timer(new TimerCallback(UpdateParkTotalCountCallBack), null, 0, Timeout.Infinite);
+            //更新总车位后，紧跟着要更新剩余车位
+            UpdateParkRemainCount();
 
         }
         private async void UpdateParkTotalCountCallBack(object obj)
