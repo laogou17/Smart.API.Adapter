@@ -30,10 +30,17 @@ namespace Smart.API.Adapter.Biz
         }
         public ParkBiz()
         {
-            xmlAddr =System.IO.Directory.GetParent(System.IO.Directory.GetParent( Environment.CurrentDirectory).ToString()) + CommonSettings.ParkXmlAddress;
-            dataBase = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkWhiteList", "VehicleNo", false);
-            jdParkBiz = new JDParkBiz();
-            InitVersion(); 
+            try
+            {
+                xmlAddr = System.IO.Directory.GetParent(System.IO.Directory.GetParent(Environment.CurrentDirectory).ToString()) + CommonSettings.ParkXmlAddress;
+                dataBase = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkWhiteList", "VehicleNo", false);
+                jdParkBiz = new JDParkBiz();
+                InitVersion();
+            }
+            catch (Exception ex)
+            { 
+            }
+            
         }
 
         private void InitVersion()
@@ -230,7 +237,7 @@ namespace Smart.API.Adapter.Biz
 
                     parkPlaceRes.data.areaParkList.ForEach(x =>
                     {
-                        totalReq.data.Add(new TotalInfo() { regionCode = x.areaNo, count = x.areaParkCount.ToString() });
+                        totalReq.data.Add(new TotalInfo() { regionCode = x.areaName, count = x.areaParkCount.ToString() });
                     });
 
                     JDCommonSettings.ParkTotalCount = parkPlaceRes.data.parkCount;
@@ -321,7 +328,7 @@ namespace Smart.API.Adapter.Biz
                     totalReq.data = new List<RemainInfo>();
                     parkPlaceRes.data.areaParkList.ForEach(x =>
                     {
-                        totalReq.data.Add(new RemainInfo() { regionCode = x.areaNo, remainCount = x.areaParkRemainCount.ToString() });
+                        totalReq.data.Add(new RemainInfo() { regionCode = x.areaName, remainCount = x.areaParkRemainCount.ToString() });
                     });
 
 
@@ -370,9 +377,9 @@ namespace Smart.API.Adapter.Biz
         public  ParkPlaceRes GetParkPlaceCount()
         {
             //请求JieLink车场数据，parkId使用不到
-            string parkId = CommonSettings.ParkLotCode; ;
+            string parkId = "";
             InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJS);
-            var res = requestApi.PostRaw<ParkPlaceRes>("parking/place", parkId);
+            var res = requestApi.PostRaw<ParkPlaceRes>("park/parkingplace", parkId);
             if (!res.successed)
             {
                 LogHelper.Error("请求JieLink出错" + res.code); 

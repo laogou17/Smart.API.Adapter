@@ -79,7 +79,6 @@ namespace Smart.API.Adapter.Biz
                     LogHelper.Error(messageError);
                     faliTimes = 0;
                     mail.SendMail();
-                    return;
                 }
                 //timerHeart.Change(parkBiz.HeartInterval, Timeout.Infinite);
             }

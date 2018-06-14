@@ -111,7 +111,7 @@ namespace WinTestJD
             InCrossRecord record = new InCrossRecord();
             record.inRecordId = txt_LogNo.Text;
             record.parkId = "";
-            record.inDeviceId = "E6C6A279-1389-4F8E-8B75-55ADE585C5CD".ToLower();
+            record.InDeviceId = "E6C6A279-1389-4F8E-8B75-55ADE585C5CD".ToLower();
             record.inDeviceName = "入口";
             record.inTime = inTime = new DateTime(2018, 6, 11, 8, 0, 0).ToString("yyyy-MM-dd HH:mm:ss");
             record.inImage = "http://localhost:8093/Pic/152233_SB1.jpg";

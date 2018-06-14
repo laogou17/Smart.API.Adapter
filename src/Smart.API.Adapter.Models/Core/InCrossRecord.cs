@@ -29,7 +29,7 @@ namespace Smart.API.Adapter.Models.Core
         /// <summary>
         /// 设备唯一标识
         /// </summary>
-        public string inDeviceId
+        public string InDeviceId
         {
             get;
             set;

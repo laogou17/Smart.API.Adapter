@@ -16,7 +16,7 @@ namespace Smart.API.Adapter.DataAccess.Core.JD
 
         public JDBillModel GetJDBillByLogNo(string sLogNo)
         {
-            string sql = "select * from JDBill where LogNo = '" + sLogNo + "' order by CreatTime desc";
+            string sql = "select * from JDBill where LogNo = '" + sLogNo + "' order by CreateTime desc";
             return base.GetEnityBySqlString<JDBillModel>(sql, null);
         }
 

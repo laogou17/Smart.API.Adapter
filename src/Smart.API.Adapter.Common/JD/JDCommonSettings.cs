@@ -52,7 +52,7 @@ namespace Smart.API.Adapter.Common.JD
                     try
                     {
                         InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJS);
-                        var res = requestApi.PostRaw<ParkPlaceRes>("parking/place", "");
+                        var res = requestApi.PostRaw<ParkPlaceRes>("park/parkingplace", "");
                         if (!res.successed)
                         {
                             LogHelper.Error("请求JieLink剩余车位出错" + res.code);
@@ -90,7 +90,7 @@ namespace Smart.API.Adapter.Common.JD
                     try
                     {
                         InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJS);
-                        var res = requestApi.PostRaw<ParkPlaceRes>("parking/place", "");
+                        var res = requestApi.PostRaw<ParkPlaceRes>("park/parkingplace", "");
                         if (!res.successed)
                         {
                             LogHelper.Error("请求JieLink剩余车位出错" + res.code);
@@ -129,7 +129,7 @@ namespace Smart.API.Adapter.Common.JD
                     RequestInparkingRecord requestParmters = new RequestInparkingRecord();
                     requestParmters.pageIndex = 1;
                     requestParmters.pageSize = 10;
-                    var res = requestApi.PostRaw<APIResultBase<ResponseInparkIngRecord>>("parking/inparkingrecord", requestParmters);
+                    var res = requestApi.PostRaw<APIResultBase<ResponseInparkIngRecord>>("park/inparkingrecord", requestParmters);
                     if (!res.successed)
                     {
                         LogHelper.Error("请求JieLink查询场内记录出错" + res.code);
