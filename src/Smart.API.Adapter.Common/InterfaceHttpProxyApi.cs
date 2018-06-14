@@ -31,7 +31,7 @@ namespace Smart.API.Adapter.Common
             LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
-                var response = client.PostAsync(relativeUri, new FormUrlEncodedContent(ToMapDic(parameters))).Result;
+                var response = client.PostAsync(relativeUri, new RestfulFormUrlEncodedContent(parameters)).Result;
                 return HandleApiResult(response);
             }
         }
@@ -50,7 +50,7 @@ namespace Smart.API.Adapter.Common
             LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
             {
-                var response = client.PostAsync(relativeUri, new FormUrlEncodedContent(ToMapDic(parameters))).Result;
+                var response = client.PostAsync(relativeUri, new RestfulFormUrlEncodedContent(parameters)).Result;
                 try
                 {
                     LogHelper.Info("PostResponse:[" + relativeUri + "]" + response.Content.ReadAsStringAsync().Result);//记录日志
@@ -109,8 +109,8 @@ namespace Smart.API.Adapter.Common
             string sJson = parameters.ToJson();
             LogHelper.Info("PostRaw:[" + relativeUri + "]" + sJson);//记录日志
             using (var client = GetHttpClient(timeout))
-            {
-                var response = await client.PostAsync(relativeUri, new FormUrlEncodedContent(ToMapDic(parameters)));
+            {  
+                var response = await client.PostAsync(relativeUri, new RestfulFormUrlEncodedContent(parameters));
                 try
                 {
                     LogHelper.Info("PostResponse:[" + relativeUri + "]" + response.Content.ReadAsStringAsync().Result);//记录日志
@@ -174,132 +174,99 @@ namespace Smart.API.Adapter.Common
             return apiResult;
         }
 
-        private Dictionary<string, string> ToMapDic(Object o)
+        private class RestfulFormUrlEncodedContent : StringContent
         {
-            Dictionary<string, string> map = new Dictionary<string, string>();
-
-            Type t = o.GetType();
-
-            PropertyInfo[] pi = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            foreach (PropertyInfo p in pi)
+            public RestfulFormUrlEncodedContent(object data)
+                : base(GetContentByteArray(data), Encoding.UTF8)
             {
-                MethodInfo mi = p.GetGetMethod();
+                Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
-                if (mi != null && mi.IsPublic)
-                {
-                    string value = "";
-                    object oVal = p.GetValue(o);
-                    if (oVal != null)
-                    {
-                        value = oVal.ToString();
-                    }
-                    map.Add(p.Name, value);
-                }
             }
 
-            return map;
+            private static Dictionary<string, string> ToMapDic(Object o)
+            {
+                Dictionary<string, string> map = new Dictionary<string, string>();
+
+                Type t = o.GetType();
+
+                PropertyInfo[] pi = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+                foreach (PropertyInfo p in pi)
+                {
+                    MethodInfo mi = p.GetGetMethod();
+
+                    if (mi != null && mi.IsPublic)
+                    {
+                        string value = "";
+                        object oVal = p.GetValue(o);
+                        if (oVal != null)
+                        {
+                            value = oVal.ToString();
+                        }
+                        map.Add(p.Name, value);
+                    }
+                }
+
+                return map;
+            }
+
+            private static string GetContentByteArray(object data)
+            {
+                if (data == null)
+                {
+                    throw new ArgumentNullException("data");
+                }
+                StringBuilder builder = new StringBuilder();
+                Dictionary<string, string> nameValueCollection = ToMapDic(data);
+                foreach (string key in nameValueCollection.Keys)
+                {
+                    if (builder.Length > 0)
+                    {
+                        builder.Append('&');
+                    }
+                    builder.Append(Encode(key));
+                    builder.Append("=");
+                    string value = "";
+                    if (nameValueCollection[key] != null)
+                    {
+                        value = nameValueCollection[key];
+                    }
+                    builder.Append(Encode(value));
+                }
+
+                return builder.ToString();
+            }
+
+            private static string Encode(string data)
+            {
+                if (string.IsNullOrEmpty(data))
+                {
+                    return string.Empty;
+                }
+                int limit = 32766;
+                StringBuilder sb = new StringBuilder();
+                if (data.Length < limit)
+                {
+                    sb.Append(Uri.EscapeDataString(data));
+                }
+                else
+                {
+                    int loops = data.Length / limit;
+                    for (int i = 0; i <= loops; i++)
+                    {
+                        if (i < loops)
+                        {
+                            sb.Append(Uri.EscapeDataString(data.Substring(limit * i, limit)));
+                        }
+                        else
+                        {
+                            sb.Append(Uri.EscapeDataString(data.Substring(limit * i)));
+                        }
+                    }
+                }
+                return sb.ToString().Replace("%20", "+");
+            }
         }
-
-        //private class RestfulFormUrlEncodedContent : ByteArrayContent
-        //{
-        //    public RestfulFormUrlEncodedContent(object data)
-        //        : base(GetContentByteArray(data))
-        //    {
-        //        Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-from-urlencoded");
-
-        //    }
-
-        //    /// <summary>  
-        //    ///   
-        //    /// 将对象属性转换为key-value对  
-        //    /// </summary>  
-        //    /// <param name="o"></param>  
-        //    /// <returns></returns>  
-        //    public static Dictionary<string, string> ToMap(Object o)
-        //    {
-        //        Dictionary<string, string> map = new Dictionary<string, string>();
-
-        //        Type t = o.GetType();
-
-        //        PropertyInfo[] pi = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-        //        foreach (PropertyInfo p in pi)
-        //        {
-        //            MethodInfo mi = p.GetGetMethod();
-
-        //            if (mi != null && mi.IsPublic)
-        //            {
-        //                string value = "";
-        //                if (o != null)
-        //                {
-        //                    value = o.ToString();
-        //                }
-        //                map.Add(p.Name, value);
-        //            }
-        //        }
-
-        //        return map;
-
-        //    }  
-
-        //    private static byte[] GetContentByteArray(object data)
-        //    {
-        //        if (data == null)
-        //        {
-        //            throw new ArgumentNullException("data");
-        //        }
-        //        StringBuilder builder = new StringBuilder();
-        //        Dictionary<String, Object> nameValueCollection = ToMap(data);
-        //        foreach (string key in nameValueCollection.Keys)
-        //        {
-        //            if (builder.Length > 0)
-        //            {
-        //                builder.Append('&');
-        //            }
-        //            builder.Append(Encode(key));
-        //            builder.Append("=");
-        //            string value = "";
-        //            if (nameValueCollection[key] != null)
-        //            {
-        //                value = nameValueCollection[key].ToString();
-        //            }
-        //            builder.Append(Encode(value));
-        //        }
-
-        //        return Encoding.UTF8.GetBytes(builder.ToString());
-        //    }
-
-        //    private static string Encode(string data)
-        //    {
-        //        if (string.IsNullOrEmpty(data))
-        //        {
-        //            return string.Empty;
-        //        }
-        //        int limit = 32766;
-        //        StringBuilder sb = new StringBuilder();
-        //        if (data.Length < limit)
-        //        {
-        //            sb.Append(Uri.EscapeDataString(data));
-        //        }
-        //        else
-        //        {
-        //            int loops = data.Length / limit;
-        //            for (int i = 0; i <= loops; i++)
-        //            {
-        //                if (i<loops)
-        //                {
-        //                    sb.Append(Uri.EscapeDataString(data.Substring(limit*i,limit)));
-        //                }
-        //                else
-        //                {
-        //                    sb.Append(Uri.EscapeDataString(data.Substring(limit*i)));
-        //                }
-        //            }
-        //        }
-        //        return sb.ToString().Replace("%20", "+");
-        //    }
-        //}
 
         private class RestfulFormRawJsonContent : ByteArrayContent
         {

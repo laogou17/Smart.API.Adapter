@@ -207,10 +207,12 @@ namespace Smart.API.Adapter.Biz
                         bool flag = false;//同设备状态未改变，不用上传信息
                         if (dicDevStatus.ContainsKey(item.deviceGuid))
                         {
+
                             if (dicDevStatus[item.deviceGuid] == item.deviceStatus)
                             {
                                 flag = true;
                             }
+                            dicDevStatus[item.deviceGuid] = item.deviceStatus;
                         }
                         if (!flag)
                         {
@@ -373,12 +375,14 @@ namespace Smart.API.Adapter.Biz
                     {
                         apiBaseResult.code = "98";// 约定jielink+ api code="98" ，不开闸，但补推记录
                         apiBaseResult.msg = apiBaseResult.msg + ",非法车辆不开闸，补推记录";
+                        LogHelper.Info(apiBaseResult.msg + ",非法车辆不开闸，补推记录");
                     }
                     else
                     {
                         //白名单，推送记录失败，开闸，补推记录。
                         apiBaseResult.code = "99";// 约定jielink+ api code="99" ，开闸，补推记录
                         apiBaseResult.msg = apiBaseResult.msg + ",白名单开闸，补推记录";
+                        LogHelper.Info(apiBaseResult.msg + ",白名单开闸，补推记录");
                     }
                 }
                 else  //请求第三方成功
@@ -398,14 +402,19 @@ namespace Smart.API.Adapter.Biz
                 if (bIsWhiteList)
                 {
                     //判断是否满位，仅放行最大放行车辆数
-                    if (JDCommonSettings.RemainTotalCount == 0 && JDCommonSettings.ParkTotalCount >0)
+                    if (JDCommonSettings.RemainTotalCount == 0 && JDCommonSettings.ParkTotalCount > 0)
                     {
                         if (JDCommonSettings.InParkCount - JDCommonSettings.ParkTotalCount > ParkBiz.overFlowCount)
                         {
                             apiBaseResult.code = "1";
                             apiBaseResult.msg = "车位数已满，已超位入场数:" + ParkBiz.overFlowCount;
+                            LogHelper.Info("车位数已满，已超位入场数:" + ParkBiz.overFlowCount);
                         }
                     }
+                }
+                else
+                {
+                    LogHelper.Info(inRecognitionRecord.plateNumber + "非法车辆");
                 }
             }
             catch (Exception ex)
@@ -439,6 +448,16 @@ namespace Smart.API.Adapter.Biz
                 string fileName = "";
                 reqVehicleLog.photoStr = StringHelper.GetPicStringByUrl(inRecognitionRecord.inImage, out fileName);
                 reqVehicleLog.photoName = fileName;
+
+                int iCount = 0;
+                while (string.IsNullOrWhiteSpace(reqVehicleLog.photoStr) && iCount < 5)
+                {
+                    iCount++;
+                    reqVehicleLog.photoStr = StringHelper.GetPicStringByUrl(inRecognitionRecord.inImage, out fileName);
+                    reqVehicleLog.photoName = fileName;
+                    System.Threading.Thread.Sleep(100);
+                }
+
                 reqVehicleLog.resend = "1";
                 if (inRecognitionRecord.reTrySend == "1")
                 {
@@ -542,7 +561,7 @@ namespace Smart.API.Adapter.Biz
 
                 reqVehicleLog.vehicleNo = inCrossRecord.plateNumber;
                 reqVehicleLog.actionTime = inCrossRecord.inTime;
-                reqVehicleLog.actionPositionCode = inCrossRecord.inDeviceId;
+                reqVehicleLog.actionPositionCode = inCrossRecord.InDeviceId;
                 reqVehicleLog.actionPosition = inCrossRecord.inDeviceName;
                 reqVehicleLog.resend = "1";
                 if (inCrossRecord.reTrySend == "1")
@@ -649,6 +668,14 @@ namespace Smart.API.Adapter.Biz
                 string fileName = "";
                 reqVehicleLog.photoStr = StringHelper.GetPicStringByUrl(outRecognitionRecord.outImage, out fileName);
                 reqVehicleLog.photoName = fileName;
+                int iCount = 0;
+                while (string.IsNullOrWhiteSpace(reqVehicleLog.photoStr) && iCount < 5)
+                {
+                    iCount++;
+                    reqVehicleLog.photoStr = StringHelper.GetPicStringByUrl(outRecognitionRecord.outImage, out fileName);
+                    reqVehicleLog.photoName = fileName;
+                    System.Threading.Thread.Sleep(100);
+                }
 
                 bool bReTry = true;
                 JDTimer jdTimer = CommonSettings.JDTimerInfo(businessType);
@@ -672,6 +699,7 @@ namespace Smart.API.Adapter.Biz
                 ApiResult<ResponseOutRecognition> apiResult = httpApi.PostUrl<ResponseOutRecognition>("external/createVehicleLogDetail", reqVehicleLog);
                 if (!apiResult.successed)
                 {
+                    apiBaseResult.code = "0";//请求失败后自动出场
                     apiBaseResult.msg = "请求第三方失败，" + apiResult.message;
                     JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
                 }
@@ -711,17 +739,20 @@ namespace Smart.API.Adapter.Biz
                         }
                         else if (apiResult.data.returnCode == "fail")
                         {
+                            apiBaseResult.code = "0";//请求失败后自动出场
                             JDRePostAndEail(businessType, "fail");//重试计数和发送邮件
                             apiBaseResult.msg = "请求第三方失败，返回[fail]:" + apiResult.data.description;
                         }
                         else
                         {
+                            apiBaseResult.code = "0";//请求失败后自动出场
                             JDRePostAndEail(businessType, "exception");//重试计数和发送邮件
                             apiBaseResult.msg = "请求第三方失败，返回[exception]:" + apiResult.data.description;
                         }
                     }
                     else
                     {
+                        apiBaseResult.code = "0";//请求失败后自动出场
                         apiBaseResult.msg = "请求第三方失败，返回的data为null";
                         JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
                     }
@@ -729,6 +760,7 @@ namespace Smart.API.Adapter.Biz
             }
             catch (Exception ex)
             {
+                apiBaseResult.code = "0";//请求失败后自动出场
                 apiBaseResult.msg = "请求第三方失败，" + ex.Message;
                 LogHelper.Error("请求第三方出场识别错误:", ex);
                 JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
@@ -927,6 +959,7 @@ namespace Smart.API.Adapter.Biz
             apiBaseResult.code = "0";
             apiBaseResult.msg = "";
             ResponsePayCheck responsePayCheck = new ResponsePayCheck();
+            apiBaseResult.data = responsePayCheck;
             string sLogNo = requesPayCheck.payNo;
             bool bFlagUpdateBill = false;//是否需要更新JD账单 失败原因
             try
@@ -1015,6 +1048,10 @@ namespace Smart.API.Adapter.Biz
 
                                 model.ReasonCode = "fail";
                                 model.Reason = apiResult.data.description;
+                                responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                responsePayCheck.payStatus = 0;
+                                responsePayCheck.payType = "OTHER";
+                                responsePayCheck.transactionId = queryPay.logNo;
                             }
                             else if (apiResult.data.resultCode == "2")
                             {
@@ -1029,7 +1066,7 @@ namespace Smart.API.Adapter.Biz
 
                                 if ((!string.IsNullOrWhiteSpace(apiResult.data.qrCode)))
                                 {
-                                    apiBaseResult.data.payQrcodeLink = apiResult.data.qrCode;//返回支付二维码链接
+                                    responsePayCheck.payQrcodeLink = apiResult.data.qrCode;//返回支付二维码链接
                                     dicPayCheckCount[model.LogNo] = 0;//归零，重新等待3次
                                     //代扣失败返回的qrcode 更新到账单表
                                     model.QrCode = apiResult.data.qrCode;
@@ -1103,6 +1140,10 @@ namespace Smart.API.Adapter.Biz
             }
             catch (Exception ex)//TODO: 重试3次后 ，服务端错误，发送邮件
             {
+                responsePayCheck.chargeTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                responsePayCheck.payStatus = 0;
+                responsePayCheck.payType = "OTHER";
+                responsePayCheck.transactionId = sLogNo;
                 apiBaseResult.msg = "请求第三方支付反查失败,定制服务错误，" + ex.Message;
                 LogHelper.Error("请求第三方支付反查失败,定制服务错误:", ex);
             }
@@ -1151,7 +1192,7 @@ namespace Smart.API.Adapter.Biz
                     dicReConnectInfo[(int)type].ReTime = DateTime.Now;
                 }
 
-                if (dicReConnectInfo[(int)type].ReCount > ReConnectCount)
+                if (dicReConnectInfo.ContainsKey((int)type) && dicReConnectInfo[(int)type].ReCount > ReConnectCount)
                 {
                     //超过重试最大次数后，不再计数增加，防止溢出
                     dicReConnectInfo[(int)type].ReCount = ReConnectCount + 1;
