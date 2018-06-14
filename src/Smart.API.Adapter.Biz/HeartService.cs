@@ -106,10 +106,13 @@ namespace Smart.API.Adapter.Biz
 
         //}
 
+        //更新总车位
         public void UpdateParkTotalCount()
         {
             LogHelper.Info(string.Format("{0}:更新车场车位总数", DateTime.Now.ToString()));
             timerUpdateParkTotalCount = new Timer(new TimerCallback(UpdateParkTotalCountCallBack), null, 0, Timeout.Infinite);
+            //更新总车位后，紧跟着要更新剩余车位
+            UpdateParkRemainCount();
 
         }
         private async void UpdateParkTotalCountCallBack(object obj)
