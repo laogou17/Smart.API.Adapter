@@ -886,6 +886,13 @@ namespace Smart.API.Adapter.Biz
                         JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
                     }
                 }
+
+                //清掉缓存
+                if (dicPayCheckCount.ContainsKey(reqVehicleLog.logNo))
+                {
+                    dicPayCheckCount.Remove(reqVehicleLog.logNo);
+                }
+               
             }
             catch (Exception ex)
             {
@@ -893,7 +900,7 @@ namespace Smart.API.Adapter.Biz
                 LogHelper.Error("请求第三方出场过闸错误:", ex);
                 JDRePostAndEail(businessType, "unavailable");//重试计数和发送邮件
             }
-
+           
             //更新剩余停车位
             new HeartService().UpdateParkRemainCount();
 
@@ -976,6 +983,7 @@ namespace Smart.API.Adapter.Biz
                 InterfaceHttpProxyApi httpApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
                 ApiResult<ResponseJDQueryPay> apiResult = new ApiResult<ResponseJDQueryPay>();
                 JDTimer jdTimer = CommonSettings.JDTimerInfo(enumJDBusinessType.PayCheck);
+ 
                 try
                 {
                     apiResult = httpApi.PostUrl<ResponseJDQueryPay>("external/queryPay", queryPay);
@@ -1025,6 +1033,11 @@ namespace Smart.API.Adapter.Biz
                             responsePayCheck.payStatus = 0;
                             responsePayCheck.payType = "OTHER";
                             responsePayCheck.transactionId = queryPay.logNo;
+
+                            if (dicPayCheckCount.ContainsKey(model.LogNo))
+                            {
+                                dicPayCheckCount.Remove(model.LogNo);
+                            }
                         }
                         else if (apiResult.data.returnCode == "fail")
                         {
@@ -1131,10 +1144,22 @@ namespace Smart.API.Adapter.Biz
 
                 if (bFlagUpdateBill)
                 {
-                    if (model != null)
+                    if (model != null )
                     {
-                        new JDBillBLL().Update(model);
-                        dicPayCheckCount.Remove(model.LogNo);
+                        try
+                        {
+                            new JDBillBLL().Update(model);
+                        }
+                        catch (Exception ex)
+                        {
+                            LogHelper.Error("请求第三方支付反查更JDBill数据库错误:", ex);
+                        }
+                      
+                    }
+                    //清掉缓存
+                    if (dicPayCheckCount.ContainsKey(sLogNo))
+                    {
+                        dicPayCheckCount.Remove(sLogNo);
                     }
                 }
             }
