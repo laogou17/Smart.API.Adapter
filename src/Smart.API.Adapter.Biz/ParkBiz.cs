@@ -17,7 +17,8 @@ namespace Smart.API.Adapter.Biz
     {
         public  static string version = "1";
         public  static int overFlowCount = 10;
-        private DataBase dataBase ;
+        private DataBase dataBase;
+        private DataBase dataBaseDic;
         private string xmlAddr;
         private JDParkBiz jdParkBiz;
 
@@ -30,18 +31,34 @@ namespace Smart.API.Adapter.Biz
         }
         public ParkBiz()
         {
-            xmlAddr =System.IO.Directory.GetParent(System.IO.Directory.GetParent( Environment.CurrentDirectory).ToString()) + CommonSettings.ParkXmlAddress;
+            //xmlAddr =System.IO.Directory.GetParent(System.IO.Directory.GetParent( Environment.CurrentDirectory).ToString()) + CommonSettings.ParkXmlAddress;
             dataBase = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkWhiteList", "VehicleNo", false);
+            dataBaseDic = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkWhiteList", "KeyStr", false);
             jdParkBiz = new JDParkBiz();
             InitVersion(); 
         }
 
         private void InitVersion()
         {
-            XDocument xDoc = XDocument.Load(xmlAddr);
-            version = xDoc.Root.Element("Version").Value;
-            overFlowCount = Convert.ToInt32(xDoc.Root.Element("OverFlowCount").Value);
- 
+            //XML方式
+            //XDocument xDoc = XDocument.Load(xmlAddr);
+            //version = xDoc.Root.Element("Version").Value;
+            //overFlowCount = Convert.ToInt32(xDoc.Root.Element("OverFlowCount").Value);
+
+            try
+            {
+                version = dataBaseDic.FindByKey<ParkDic>("Version").ValueStr;
+                overFlowCount = Convert.ToInt32(dataBaseDic.FindByKey<ParkDic>("Version").ValueStr);
+            }
+            catch (Exception ex)
+            {
+                string message = string.Format("{0}:初始化版本号出错:{1}", DateTime.Now.ToString(), ex.Message);
+                if (CommonSettings.IsDev)
+                {
+                    Console.WriteLine(message);
+                }
+                LogHelper.Error(message);
+            }
         }
 
         /// <summary>
@@ -187,14 +204,19 @@ namespace Smart.API.Adapter.Biz
         {
             try
             {
-                XDocument xDoc = XDocument.Load(xmlAddr);
-                xDoc.Root.SetElementValue("Version", heartJd.Version);
-                xDoc.Root.SetElementValue("OverFlowCount", heartJd.OverFlowCount);
-                xDoc.Save(xmlAddr);
+                //XDocument xDoc = XDocument.Load(xmlAddr);
+                //xDoc.Root.SetElementValue("Version", heartJd.Version);
+                //xDoc.Root.SetElementValue("OverFlowCount", heartJd.OverFlowCount);
+                //xDoc.Save(xmlAddr);
+
+                dataBaseDic.Update<ParkDic>(new ParkDic() { KeyStr = "Version", ValueStr = heartJd.Version }, "Version");
+                dataBaseDic.Update<ParkDic>(new ParkDic() { KeyStr = "OverFlowCount", ValueStr = heartJd.OverFlowCount.ToString() }, "Version");
+
+
             }
             catch(Exception ex)
             {
-                string message = string.Format("{0}:更新xml出错:{1}", DateTime.Now.ToString(), ex.Message);
+                string message = string.Format("{0}:版本更新出错:{1}", DateTime.Now.ToString(), ex.Message);
                 if (CommonSettings.IsDev)
                 {
                     Console.WriteLine(message);
