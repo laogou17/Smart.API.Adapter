@@ -632,8 +632,7 @@ namespace Smart.API.Adapter.Biz
             }
 
             //更新剩余停车位
-            new HeartService().UpdateParkRemainCount();
-
+            HeartService.GetInstance().UpdateParkRemainCount();
             return apiBaseResult;
         }
 
@@ -895,7 +894,7 @@ namespace Smart.API.Adapter.Biz
             }
 
             //更新剩余停车位
-            new HeartService().UpdateParkRemainCount();
+            HeartService.GetInstance().UpdateParkRemainCount();
 
             return apiBaseResult;
         }

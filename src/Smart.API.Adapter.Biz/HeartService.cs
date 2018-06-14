@@ -26,6 +26,30 @@ namespace Smart.API.Adapter.Biz
 
         private SendMailHelper mail = new SendMailHelper();
 
+        private static HeartService _heartService;
+        private static readonly object  objLock=new object();
+        private HeartService()
+        { 
+        }
+
+        public static HeartService GetInstance()
+        {
+            if(_heartService==null)
+            {
+                lock (objLock)
+                {
+                    if (_heartService == null)
+                    {
+                        _heartService = new HeartService();
+ 
+                    }
+ 
+                }
+            }
+            return _heartService;
+        
+        }
+
         public void Start()
         {
 

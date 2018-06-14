@@ -25,9 +25,8 @@ namespace Smart.API.Adapter.TaskService
 
         protected override void OnStart(string[] args)
         {
-            // TODO:  在此处添加代码以启动服务。
-            HeartService heartService = new HeartService();
-            heartService.Start();
+            //启动服务：初始化包括心跳和更新车位总数            
+            HeartService.GetInstance().Start();
         }
 
         protected override void OnStop()

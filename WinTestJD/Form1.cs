@@ -16,7 +16,6 @@ namespace WinTestJD
 {
     public partial class Form1 : Form
     {
-        private HeartService heartService;
         public Form1()
         {
             InitializeComponent();
@@ -26,9 +25,7 @@ namespace WinTestJD
         //启动心跳,白名单更新
         private void button3_Click(object sender, EventArgs e)
         {
-
-            heartService = new HeartService();
-            heartService.Start();
+            HeartService.GetInstance().Start();
             button3.Enabled = false;
         }
 
@@ -36,27 +33,22 @@ namespace WinTestJD
         //更新车位总数
         private void button1_Click(object sender, EventArgs e)
         {
-            if (heartService == null)
-                return;
-            heartService.UpdateParkTotalCount();
+            HeartService.GetInstance().UpdateParkTotalCount();
 
         }
 
         //更新剩余车位数
         private void button2_Click(object sender, EventArgs e)
         {
-            if (heartService == null)
-                return;
-            heartService.UpdateParkRemainCount();
+            HeartService.GetInstance().UpdateParkRemainCount();
 
         }
 
         //同步设备状态
         private void button4_Click(object sender, EventArgs e)
         {
-            if (heartService == null)
-                return;
-            heartService.UpdateEquipmentStatus();
+            
+            HeartService.GetInstance().UpdateEquipmentStatus();
 
 
         }
