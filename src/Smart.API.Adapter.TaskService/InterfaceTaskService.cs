@@ -32,20 +32,20 @@ namespace Smart.API.Adapter.TaskService
 
         protected override void OnStart(string[] args)
         {
-            if (taskThread == null)
-            {
-                taskThread = new InterfaceTaskServiceThread();
-                //TODO:推送时间间隔更改为可配置
-                int timeSpan = 1;
+            //if (taskThread == null)
+            //{
+            //    taskThread = new InterfaceTaskServiceThread();
+            //    //TODO:推送时间间隔更改为可配置
+            //    int timeSpan = 1;
 
-                taskThread.TaskIdleTime = TimeSpan.FromSeconds(timeSpan);
-                taskThread.TaskBusyTime = TimeSpan.FromMilliseconds(100);
-                taskThread.TaskExecuted += taskThread_TaskExecuted;
-                taskThread.TaskBuildFaulted += taskThread_TaskBuildFaulted;
-                taskThread.TaskExecuting += taskThread_TaskExecuting;
-                taskThread.Start();
-                LogHelper.Info("InterfaceTaskService,推送服务启动成功");
-            }
+            //    taskThread.TaskIdleTime = TimeSpan.FromSeconds(timeSpan);
+            //    taskThread.TaskBusyTime = TimeSpan.FromMilliseconds(100);
+            //    taskThread.TaskExecuted += taskThread_TaskExecuted;
+            //    taskThread.TaskBuildFaulted += taskThread_TaskBuildFaulted;
+            //    taskThread.TaskExecuting += taskThread_TaskExecuting;
+            //    taskThread.Start();
+            //    LogHelper.Info("InterfaceTaskService,推送服务启动成功");
+            //}
         }
 
         void taskThread_TaskExecuting(object sender, TaskExecutingEventArgs e)

@@ -45,19 +45,21 @@ namespace Smart.API.Adapter.TaskService
             else
             {
                 //写日志
-                LogHelper.Error("TaskServiceError",error);
+                LogHelper.Error("TaskServiceError", error);
             }
         }
 
         static void RunUserInteractiveService()
         {
             new InterfaceTaskService().Start(null);
+            new InterfaceTimerService().Start(null);
         }
 
         static void RunBackgroundService()
         {
             ServiceBase.Run(new ServiceBase[]{
-                new InterfaceTaskService()
+                new InterfaceTaskService(),
+                  new InterfaceTimerService()
             });
         }
     }

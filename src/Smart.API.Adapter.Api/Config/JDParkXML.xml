@@ -2,11 +2,12 @@
 <JDParkConfig>
   <JDTimerConifg>
     <!--key唯一标识且作为顺序，排序不能修改。 ReconnectCount 请求失败后立即重试次数。TimeSpan:重试之后，
-    还是失败则间隔该时间继续重试。RePostCount：代表继续重试的总次数，0代表直到成功为止 ,SendEmail:是否发送邮件-->
+    还是失败则间隔该时间继续重试。RePostCount：仅支付反查有效,未支付时的重试次数 ,SendEmail:是否发送邮件-->
     <JDTimer key="1" name="InRecognition" ReConnectCount="5" FailTimeSpan="3600" ExceptionTimeSpan="3600" UnavailableTimeSpan="3600" RePostCount="0" SendEmail="1"/>
     <JDTimer key="2" name="InCross" ReConnectCount="5" FailTimeSpan="3600" ExceptionTimeSpan="3600" UnavailableTimeSpan="3600" RePostCount="0" SendEmail="1"/>
     <JDTimer key="3" name="OutRecognition" ReConnectCount="3" FailTimeSpan="3600" ExceptionTimeSpan="3600" UnavailableTimeSpan="3600" RePostCount="0" SendEmail="1"/>
     <JDTimer key="4" name="OutCross" ReConnectCount="5" FailTimeSpan="3600" ExceptionTimeSpan="3600" UnavailableTimeSpan="3600" RePostCount="0" SendEmail="1"/>
     <JDTimer key="5" name="EquipmentStatus" ReConnectCount="5" FailTimeSpan="5" ExceptionTimeSpan="5" UnavailableTimeSpan="5" RePostCount="0" SendEmail="1"/>
+    <JDTimer key="6" name="PayCheck" ReConnectCount="3" FailTimeSpan="20" ExceptionTimeSpan="1" UnavailableTimeSpan="1" RePostCount="3" SendEmail="1"/>
   </JDTimerConifg>
 </JDParkConfig>

@@ -34,6 +34,20 @@ namespace Smart.API.Adapter.Common
             }
         }
 
+
+        public static string LogType
+        {
+            get
+            {
+                string cfgLogType = ConfigurationManager.AppSettings["LogType"];
+                if (string.IsNullOrWhiteSpace(cfgLogType))
+                {
+                    cfgLogType = "0";
+                }
+                return cfgLogType;
+            }
+        }
+
         /// <summary>
         /// JieLink接口地址
         /// </summary>

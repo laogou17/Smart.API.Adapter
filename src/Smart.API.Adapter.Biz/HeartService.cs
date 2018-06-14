@@ -31,8 +31,13 @@ namespace Smart.API.Adapter.Biz
 
             //客户端初始化时 每隔 5s向京东服务端调用心跳接口，以检测是否存活
             //客户端应用 初始化时获取白名单，在第一次心跳处理
+            string message = string.Format("{0}:服务启动，心跳检测开始,同步车位总数.", DateTime.Now.ToString());
+            if (CommonSettings.IsDev)
+            {
+                Console.WriteLine(message);
+            }
 
-            LogHelper.Info(string.Format("{0}:服务启动，心跳检测开始,同步车位总数.", DateTime.Now.ToString()));
+            LogHelper.Info(message);
             timerHeart = new Timer(new TimerCallback(HeartCheck), null, 0, Timeout.Infinite);
 
             //客户端应用初始化时同步停车场总车位数，之后每天0点同步一次
@@ -47,15 +52,31 @@ namespace Smart.API.Adapter.Biz
         /// <param name="obj"></param>
         private void HeartCheck(object obj)
         {
-            LogHelper.Info(string.Format("{0}:心跳检测：", DateTime.Now.ToString()));
+            string message = string.Format("{0}:心跳检测：", DateTime.Now.ToString());
+            if (CommonSettings.IsDev)
+            {
+                Console.WriteLine(message);
+            }
+
+            LogHelper.Info(message);
             bool result = parkBiz.HeartCheck();
             if (!result)
             {
                 faliTimes++;
-                LogHelper.Error(string.Format("{0}:心跳检测失败，服务端出错", DateTime.Now.ToString()));
+                string messageError = string.Format("{0}:心跳检测失败，服务端出错：", DateTime.Now.ToString());
+                if (CommonSettings.IsDev)
+                {
+                    Console.WriteLine(messageError);
+                }
+                LogHelper.Error(messageError);
                 if (faliTimes >= 5)
                 {
-                    LogHelper.Error(string.Format("{0}:超过5次,停止检测", DateTime.Now.ToString()));
+                    messageError = string.Format("{0}:超过5次,停止检测", DateTime.Now.ToString());
+                    if (CommonSettings.IsDev)
+                    {
+                        Console.WriteLine(messageError);
+                    }
+                    LogHelper.Error(messageError);
                     faliTimes = 0;
                     mail.SendMail();
                     return;
@@ -109,7 +130,12 @@ namespace Smart.API.Adapter.Biz
         //更新总车位
         public void UpdateParkTotalCount()
         {
-            LogHelper.Info(string.Format("{0}:更新车场车位总数", DateTime.Now.ToString()));
+            string message = string.Format("{0}:更新车场车位总数", DateTime.Now.ToString());
+            if (CommonSettings.IsDev)
+            {
+                Console.WriteLine(message);
+            }
+            LogHelper.Info(message);
             timerUpdateParkTotalCount = new Timer(new TimerCallback(UpdateParkTotalCountCallBack), null, 0, Timeout.Infinite);
             //更新总车位后，紧跟着要更新剩余车位
             UpdateParkRemainCount();
@@ -191,11 +217,17 @@ namespace Smart.API.Adapter.Biz
             if (!result)
             {
                 tryCount++;
-                LogHelper.Error(string.Format("{0}:{2}出错{1}次", DateTime.Now.ToString(), tryCount, eventStr));
+                string message = string.Format("{0}:{2}出错{1}次", DateTime.Now.ToString(), tryCount, eventStr);
+                if (CommonSettings.IsDev)
+                {
+                    Console.WriteLine(message);
+                }
+                LogHelper.Error(message);
                 //超过5次后不再重试，发邮件
                 if (tryCount >= 5)
                 {
-                    LogHelper.Error(string.Format("{0}:{1}出错超过5次,停止重试", DateTime.Now.ToString(), eventStr));
+                    message = string.Format("{0}:{1}出错超过5次,停止重试", DateTime.Now.ToString(), eventStr);
+                    LogHelper.Error(message);
                     tryCount = 0;
                     mail.SendMail();
                 }

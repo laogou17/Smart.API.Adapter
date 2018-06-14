@@ -21,7 +21,7 @@ namespace Smart.API.Adapter.BizCore.JD
         {
             model.QrCode = string.IsNullOrWhiteSpace(model.QrCode) ? "" : model.QrCode;
             model.Cost = string.IsNullOrWhiteSpace(model.Cost) ? "" : model.Cost;
-            model.CreatTime = DateTime.Now;
+            model.CreateTime = DateTime.Now;
             return dal.Insert<JDBillModel>(model);
         }
 
@@ -33,6 +33,16 @@ namespace Smart.API.Adapter.BizCore.JD
         public JDBillModel GetJDBillByLogNo(string sLogNo)
         {
             return dal.GetJDBillByLogNo(sLogNo);
+        }
+
+        public bool Update(JDBillModel model)
+        {
+            return dal.Update<JDBillModel>(model, model.LogNo);
+        }
+
+        public bool Delete(JDBillModel model)
+        {
+            return dal.DeleteByKey(model.LogNo);
         }
     }
 }

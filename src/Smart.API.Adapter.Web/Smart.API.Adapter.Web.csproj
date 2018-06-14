@@ -44,6 +44,10 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Infrastructure.Common, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Infrastructure.Common.dll</HintPath>
+    </Reference>
     <Reference Include="Infrastructure.Logging">
       <HintPath>..\..\lib\Infrastructure.Logging.dll</HintPath>
     </Reference>
@@ -114,6 +118,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Smart.API.Adapter.Common\Smart.API.Adapter.Common.csproj">
+      <Project>{3c2de953-e82e-42b4-b093-91e30ad2fb28}</Project>
+      <Name>Smart.API.Adapter.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

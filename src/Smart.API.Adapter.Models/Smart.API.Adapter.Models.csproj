@@ -70,6 +70,7 @@
     <Compile Include="Core\JD\JDBillModel.cs" />
     <Compile Include="Core\OutCrossRecord.cs" />
     <Compile Include="Core\OutRecognitionRecord.cs" />
+    <Compile Include="Core\RequestInparkingRecord.cs" />
     <Compile Include="Core\RequestPayCheck.cs" />
     <Compile Include="Core\RequestThirdCharging.cs" />
     <Compile Include="Core\ResponsePayCheck.cs" />
