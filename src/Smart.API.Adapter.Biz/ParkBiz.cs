@@ -210,7 +210,7 @@ namespace Smart.API.Adapter.Biz
                 //xDoc.Save(xmlAddr);
 
                 dataBaseDic.Update<ParkDic>(new ParkDic() { KeyStr = "Version", ValueStr = heartJd.Version }, "Version");
-                dataBaseDic.Update<ParkDic>(new ParkDic() { KeyStr = "OverFlowCount", ValueStr = heartJd.OverFlowCount.ToString() }, "Version");
+                dataBaseDic.Update<ParkDic>(new ParkDic() { KeyStr = "OverFlowCount", ValueStr = heartJd.OverFlowCount.ToString() }, "OverFlowCount");
 
 
             }
