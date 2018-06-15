@@ -27,6 +27,8 @@ namespace Smart.API.Adapter.Biz
 
         static Dictionary<string, int> dicPayCheckCount = new Dictionary<string, int>();
         static Dictionary<string, DateTime> dicPayCheckTime = new Dictionary<string, DateTime>();
+
+        static readonly TimeSpan DefaultTimeOut = TimeSpan.FromSeconds(CommonSettings.PostTimeOut);
         /// <summary>
         /// 调用京东接口获取白名单数据版本
         /// </summary>
@@ -35,6 +37,7 @@ namespace Smart.API.Adapter.Biz
         {
             using (HttpClient client = new HttpClient())
             {
+                client.Timeout = DefaultTimeOut;
                 client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
                 var content = new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
@@ -76,6 +79,7 @@ namespace Smart.API.Adapter.Biz
         {
             using (HttpClient client = new HttpClient())
             {
+                client.Timeout = DefaultTimeOut;
                 client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
                 var content = new FormUrlEncodedContent(new Dictionary<string, string>()
                 {
@@ -123,6 +127,7 @@ namespace Smart.API.Adapter.Biz
 
             using (HttpClient client = new HttpClient())
             {
+                client.Timeout = DefaultTimeOut;
                 LogHelper.Info("PostRequest:modifyParkLotRemainCount" + remainCountReq.ToJson());//记录日志
 
                 client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
@@ -143,6 +148,7 @@ namespace Smart.API.Adapter.Biz
         {
             using (HttpClient client = new HttpClient())
             {
+                client.Timeout = DefaultTimeOut;
                 LogHelper.Info("PostRequest:modifyParkLotTotalCount" + totalCountReq.ToJson());//记录日志
 
                 client.BaseAddress = new Uri(CommonSettings.BaseAddressJd);
@@ -156,7 +162,7 @@ namespace Smart.API.Adapter.Biz
                 BaseJdRes resJd = result.Content.ReadAsStringAsync().Result.FromJson<BaseJdRes>();
                 LogHelper.Info("PostResponse:modifyParkLotTotalCount" + result.Content.ReadAsStringAsync().Result);//记录日志
                 return resJd;
-            }
+            }            
 
             //InterfaceHttpProxyApi requestApi = new InterfaceHttpProxyApi(CommonSettings.BaseAddressJd);
             //ParkCountReq req = new ParkCountReq();
