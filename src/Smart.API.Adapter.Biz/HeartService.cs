@@ -160,14 +160,17 @@ namespace Smart.API.Adapter.Biz
             }
             LogHelper.Info(message);
             timerUpdateParkTotalCount = new Timer(new TimerCallback(UpdateParkTotalCountCallBack), null, 0, Timeout.Infinite);
-            //更新总车位后，紧跟着要更新剩余车位
-            UpdateParkRemainCount();
 
         }
         private async void UpdateParkTotalCountCallBack(object obj)
         {
             bool result = await parkBiz.UpdateToltalCount();
             ReTryAndEmail(result, ref faliTimesUpdateParkTotalCount, timerUpdateParkTotalCount, "更新总车位数量");
+            if (result)
+            {
+                //更新总车位成功后，紧跟着要更新剩余车位
+                UpdateParkRemainCount(); 
+            }
             //if (!result)
             //{
             //    faliTimesUpdateParkTotalCount++;

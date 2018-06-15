@@ -33,7 +33,7 @@ namespace Smart.API.Adapter.Biz
         {
             //xmlAddr =System.IO.Directory.GetParent(System.IO.Directory.GetParent( Environment.CurrentDirectory).ToString()) + CommonSettings.ParkXmlAddress;
             dataBase = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkWhiteList", "VehicleNo", false);
-            dataBaseDic = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkWhiteList", "KeyStr", false);
+            dataBaseDic = new DataBase(DataBase.DbName.SmartAPIAdapterCore, "ParkDic", "KeyStr", false);
             jdParkBiz = new JDParkBiz();
             InitVersion(); 
         }
